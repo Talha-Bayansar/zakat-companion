@@ -64,7 +64,7 @@ export function IosAppShell({ title, subtitle, activeTab, headerAction, children
         </div>
       </header>
 
-      <section className="flex-1 space-y-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300">{children}</section>
+      <section className="ios-page-stack flex-1">{children}</section>
 
       <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] px-[var(--ios-shell-gutter)]">
         <nav className="mx-auto flex w-full max-w-md justify-between rounded-3xl border border-white/70 bg-white/85 p-2 shadow-[0_20px_44px_rgba(15,23,42,0.18)] backdrop-blur-2xl">

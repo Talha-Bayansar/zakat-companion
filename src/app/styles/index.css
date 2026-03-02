@@ -135,6 +135,22 @@
     background-color: rgb(255 255 255 / 0.8);
   }
 
+  .ios-page-stack {
+    @apply space-y-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300;
+  }
+
+  .ios-surface {
+    @apply rounded-3xl border border-white/70 bg-white/80 shadow-[0_14px_36px_rgba(15,23,42,0.10)] backdrop-blur-xl;
+  }
+
+  .ios-section-title {
+    @apply text-xl font-semibold tracking-tight text-slate-900;
+  }
+
+  .ios-copy-muted {
+    @apply text-sm leading-6 text-slate-600;
+  }
+
   .ios-primary-action {
     @apply flex min-h-12 items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.22)] transition duration-200 ease-out active:scale-[0.985] active:brightness-95;
   }

@@ -10,11 +10,11 @@ export const Route = createFileRoute('/dashboard/')({
 function DashboardPage() {
   return (
     <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
-      <Card className="ios-glass-card">
+      <Card className="ios-surface">
         <CardHeader>
-          <CardTitle>{m.dashboard_coming_next()}</CardTitle>
+          <CardTitle className="ios-section-title">{m.dashboard_coming_next()}</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-slate-600">{m.dashboard_coming_next_body()}</CardContent>
+        <CardContent className="ios-copy-muted">{m.dashboard_coming_next_body()}</CardContent>
       </Card>
     </IosAppShell>
   )
