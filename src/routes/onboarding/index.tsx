@@ -1,19 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm } from '@tanstack/react-form'
+import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { m } from '@/paraglide/messages.js'
 
@@ -24,25 +17,43 @@ type OnboardingValues = {
   currency: string
 }
 
+const onboardingSchema = z.object({
+  displayName: z.string().trim().min(1),
+  zakatSchool: z.enum(['hanafi', 'standard']),
+  reminderDay: z.number().int().min(1).max(28),
+  currency: z.string().trim().length(3),
+})
+
 export const Route = createFileRoute('/onboarding/')({
   component: OnboardingPage,
 })
 
+function fieldError(error: unknown, fallback: string) {
+  if (!error) return undefined
+  if (typeof error === 'string') return error
+  if (error instanceof z.ZodError) return error.issues[0]?.message ?? fallback
+  return fallback
+}
+
 function OnboardingPage() {
   const [savedState, setSavedState] = useState<OnboardingValues | null>(null)
 
-  const form = useForm<OnboardingValues>({
-    defaultValues: {
-      displayName: '',
-      zakatSchool: 'standard',
-      reminderDay: 10,
-      currency: 'EUR',
+  const defaultValues: OnboardingValues = {
+    displayName: '',
+    zakatSchool: 'standard',
+    reminderDay: 10,
+    currency: 'EUR',
+  }
+
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onSubmit: onboardingSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setSavedState(value)
     },
   })
-
-  const handleSubmit = (values: OnboardingValues) => {
-    setSavedState(values)
-  }
 
   return (
     <IosAppShell title={m.onboarding_title()} subtitle={m.onboarding_subtitle()} activeTab="dashboard">
@@ -52,90 +63,115 @@ function OnboardingPage() {
           <CardDescription>{m.onboarding_card_desc()}</CardDescription>
         </CardHeader>
         <div className="px-6 pb-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="displayName"
-                rules={{ required: m.onboarding_name_required() }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{m.onboarding_name_label()}</FormLabel>
-                    <FormControl>
-                      <Input placeholder={m.onboarding_name_placeholder()} className="h-12 rounded-2xl bg-white/70" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form
+            className="space-y-5"
+            onSubmit={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              void form.handleSubmit()
+            }}
+          >
+            <form.Field
+              name="displayName"
+              validators={{
+                onChange: z.string().trim().min(1, m.onboarding_name_required()),
+              }}
+            >
+              {(field) => {
+                const error = fieldError(field.state.meta.errors[0], m.onboarding_name_required())
+                return (
+                  <div className="grid gap-2">
+                    <Label htmlFor="displayName">{m.onboarding_name_label()}</Label>
+                    <Input
+                      id="displayName"
+                      placeholder={m.onboarding_name_placeholder()}
+                      className="h-12 rounded-2xl bg-white/70"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                    />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                  </div>
+                )
+              }}
+            </form.Field>
 
-              <FormField
-                control={form.control}
-                name="zakatSchool"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{m.onboarding_method_label()}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 rounded-2xl bg-white/70">
-                          <SelectValue placeholder={m.onboarding_method_placeholder()} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="rounded-2xl">
-                        <SelectItem value="standard">{m.onboarding_method_standard()}</SelectItem>
-                        <SelectItem value="hanafi">{m.onboarding_method_hanafi()}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>{m.onboarding_method_hint()}</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form.Field name="zakatSchool">
+              {(field) => (
+                <div className="grid gap-2">
+                  <Label>{m.onboarding_method_label()}</Label>
+                  <Select value={field.state.value} onValueChange={(value) => field.handleChange(value as OnboardingValues['zakatSchool'])}>
+                    <SelectTrigger className="h-12 rounded-2xl bg-white/70">
+                      <SelectValue placeholder={m.onboarding_method_placeholder()} />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl">
+                      <SelectItem value="standard">{m.onboarding_method_standard()}</SelectItem>
+                      <SelectItem value="hanafi">{m.onboarding_method_hanafi()}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground">{m.onboarding_method_hint()}</p>
+                </div>
+              )}
+            </form.Field>
 
-              <div className="grid grid-cols-2 gap-3">
-                <FormField
-                  control={form.control}
-                  name="currency"
-                  rules={{ required: m.onboarding_currency_required() }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{m.onboarding_currency_label()}</FormLabel>
-                      <FormControl>
-                        <Input className="h-12 rounded-2xl bg-white/70 uppercase" maxLength={3} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <div className="grid grid-cols-2 gap-3">
+              <form.Field
+                name="currency"
+                validators={{
+                  onChange: z.string().trim().length(3, m.onboarding_currency_required()),
+                }}
+              >
+                {(field) => {
+                  const error = fieldError(field.state.meta.errors[0], m.onboarding_currency_required())
+                  return (
+                    <div className="grid gap-2">
+                      <Label htmlFor="currency">{m.onboarding_currency_label()}</Label>
+                      <Input
+                        id="currency"
+                        className="h-12 rounded-2xl bg-white/70 uppercase"
+                        maxLength={3}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => field.handleChange(event.target.value.toUpperCase())}
+                      />
+                      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                    </div>
+                  )
+                }}
+              </form.Field>
 
-                <FormField
-                  control={form.control}
-                  name="reminderDay"
-                  rules={{ min: { value: 1, message: m.onboarding_day_min() }, max: { value: 28, message: m.onboarding_day_max() } }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{m.onboarding_day_label()}</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="h-12 rounded-2xl bg-white/70"
-                          type="number"
-                          min={1}
-                          max={28}
-                          value={field.value}
-                          onChange={(event) => field.onChange(Number(event.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <form.Field
+                name="reminderDay"
+                validators={{
+                  onChange: z.number().int().min(1, m.onboarding_day_min()).max(28, m.onboarding_day_max()),
+                }}
+              >
+                {(field) => {
+                  const error = fieldError(field.state.meta.errors[0], m.onboarding_day_min())
+                  return (
+                    <div className="grid gap-2">
+                      <Label htmlFor="reminderDay">{m.onboarding_day_label()}</Label>
+                      <Input
+                        id="reminderDay"
+                        className="h-12 rounded-2xl bg-white/70"
+                        type="number"
+                        min={1}
+                        max={28}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => field.handleChange(Number(event.target.value))}
+                      />
+                      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                    </div>
+                  )
+                }}
+              </form.Field>
+            </div>
 
-              <Button type="submit" className="h-12 w-full rounded-2xl text-base">
-                {m.onboarding_save()}
-              </Button>
-            </form>
-          </Form>
+            <Button type="submit" className="h-12 w-full rounded-2xl text-base">
+              {m.onboarding_save()}
+            </Button>
+          </form>
         </div>
       </Card>
 
