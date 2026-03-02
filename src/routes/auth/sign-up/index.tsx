@@ -10,12 +10,12 @@ export const Route = createFileRoute('/auth/sign-up/')({
 function SignUpPage() {
   return (
     <IosAppShell title={m.signup_title()} subtitle={m.signup_subtitle()} activeTab="home">
-      <Card className="rounded-3xl border-white/70 bg-white/80">
+      <Card className="ios-surface">
         <CardHeader>
-          <CardTitle>{m.auth_pending_title()}</CardTitle>
+          <CardTitle className="ios-section-title">{m.auth_pending_title()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Link to="/auth" className="inline-flex rounded-2xl bg-slate-900 px-4 py-2 text-sm text-white">
+          <Link to="/auth" className="ios-primary-action inline-flex px-5">
             {m.auth_back()}
           </Link>
         </CardContent>

@@ -10,11 +10,11 @@ export const Route = createFileRoute('/profile/')({
 function ProfilePage() {
   return (
     <IosAppShell title={m.profile_title()} subtitle={m.profile_subtitle()} activeTab="profile">
-      <Card className="ios-glass-card">
+      <Card className="ios-surface">
         <CardHeader>
-          <CardTitle>{m.profile_settings_title()}</CardTitle>
+          <CardTitle className="ios-section-title">{m.profile_settings_title()}</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-slate-600">{m.profile_settings_body()}</CardContent>
+        <CardContent className="ios-copy-muted">{m.profile_settings_body()}</CardContent>
       </Card>
     </IosAppShell>
   )

@@ -57,10 +57,10 @@ function OnboardingPage() {
 
   return (
     <IosAppShell title={m.onboarding_title()} subtitle={m.onboarding_subtitle()} activeTab="dashboard">
-      <Card className="ios-glass-card">
+      <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="text-xl">{m.onboarding_card_title()}</CardTitle>
-          <CardDescription>{m.onboarding_card_desc()}</CardDescription>
+          <CardTitle className="ios-section-title">{m.onboarding_card_title()}</CardTitle>
+          <CardDescription className="ios-copy-muted">{m.onboarding_card_desc()}</CardDescription>
         </CardHeader>
         <div className="px-6 pb-6">
           <form
