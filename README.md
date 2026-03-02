@@ -19,6 +19,13 @@ Zakat Companion PWA scaffold using TanStack Start, shadcn/ui conventions, Better
 - feature-sliced design modules
 - server functions preferred over API routes
 
+## UI direction (project-wide)
+
+- iOS-like visual language is the default (glassmorphism cards, soft gradients, rounded controls, calm motion)
+- use shadcn/ui primitives for consistency and accessibility
+- prefer shared layout wrappers (`src/components/layout/*`) over page-specific shell code
+- maintain this design language across all future routes/components unless explicitly changed
+
 ## Runtime note
 
 This scaffold uses the current Vite-based TanStack Start setup (not Vinxi scripts).

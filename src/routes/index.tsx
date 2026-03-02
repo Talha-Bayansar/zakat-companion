@@ -1,4 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { IosAppShell } from '@/components/layout/ios-app-shell'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -6,18 +8,23 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <main style={{ maxWidth: 640, margin: '0 auto', padding: '2rem' }}>
-      <h1>Zakat Companion</h1>
-      <p>Track nisab, hawl, and reminders in one place.</p>
-
-      <section style={{ marginTop: '1.25rem' }}>
-        <h2>Get started</h2>
-        <nav style={{ display: 'grid', gap: '0.75rem' }}>
-          <Link to="/auth">Authentication</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/onboarding">Onboarding</Link>
-        </nav>
-      </section>
-    </main>
+    <IosAppShell title="Assalamu alaikum" subtitle="Your Zakat, calm and organized." activeTab="home">
+      <Card className="rounded-3xl border-white/70 bg-white/80">
+        <CardHeader>
+          <CardTitle>Quick actions</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 text-sm">
+          <Link to="/onboarding" className="rounded-2xl bg-slate-900 px-4 py-3 text-white">
+            Start onboarding
+          </Link>
+          <Link to="/dashboard" className="rounded-2xl bg-white px-4 py-3 text-slate-900 ring-1 ring-slate-200">
+            Open dashboard
+          </Link>
+          <Link to="/auth" className="rounded-2xl bg-white px-4 py-3 text-slate-900 ring-1 ring-slate-200">
+            Authentication
+          </Link>
+        </CardContent>
+      </Card>
+    </IosAppShell>
   )
 }
