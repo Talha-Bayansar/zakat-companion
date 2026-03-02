@@ -19,6 +19,10 @@ Zakat Companion PWA scaffold using TanStack Start, shadcn/ui conventions, Better
 - feature-sliced design modules
 - server functions preferred over API routes
 
+## Runtime note
+
+This scaffold uses the current Vite-based TanStack Start setup (not Vinxi scripts).
+
 ## Next steps
 
 1. wire router/app bootstrap for TanStack Start

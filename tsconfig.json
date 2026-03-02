@@ -5,8 +5,12 @@
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
     "strict": true,
+    "skipLibCheck": true,
     "baseUrl": ".",
+    "lib": ["ES2022", "DOM", "WebWorker"],
+    "types": ["node", "vite/client"],
     "paths": {
+      "@/*": ["src/*"],
       "@/app/*": ["src/app/*"],
       "@/routes/*": ["src/routes/*"],
       "@/widgets/*": ["src/widgets/*"],
@@ -14,8 +18,7 @@
       "@/entities/*": ["src/entities/*"],
       "@/shared/*": ["src/shared/*"],
       "@/server/*": ["src/server/*"]
-    },
-    "types": ["node"]
+    }
   },
-  "include": ["src", "app.config.ts", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "drizzle.config.ts"]
 }

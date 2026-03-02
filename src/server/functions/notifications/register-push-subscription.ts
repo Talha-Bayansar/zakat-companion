@@ -10,7 +10,7 @@ const pushSubscriptionSchema = z.object({
 })
 
 export const registerPushSubscription = createServerFn({ method: 'POST' })
-  .validator(pushSubscriptionSchema)
+  .inputValidator(pushSubscriptionSchema)
   .handler(async ({ data }) => {
     return { saved: true, endpoint: data.endpoint }
   })
