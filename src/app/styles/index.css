@@ -125,6 +125,10 @@
 }
 
 @layer components {
+  .ios-shell {
+    --ios-shell-gutter: clamp(0.9rem, 3.5vw, 1.15rem);
+  }
+
   .ios-glass-card {
     @apply rounded-3xl border shadow-[0_14px_36px_rgba(15,23,42,0.10)] backdrop-blur-xl;
     border-color: rgb(255 255 255 / 0.7);
