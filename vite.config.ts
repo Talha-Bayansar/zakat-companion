@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { defineConfig } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -5,7 +6,7 @@ import viteReact from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [
+  plugins: [paraglideVitePlugin({ project: './project.inlang', outdir: './src/paraglide' }),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tanstackStart(),
     viteReact(),
