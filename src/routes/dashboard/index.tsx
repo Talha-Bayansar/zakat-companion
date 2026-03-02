@@ -10,7 +10,7 @@ export const Route = createFileRoute('/dashboard/')({
 function DashboardPage() {
   return (
     <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
-      <Card className="rounded-3xl border-white/70 bg-white/80">
+      <Card className="ios-glass-card">
         <CardHeader>
           <CardTitle>{m.dashboard_coming_next()}</CardTitle>
         </CardHeader>

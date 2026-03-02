@@ -57,7 +57,7 @@ function OnboardingPage() {
 
   return (
     <IosAppShell title={m.onboarding_title()} subtitle={m.onboarding_subtitle()} activeTab="dashboard">
-      <Card className="rounded-3xl border-white/70 bg-white/80 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+      <Card className="ios-glass-card">
         <CardHeader>
           <CardTitle className="text-xl">{m.onboarding_card_title()}</CardTitle>
           <CardDescription>{m.onboarding_card_desc()}</CardDescription>
@@ -85,7 +85,7 @@ function OnboardingPage() {
                     <Input
                       id="displayName"
                       placeholder={m.onboarding_name_placeholder()}
-                      className="h-12 rounded-2xl bg-white/70"
+                      className="ios-input"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) => field.handleChange(event.target.value)}
@@ -101,7 +101,7 @@ function OnboardingPage() {
                 <div className="grid gap-2">
                   <Label>{m.onboarding_method_label()}</Label>
                   <Select value={field.state.value} onValueChange={(value) => field.handleChange(value as OnboardingValues['zakatSchool'])}>
-                    <SelectTrigger className="h-12 rounded-2xl bg-white/70">
+                    <SelectTrigger className="ios-input">
                       <SelectValue placeholder={m.onboarding_method_placeholder()} />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl">
@@ -128,7 +128,7 @@ function OnboardingPage() {
                       <Label htmlFor="currency">{m.onboarding_currency_label()}</Label>
                       <Input
                         id="currency"
-                        className="h-12 rounded-2xl bg-white/70 uppercase"
+                        className="ios-input uppercase"
                         maxLength={3}
                         value={field.state.value}
                         onBlur={field.handleBlur}
@@ -153,7 +153,7 @@ function OnboardingPage() {
                       <Label htmlFor="reminderDay">{m.onboarding_day_label()}</Label>
                       <Input
                         id="reminderDay"
-                        className="h-12 rounded-2xl bg-white/70"
+                        className="ios-input"
                         type="number"
                         min={1}
                         max={28}
@@ -168,7 +168,7 @@ function OnboardingPage() {
               </form.Field>
             </div>
 
-            <Button type="submit" className="h-12 w-full rounded-2xl text-base">
+            <Button type="submit" className="h-12 w-full rounded-2xl text-base shadow-[0_10px_24px_rgba(15,23,42,0.2)]">
               {m.onboarding_save()}
             </Button>
           </form>

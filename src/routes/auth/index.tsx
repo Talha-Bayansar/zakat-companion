@@ -10,15 +10,15 @@ export const Route = createFileRoute('/auth/')({
 function AuthLandingPage() {
   return (
     <IosAppShell title={m.auth_title()} subtitle={m.auth_subtitle()} activeTab="home">
-      <Card className="rounded-3xl border-white/70 bg-white/80">
+      <Card className="ios-glass-card">
         <CardHeader>
           <CardTitle>{m.auth_choose_action()}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 text-sm">
-          <Link to="/auth/sign-in" className="rounded-2xl bg-slate-900 px-4 py-3 text-white">
+          <Link to="/auth/sign-in" className="ios-primary-action">
             {m.auth_sign_in()}
           </Link>
-          <Link to="/auth/sign-up" className="rounded-2xl bg-white px-4 py-3 text-slate-900 ring-1 ring-slate-200">
+          <Link to="/auth/sign-up" className="ios-secondary-action">
             {m.auth_create_account()}
           </Link>
         </CardContent>

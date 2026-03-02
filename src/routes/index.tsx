@@ -10,18 +10,18 @@ export const Route = createFileRoute('/')({
 function HomePage() {
   return (
     <IosAppShell title={m.home_title()} subtitle={m.home_subtitle()} activeTab="home">
-      <Card className="rounded-3xl border-white/70 bg-white/80">
+      <Card className="ios-glass-card">
         <CardHeader>
           <CardTitle>{m.home_quick_actions()}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 text-sm">
-          <Link to="/onboarding" className="rounded-2xl bg-slate-900 px-4 py-3 text-white">
+          <Link to="/onboarding" className="ios-primary-action">
             {m.home_action_onboarding()}
           </Link>
-          <Link to="/dashboard" className="rounded-2xl bg-white px-4 py-3 text-slate-900 ring-1 ring-slate-200">
+          <Link to="/dashboard" className="ios-secondary-action">
             {m.home_action_dashboard()}
           </Link>
-          <Link to="/auth" className="rounded-2xl bg-white px-4 py-3 text-slate-900 ring-1 ring-slate-200">
+          <Link to="/auth" className="ios-secondary-action">
             {m.home_action_auth()}
           </Link>
         </CardContent>
