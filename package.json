@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^2.13.0",
+    "@tailwindcss/vite": "^4.2.1",
     "@tanstack/router-plugin": "^1.163.3",
     "@types/node": "^22.10.1",
     "@types/react": "^19.2.2",
