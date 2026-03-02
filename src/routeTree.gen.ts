@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as RemindersIndexRouteImport } from './routes/reminders/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
@@ -21,6 +22,11 @@ import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RemindersIndexRoute = RemindersIndexRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/reminders/': typeof RemindersIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingIndexRoute
   '/profile': typeof ProfileIndexRoute
   '/reminders': typeof RemindersIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/onboarding/': typeof OnboardingIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/reminders/': typeof RemindersIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/profile/'
     | '/reminders/'
+    | '/settings/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/reminders'
+    | '/settings'
     | '/auth/sign-in'
     | '/auth/sign-up'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/profile/'
     | '/reminders/'
+    | '/settings/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   OnboardingIndexRoute: typeof OnboardingIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
   RemindersIndexRoute: typeof RemindersIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   AuthSignInIndexRoute: typeof AuthSignInIndexRoute
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
 }
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reminders/': {
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingIndexRoute: OnboardingIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
   RemindersIndexRoute: RemindersIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   AuthSignInIndexRoute: AuthSignInIndexRoute,
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
 }
