@@ -1,4 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { IosAppShell } from '@/components/layout/ios-app-shell'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { m } from '@/paraglide/messages.js'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -6,18 +9,23 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <main style={{ maxWidth: 640, margin: '0 auto', padding: '2rem' }}>
-      <h1>Zakat Companion</h1>
-      <p>Track nisab, hawl, and reminders in one place.</p>
-
-      <section style={{ marginTop: '1.25rem' }}>
-        <h2>Get started</h2>
-        <nav style={{ display: 'grid', gap: '0.75rem' }}>
-          <Link to="/auth">Authentication</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/onboarding">Onboarding</Link>
-        </nav>
-      </section>
-    </main>
+    <IosAppShell title={m.home_title()} subtitle={m.home_subtitle()} activeTab="home">
+      <Card className="ios-glass-card">
+        <CardHeader>
+          <CardTitle>{m.home_quick_actions()}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 text-sm">
+          <Link to="/onboarding" className="ios-primary-action">
+            {m.home_action_onboarding()}
+          </Link>
+          <Link to="/dashboard" className="ios-secondary-action">
+            {m.home_action_dashboard()}
+          </Link>
+          <Link to="/auth" className="ios-secondary-action">
+            {m.home_action_auth()}
+          </Link>
+        </CardContent>
+      </Card>
+    </IosAppShell>
   )
 }
