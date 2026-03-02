@@ -1,7 +1,12 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getPreferences, savePreferences, type UserPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 import { getLocale, locales, setLocale } from '@/paraglide/runtime.js'
 
@@ -17,9 +22,12 @@ function localeLabel(locale: (typeof locales)[number]) {
 
 function SettingsPage() {
   const activeLocale = getLocale()
+  const initialPreferences = useMemo(() => getPreferences(), [])
+  const [preferences, setPreferences] = useState<UserPreferences>(initialPreferences)
+  const [saved, setSaved] = useState(false)
 
   return (
-    <IosAppShell title="Preferences" subtitle="Language and app behavior" activeTab="profile">
+    <IosAppShell title="Preferences" subtitle="Language, reminder, and calculation defaults" activeTab="profile">
       <Card className="ios-surface">
         <CardHeader>
           <CardTitle className="ios-section-title">Language</CardTitle>
@@ -44,6 +52,89 @@ function SettingsPage() {
               ))}
             </SelectContent>
           </Select>
+        </CardContent>
+      </Card>
+
+      <Card className="ios-surface">
+        <CardHeader>
+          <CardTitle className="ios-section-title">Zakat defaults</CardTitle>
+          <CardDescription className="ios-copy-muted">Set your preferred defaults for onboarding and future calculations.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-2">
+            <Label>{m.onboarding_method_label()}</Label>
+            <Select
+              value={preferences.zakatSchool}
+              onValueChange={(value) => setPreferences((prev) => ({ ...prev, zakatSchool: value as UserPreferences['zakatSchool'] }))}
+            >
+              <SelectTrigger className="ios-input">
+                <SelectValue placeholder={m.onboarding_method_placeholder()} />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl">
+                <SelectItem value="standard">{m.onboarding_method_standard()}</SelectItem>
+                <SelectItem value="hanafi">{m.onboarding_method_hanafi()}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-2">
+              <Label htmlFor="settings-currency">{m.onboarding_currency_label()}</Label>
+              <Input
+                id="settings-currency"
+                className="ios-input uppercase"
+                maxLength={3}
+                value={preferences.currency}
+                onChange={(event) => setPreferences((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="settings-day">{m.onboarding_day_label()}</Label>
+              <Input
+                id="settings-day"
+                className="ios-input"
+                type="number"
+                min={1}
+                max={28}
+                value={preferences.reminderDay}
+                onChange={(event) => setPreferences((prev) => ({ ...prev, reminderDay: Number(event.target.value || 1) }))}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="settings-time">Reminder time</Label>
+            <Input
+              id="settings-time"
+              className="ios-input"
+              type="time"
+              value={preferences.reminderTime}
+              onChange={(event) => setPreferences((prev) => ({ ...prev, reminderTime: event.target.value }))}
+            />
+          </div>
+
+          <label className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 px-4 py-3 text-sm">
+            <span className="font-medium text-slate-700">Enable notifications</span>
+            <input
+              type="checkbox"
+              className="h-5 w-5 accent-slate-900"
+              checked={preferences.notificationsEnabled}
+              onChange={(event) => setPreferences((prev) => ({ ...prev, notificationsEnabled: event.target.checked }))}
+            />
+          </label>
+
+          <Button
+            type="button"
+            className="h-12 w-full rounded-2xl text-base shadow-[0_10px_24px_rgba(15,23,42,0.2)]"
+            onClick={() => {
+              savePreferences(preferences)
+              setSaved(true)
+              window.setTimeout(() => setSaved(false), 1500)
+            }}
+          >
+            {saved ? 'Saved' : 'Save preferences'}
+          </Button>
         </CardContent>
       </Card>
 

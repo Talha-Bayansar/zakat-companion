@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
@@ -8,6 +8,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getPreferences, savePreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 
 type OnboardingValues = {
@@ -37,12 +38,13 @@ function fieldError(error: unknown, fallback: string) {
 
 function OnboardingPage() {
   const [savedState, setSavedState] = useState<OnboardingValues | null>(null)
+  const preferences = useMemo(() => getPreferences(), [])
 
   const defaultValues: OnboardingValues = {
     displayName: '',
-    zakatSchool: 'standard',
-    reminderDay: 10,
-    currency: 'EUR',
+    zakatSchool: preferences.zakatSchool,
+    reminderDay: preferences.reminderDay,
+    currency: preferences.currency,
   }
 
   const form = useForm({
@@ -51,6 +53,12 @@ function OnboardingPage() {
       onSubmit: onboardingSchema,
     },
     onSubmit: async ({ value }) => {
+      savePreferences({
+        ...preferences,
+        zakatSchool: value.zakatSchool,
+        reminderDay: value.reminderDay,
+        currency: value.currency,
+      })
       setSavedState(value)
     },
   })
