@@ -1,4 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { m } from '@/paraglide/messages.js'
@@ -18,7 +20,7 @@ function ProfilePage() {
         <CardContent>
           <Link to="/settings" className="ios-secondary-action w-full justify-between">
             <span>Preferences</span>
-            <span aria-hidden>›</span>
+            <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2.2} className="h-5 w-5 text-slate-500" aria-hidden />
           </Link>
         </CardContent>
       </Card>
