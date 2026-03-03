@@ -54,7 +54,7 @@ export function IosAppShell({ title, subtitle, activeTab, headerAction, children
                     : 'text-slate-500 hover:bg-white/60 hover:text-slate-900',
                 )}
               >
-                <HugeiconsIcon icon={Icon} strokeWidth={2} className="mb-1 h-4 w-4" />
+                <HugeiconsIcon icon={Icon} strokeWidth={2.2} className="mb-1 h-5 w-5" />
                 {item.label()}
               </Link>
             )

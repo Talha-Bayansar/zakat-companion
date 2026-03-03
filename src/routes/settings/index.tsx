@@ -41,7 +41,7 @@ function SettingsPage() {
               setLocale(next as (typeof locales)[number])
             }}
           >
-            <SelectTrigger className="ios-input h-11">
+            <SelectTrigger className="ios-input">
               <SelectValue placeholder={m.language_label()} />
             </SelectTrigger>
             <SelectContent className="rounded-2xl">
