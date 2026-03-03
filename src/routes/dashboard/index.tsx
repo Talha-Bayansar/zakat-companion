@@ -42,6 +42,27 @@ function DashboardPage() {
     return calculateZakat(calculationValues as ZakatCalculationInput)
   }, [form])
   const currency = preferences.currency || 'EUR'
+  const wizardCopy = {
+    title: m.dashboard_wizard_title(),
+    subtitle: m.dashboard_wizard_subtitle(),
+    step1Title: m.dashboard_wizard_step1_title(),
+    step1Hint: m.dashboard_wizard_step1_hint(),
+    step2Title: m.dashboard_wizard_step2_title(),
+    step2Hint: m.dashboard_wizard_step2_hint(),
+    step2DueNowGuide: m.dashboard_wizard_step2_due_now_guide(),
+    step3Title: m.dashboard_wizard_step3_title(),
+    step3Hint: m.dashboard_wizard_step3_hint(),
+    decimalGuide: m.dashboard_wizard_decimal_guide(),
+    cashGuide: m.dashboard_wizard_field_cash_guide(),
+    goldGuide: m.dashboard_wizard_field_gold_guide(),
+    silverGuide: m.dashboard_wizard_field_silver_guide(),
+    investmentsGuide: m.dashboard_wizard_field_investments_guide(),
+    businessAssetsGuide: m.dashboard_wizard_field_business_assets_guide(),
+    receivablesGuide: m.dashboard_wizard_field_receivables_guide(),
+    debtsDueGuide: m.dashboard_wizard_field_debts_due_guide(),
+    otherLiabilitiesGuide: m.dashboard_wizard_field_other_liabilities_guide(),
+    nisabGuide: m.dashboard_wizard_field_nisab_guide(),
+  } as const
 
   function updateField(name: EditableFinancialField, value: string) {
     const next = {
@@ -85,43 +106,56 @@ function DashboardPage() {
 
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Zakat wizard</CardTitle>
-          <p className="ios-copy-muted">Compact step-by-step input. We save your numbers automatically so you only edit changed fields next time.</p>
+          <CardTitle className="ios-section-title">{wizardCopy.title}</CardTitle>
+          <p className="ios-copy-muted">{wizardCopy.subtitle}</p>
           <p className="text-xs font-medium tracking-[0.08em] text-slate-500">{formatLastUpdated(form.lastUpdatedAt)}</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <StepIndicator step={step} />
 
           {step === 1 ? (
-            <WizardSection
-              title="Step 1: Liquid assets"
-              hint="Use current market value in your selected currency. You can enter decimals like 1250.50"
-            >
+            <WizardSection title={wizardCopy.step1Title} hint={wizardCopy.step1Hint}>
               <div className="grid grid-cols-2 gap-3">
-                <MoneyField label="Cash" value={form.cash} onChange={(value) => updateField('cash', value)} />
-                <MoneyField label="Gold value" value={form.gold} onChange={(value) => updateField('gold', value)} />
-                <MoneyField label="Silver value" value={form.silver} onChange={(value) => updateField('silver', value)} />
-                <MoneyField label="Investments" value={form.investments} onChange={(value) => updateField('investments', value)} />
+                <MoneyField label="Cash" value={form.cash} helperText={wizardCopy.cashGuide} onChange={(value) => updateField('cash', value)} />
+                <MoneyField label="Gold value" value={form.gold} helperText={wizardCopy.goldGuide} onChange={(value) => updateField('gold', value)} />
+                <MoneyField label="Silver value" value={form.silver} helperText={wizardCopy.silverGuide} onChange={(value) => updateField('silver', value)} />
+                <MoneyField
+                  label="Investments"
+                  value={form.investments}
+                  helperText={wizardCopy.investmentsGuide}
+                  onChange={(value) => updateField('investments', value)}
+                />
               </div>
             </WizardSection>
           ) : null}
 
           {step === 2 ? (
-            <WizardSection
-              title="Step 2: Business + liabilities"
-              hint="Only include liabilities currently due. Long-term future debt is usually excluded in standard method."
-            >
+            <WizardSection title={wizardCopy.step2Title} hint={wizardCopy.step2Hint}>
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{wizardCopy.step2DueNowGuide}</div>
+
               <div className="grid grid-cols-2 gap-3">
                 <MoneyField
                   label="Business assets"
                   value={form.businessAssets}
+                  helperText={wizardCopy.businessAssetsGuide}
                   onChange={(value) => updateField('businessAssets', value)}
                 />
-                <MoneyField label="Receivables" value={form.receivables} onChange={(value) => updateField('receivables', value)} />
-                <MoneyField label="Debts due now" value={form.debtsDue} onChange={(value) => updateField('debtsDue', value)} />
+                <MoneyField
+                  label="Receivables"
+                  value={form.receivables}
+                  helperText={wizardCopy.receivablesGuide}
+                  onChange={(value) => updateField('receivables', value)}
+                />
+                <MoneyField
+                  label="Debts due now"
+                  value={form.debtsDue}
+                  helperText={wizardCopy.debtsDueGuide}
+                  onChange={(value) => updateField('debtsDue', value)}
+                />
                 <MoneyField
                   label="Other liabilities"
                   value={form.otherLiabilities}
+                  helperText={wizardCopy.otherLiabilitiesGuide}
                   onChange={(value) => updateField('otherLiabilities', value)}
                 />
               </div>
@@ -129,11 +163,13 @@ function DashboardPage() {
           ) : null}
 
           {step === 3 ? (
-            <WizardSection
-              title="Step 3: Nisab check"
-              hint="Use a nisab amount from your trusted local source. Quick presets below are simple defaults."
-            >
-              <MoneyField label="Nisab threshold" value={form.nisab} onChange={(value) => updateField('nisab', value)} />
+            <WizardSection title={wizardCopy.step3Title} hint={wizardCopy.step3Hint}>
+              <MoneyField
+                label="Nisab threshold"
+                value={form.nisab}
+                helperText={wizardCopy.nisabGuide}
+                onChange={(value) => updateField('nisab', value)}
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '5500')}>
@@ -376,16 +412,19 @@ function formatLastUpdated(value: string | null) {
 function MoneyField({
   label,
   value,
+  helperText,
   onChange,
 }: {
   label: string
   value: string
+  helperText?: string
   onChange: (value: string) => void
 }) {
   return (
     <div className="grid gap-2">
       <Label>{label}</Label>
       <Input className="ios-input" inputMode="decimal" placeholder="0.00" value={value} onChange={(event) => onChange(event.target.value)} />
+      <p className="text-[11px] leading-4 text-slate-500">{helperText ?? m.dashboard_wizard_decimal_guide()}</p>
     </div>
   )
 }
