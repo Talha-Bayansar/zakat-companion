@@ -10,9 +10,13 @@ export type StoredFinancialValues = {
   debtsDue: string
   otherLiabilities: string
   nisab: string
+  lastUpdatedAt: string | null
 }
 
-const STORAGE_KEY = 'zakat-companion.financial-values.v1'
+export type EditableFinancialField = Exclude<keyof StoredFinancialValues, 'lastUpdatedAt'>
+
+const STORAGE_KEY = 'zakat-companion.financial-values.v2'
+const LEGACY_STORAGE_KEY = 'zakat-companion.financial-values.v1'
 
 const financialValuesSchema = z.object({
   cash: z.string().default(''),
@@ -24,6 +28,7 @@ const financialValuesSchema = z.object({
   debtsDue: z.string().default(''),
   otherLiabilities: z.string().default(''),
   nisab: z.string().default('5500'),
+  lastUpdatedAt: z.string().nullable().default(null),
 })
 
 export const defaultFinancialValues: StoredFinancialValues = {
@@ -36,6 +41,7 @@ export const defaultFinancialValues: StoredFinancialValues = {
   debtsDue: '',
   otherLiabilities: '',
   nisab: '5500',
+  lastUpdatedAt: null,
 }
 
 export function getFinancialValues(): StoredFinancialValues {
@@ -43,12 +49,24 @@ export function getFinancialValues(): StoredFinancialValues {
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return defaultFinancialValues
+    if (raw) {
+      const parsed = financialValuesSchema.safeParse(JSON.parse(raw))
+      if (parsed.success) return parsed.data
+    }
 
-    const parsed = financialValuesSchema.safeParse(JSON.parse(raw))
-    if (!parsed.success) return defaultFinancialValues
+    const legacyRaw = window.localStorage.getItem(LEGACY_STORAGE_KEY)
+    if (!legacyRaw) return defaultFinancialValues
 
-    return parsed.data
+    const parsedLegacy = financialValuesSchema.safeParse(JSON.parse(legacyRaw))
+    if (!parsedLegacy.success) return defaultFinancialValues
+
+    const migrated = {
+      ...parsedLegacy.data,
+      lastUpdatedAt: null,
+    }
+
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+    return migrated
   } catch {
     return defaultFinancialValues
   }

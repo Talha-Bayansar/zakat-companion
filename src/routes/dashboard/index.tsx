@@ -14,6 +14,7 @@ import {
   defaultFinancialValues,
   getFinancialValues,
   saveFinancialValues,
+  type EditableFinancialField,
   type StoredFinancialValues,
 } from '@/features/zakat/model/financial-values'
 import {
@@ -36,11 +37,19 @@ function DashboardPage() {
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
   const [history, setHistory] = useState<AssessmentSnapshot[]>(() => getAssessmentHistory())
 
-  const result = useMemo(() => calculateZakat(form as ZakatCalculationInput), [form])
+  const result = useMemo(() => {
+    const { lastUpdatedAt: _lastUpdatedAt, ...calculationValues } = form
+    return calculateZakat(calculationValues as ZakatCalculationInput)
+  }, [form])
   const currency = preferences.currency || 'EUR'
 
-  function updateField(name: keyof StoredFinancialValues, value: string) {
-    const next = { ...form, [name]: value }
+  function updateField(name: EditableFinancialField, value: string) {
+    const next = {
+      ...form,
+      [name]: value,
+      lastUpdatedAt: new Date().toISOString(),
+    }
+
     setForm(next)
     saveFinancialValues(next)
   }
@@ -78,6 +87,7 @@ function DashboardPage() {
         <CardHeader>
           <CardTitle className="ios-section-title">Zakat wizard</CardTitle>
           <p className="ios-copy-muted">Compact step-by-step input. We save your numbers automatically so you only edit changed fields next time.</p>
+          <p className="text-xs font-medium tracking-[0.08em] text-slate-500">{formatLastUpdated(form.lastUpdatedAt)}</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <StepIndicator step={step} />
@@ -346,6 +356,21 @@ function formatAssessmentDate(value: string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
+}
+
+function formatLastUpdated(value: string | null) {
+  if (!value) return 'Last updated: not yet saved'
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Last updated: unknown'
+
+  return `Last updated: ${new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)}`
 }
 
 function MoneyField({
