@@ -164,9 +164,12 @@ function OnboardingPage() {
                         type="number"
                         min={1}
                         max={28}
-                        value={field.state.value}
+                        value={Number.isNaN(field.state.value) ? '' : field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(event) => field.handleChange(Number(event.target.value))}
+                        onChange={(event) => {
+                          const next = event.target.value
+                          field.handleChange(next === '' ? Number.NaN : Number(next))
+                        }}
                       />
                       {error ? <p className="text-sm text-destructive">{error}</p> : null}
                     </div>
