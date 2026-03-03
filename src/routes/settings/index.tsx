@@ -24,6 +24,7 @@ function SettingsPage() {
   const activeLocale = getLocale()
   const initialPreferences = useMemo(() => getPreferences(), [])
   const [preferences, setPreferences] = useState<UserPreferences>(initialPreferences)
+  const [reminderDayInput, setReminderDayInput] = useState(String(initialPreferences.reminderDay))
   const [saved, setSaved] = useState(false)
 
   return (
@@ -91,8 +92,15 @@ function SettingsPage() {
                 type="number"
                 min={1}
                 max={28}
-                value={preferences.reminderDay}
-                onChange={(event) => setPreferences((prev) => ({ ...prev, reminderDay: Number(event.target.value || 1) }))}
+                value={reminderDayInput}
+                onChange={(event) => {
+                  const next = event.target.value
+                  setReminderDayInput(next)
+
+                  if (next !== '') {
+                    setPreferences((prev) => ({ ...prev, reminderDay: Number(next) }))
+                  }
+                }}
               />
             </div>
           </div>
@@ -122,7 +130,19 @@ function SettingsPage() {
             type="button"
             className="h-12 w-full rounded-2xl text-base shadow-[0_10px_24px_rgba(15,23,42,0.2)]"
             onClick={() => {
-              savePreferences(preferences)
+              const parsedDay = Number(reminderDayInput)
+              const normalizedReminderDay = Number.isFinite(parsedDay)
+                ? Math.min(28, Math.max(1, parsedDay))
+                : 1
+
+              const nextPreferences = {
+                ...preferences,
+                reminderDay: normalizedReminderDay,
+              }
+
+              setPreferences(nextPreferences)
+              setReminderDayInput(String(normalizedReminderDay))
+              savePreferences(nextPreferences)
               setSaved(true)
               window.setTimeout(() => setSaved(false), 1500)
             }}
