@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { NativeSelect } from '@/components/ui/native-select'
 import { getPreferences, savePreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 
@@ -108,15 +108,14 @@ function OnboardingPage() {
               {(field) => (
                 <div className="grid gap-2">
                   <Label>{m.onboarding_method_label()}</Label>
-                  <Select value={field.state.value} onValueChange={(value) => field.handleChange(value as OnboardingValues['zakatSchool'])}>
-                    <SelectTrigger className="ios-input">
-                      <SelectValue placeholder={m.onboarding_method_placeholder()} />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-2xl">
-                      <SelectItem value="standard">{m.onboarding_method_standard()}</SelectItem>
-                      <SelectItem value="hanafi">{m.onboarding_method_hanafi()}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <NativeSelect
+                    aria-label={m.onboarding_method_label()}
+                    value={field.state.value}
+                    onChange={(event) => field.handleChange(event.target.value as OnboardingValues['zakatSchool'])}
+                  >
+                    <option value="standard">{m.onboarding_method_standard()}</option>
+                    <option value="hanafi">{m.onboarding_method_hanafi()}</option>
+                  </NativeSelect>
                   <p className="text-sm text-muted-foreground">{m.onboarding_method_hint()}</p>
                 </div>
               )}

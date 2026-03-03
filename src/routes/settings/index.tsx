@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { NativeSelect } from '@/components/ui/native-select'
 import { getPreferences, savePreferences, type UserPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 import { getLocale, locales, setLocale } from '@/paraglide/runtime.js'
@@ -35,23 +35,19 @@ function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{m.language_label()}</p>
-          <Select
+          <NativeSelect
+            aria-label={m.language_label()}
             value={activeLocale}
-            onValueChange={(next) => {
-              setLocale(next as (typeof locales)[number])
+            onChange={(event) => {
+              setLocale(event.target.value as (typeof locales)[number])
             }}
           >
-            <SelectTrigger className="ios-input h-11">
-              <SelectValue placeholder={m.language_label()} />
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl">
-              {locales.map((locale) => (
-                <SelectItem key={locale} value={locale}>
-                  {localeLabel(locale)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {locales.map((locale) => (
+              <option key={locale} value={locale}>
+                {localeLabel(locale)}
+              </option>
+            ))}
+          </NativeSelect>
         </CardContent>
       </Card>
 
@@ -63,18 +59,16 @@ function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="grid gap-2">
             <Label>{m.onboarding_method_label()}</Label>
-            <Select
+            <NativeSelect
+              aria-label={m.onboarding_method_label()}
               value={preferences.zakatSchool}
-              onValueChange={(value) => setPreferences((prev) => ({ ...prev, zakatSchool: value as UserPreferences['zakatSchool'] }))}
+              onChange={(event) =>
+                setPreferences((prev) => ({ ...prev, zakatSchool: event.target.value as UserPreferences['zakatSchool'] }))
+              }
             >
-              <SelectTrigger className="ios-input">
-                <SelectValue placeholder={m.onboarding_method_placeholder()} />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                <SelectItem value="standard">{m.onboarding_method_standard()}</SelectItem>
-                <SelectItem value="hanafi">{m.onboarding_method_hanafi()}</SelectItem>
-              </SelectContent>
-            </Select>
+              <option value="standard">{m.onboarding_method_standard()}</option>
+              <option value="hanafi">{m.onboarding_method_hanafi()}</option>
+            </NativeSelect>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

@@ -37,7 +37,7 @@ export function IosAppShell({ title, subtitle, activeTab, headerAction, children
       <section className="ios-page-stack flex-1">{children}</section>
 
       <div className="fixed inset-x-0 bottom-[calc(1rem+env(safe-area-inset-bottom))] px-[var(--ios-shell-gutter)]">
-        <nav className="mx-auto flex w-full max-w-md justify-between rounded-3xl border border-white/70 bg-white/85 p-2 shadow-[0_20px_44px_rgba(15,23,42,0.18)] backdrop-blur-2xl">
+        <nav className="mx-auto flex w-full justify-between rounded-3xl border border-white/70 bg-white/85 p-2 shadow-[0_20px_44px_rgba(15,23,42,0.18)] backdrop-blur-2xl">
           {tabItems.map((item) => {
             const Icon = item.icon
             const isActive = activeTab === item.key
@@ -54,7 +54,7 @@ export function IosAppShell({ title, subtitle, activeTab, headerAction, children
                     : 'text-slate-500 hover:bg-white/60 hover:text-slate-900',
                 )}
               >
-                <HugeiconsIcon icon={Icon} strokeWidth={2} className="mb-1 h-4 w-4" />
+                <HugeiconsIcon icon={Icon} strokeWidth={2.2} className="mb-1 h-5 w-5" />
                 {item.label()}
               </Link>
             )
