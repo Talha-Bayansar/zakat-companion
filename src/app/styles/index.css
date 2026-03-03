@@ -122,6 +122,15 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+
+  /* Fix iOS Safari datetime-local input overflow */
+  input {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
 
 @layer components {
