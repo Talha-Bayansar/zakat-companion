@@ -124,7 +124,10 @@
   }
 
   /* Fix iOS Safari datetime-local input overflow */
-  input {
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="time"],
+  input[type="month"] {
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
