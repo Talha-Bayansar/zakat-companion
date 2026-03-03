@@ -116,11 +116,11 @@ function SettingsPage() {
             />
           </div>
 
-          <label className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 px-4 py-3 text-sm">
+          <label className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 text-sm">
             <span className="font-medium text-slate-700">Enable notifications</span>
             <input
               type="checkbox"
-              className="h-5 w-5 accent-slate-900"
+              className="accent-slate-900"
               checked={preferences.notificationsEnabled}
               onChange={(event) => setPreferences((prev) => ({ ...prev, notificationsEnabled: event.target.checked }))}
             />
