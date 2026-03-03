@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import Decimal from 'decimal.js'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { ArrowLeft01Icon, ArrowRight01Icon, Tick01Icon } from '@hugeicons/core-free-icons'
 import { type ReactNode, useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +16,12 @@ import {
   saveFinancialValues,
   type StoredFinancialValues,
 } from '@/features/zakat/model/financial-values'
+import {
+  createAssessmentSnapshot,
+  getAssessmentHistory,
+  saveAssessmentSnapshot,
+  type AssessmentSnapshot,
+} from '@/features/zakat/model/assessment-history'
 import { m } from '@/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/')({
@@ -27,6 +34,7 @@ function DashboardPage() {
   const preferences = useMemo(() => getPreferences(), [])
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
+  const [history, setHistory] = useState<AssessmentSnapshot[]>(() => getAssessmentHistory())
 
   const result = useMemo(() => calculateZakat(form as ZakatCalculationInput), [form])
   const currency = preferences.currency || 'EUR'
@@ -43,6 +51,16 @@ function DashboardPage() {
     setStep(1)
   }
 
+  function saveAssessment() {
+    const snapshot = createAssessmentSnapshot({
+      values: form,
+      result,
+    })
+
+    saveAssessmentSnapshot(snapshot)
+    setHistory(getAssessmentHistory())
+  }
+
   return (
     <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
       <ResultCard
@@ -53,6 +71,7 @@ function DashboardPage() {
         nisab={formatMoney(result.nisab, currency)}
         zakatDue={formatMoney(result.zakatDue, currency)}
         isEligible={result.isEligible}
+        onSaveAssessment={saveAssessment}
       />
 
       <Card className="ios-surface">
@@ -156,6 +175,8 @@ function DashboardPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <HistoryCard history={history} currency={currency} />
     </IosAppShell>
   )
 }
@@ -214,6 +235,7 @@ function ResultCard({
   nisab,
   zakatDue,
   isEligible,
+  onSaveAssessment,
 }: {
   currency: string
   totalAssets: string
@@ -222,6 +244,7 @@ function ResultCard({
   nisab: string
   zakatDue: string
   isEligible: boolean
+  onSaveAssessment: () => void
 }) {
   return (
     <Card className="ios-surface">
@@ -244,9 +267,85 @@ function ResultCard({
               : 'Currently below nisab, so zakat due is 0.'}
           </p>
         </div>
+
+        <Button type="button" className="ios-primary-action mt-3 w-full" onClick={onSaveAssessment}>
+          <HugeiconsIcon icon={Tick01Icon} strokeWidth={2.1} className="mr-2 h-4 w-4" />
+          Save assessment
+        </Button>
       </CardContent>
     </Card>
   )
+}
+
+function HistoryCard({
+  history,
+  currency,
+}: {
+  history: AssessmentSnapshot[]
+  currency: string
+}) {
+  return (
+    <Card className="ios-surface">
+      <CardHeader>
+        <CardTitle className="ios-section-title">Previous assessments</CardTitle>
+        <p className="ios-copy-muted">Saved snapshots in reverse chronological order.</p>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {history.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+            No saved assessments yet. Tap “Save assessment” to keep this result.
+          </div>
+        ) : (
+          history.map((snapshot) => (
+            <div key={snapshot.id} className="rounded-2xl border border-white/80 bg-white/85 p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold tracking-[0.12em] text-slate-500">{formatAssessmentDate(snapshot.assessmentAt)}</p>
+                <span
+                  className={
+                    snapshot.nisabState === 'ABOVE'
+                      ? 'rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700'
+                      : 'rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600'
+                  }
+                >
+                  {snapshot.nisabState === 'ABOVE' ? 'Above nisab' : 'Below nisab'}
+                </span>
+              </div>
+
+              <div className="space-y-1.5 text-sm">
+                <SummaryRow label="Assets" value={formatFromStored(snapshot.totalAssets, currency)} />
+                <SummaryRow label="Liabilities" value={formatFromStored(snapshot.totalLiabilities, currency)} />
+                <SummaryRow label="Net zakatable wealth" value={formatFromStored(snapshot.netWorth, currency)} />
+                <SummaryRow label="Nisab value" value={formatFromStored(snapshot.nisabValue, currency)} />
+                <SummaryRow label="Zakat due" value={formatFromStored(snapshot.zakatDue, currency)} />
+              </div>
+            </div>
+          ))
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function formatFromStored(amount: string, currency: string) {
+  try {
+    return formatMoney(new Decimal(amount), currency)
+  } catch {
+    return formatMoney(new Decimal(0), currency)
+  }
+}
+
+function formatAssessmentDate(value: string) {
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) return 'Unknown date'
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 function MoneyField({
