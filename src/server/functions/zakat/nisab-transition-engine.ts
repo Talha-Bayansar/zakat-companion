@@ -20,6 +20,18 @@ const addLunarYear = (date: Date) => {
   return next
 }
 
+const toErrorLog = (error: unknown) => {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    }
+  }
+
+  return { value: String(error) }
+}
+
 export const processNisabTransition = async (params: {
   userId: string
   assessmentId: string
@@ -28,109 +40,128 @@ export const processNisabTransition = async (params: {
 }) => {
   const { userId, assessmentId, assessmentAt, nisabState } = params
 
-  const [previousAssessment, activeCycle] = await Promise.all([
-    db.query.zakatAssessments.findFirst({
-      where: and(eq(zakatAssessments.userId, userId), ne(zakatAssessments.id, assessmentId)),
-      orderBy: [desc(zakatAssessments.assessmentAt), desc(zakatAssessments.createdAt)],
-    }),
-    db.query.zakatCycles.findFirst({
-      where: and(eq(zakatCycles.userId, userId), eq(zakatCycles.status, 'running')),
-      orderBy: [desc(zakatCycles.startedAt)],
-    }),
-  ])
+  let step = 'load-current-state'
 
-  const previousState = previousAssessment?.nisabState ?? null
+  try {
+    const [previousAssessment, activeCycle] = await Promise.all([
+      db.query.zakatAssessments.findFirst({
+        where: and(eq(zakatAssessments.userId, userId), ne(zakatAssessments.id, assessmentId)),
+        orderBy: [desc(zakatAssessments.assessmentAt), desc(zakatAssessments.createdAt)],
+      }),
+      db.query.zakatCycles.findFirst({
+        where: and(eq(zakatCycles.userId, userId), eq(zakatCycles.status, 'running')),
+        orderBy: [desc(zakatCycles.startedAt)],
+      }),
+    ])
 
-  const transition: TransitionResult['transition'] =
-    previousState === 'BELOW' && nisabState === 'ABOVE'
-      ? 'BELOW_TO_ABOVE'
-      : previousState === 'ABOVE' && nisabState === 'BELOW'
-        ? 'ABOVE_TO_BELOW'
-        : 'NONE'
+    const previousState = previousAssessment?.nisabState ?? null
 
-  await db.insert(zakatEvents).values({
-    userId,
-    cycleId: activeCycle?.id ?? null,
-    eventType: nisabState === 'ABOVE' ? 'state_above' : 'state_below',
-    eventAt: assessmentAt,
-    metaJson: {
-      assessmentId,
-      previousState,
-      currentState: nisabState,
-    },
-  })
+    const transition: TransitionResult['transition'] =
+      previousState === 'BELOW' && nisabState === 'ABOVE'
+        ? 'BELOW_TO_ABOVE'
+        : previousState === 'ABOVE' && nisabState === 'BELOW'
+          ? 'ABOVE_TO_BELOW'
+          : 'NONE'
 
-  if (transition === 'BELOW_TO_ABOVE' && !activeCycle) {
-    const [newCycle] = await db
-      .insert(zakatCycles)
-      .values({
+    step = 'insert-state-event'
+    await db.insert(zakatEvents).values({
+      userId,
+      cycleId: activeCycle?.id ?? null,
+      eventType: nisabState === 'ABOVE' ? 'state_above' : 'state_below',
+      eventAt: assessmentAt,
+      metaJson: {
+        assessmentId,
+        previousState,
+        currentState: nisabState,
+      },
+    })
+
+    if (transition === 'BELOW_TO_ABOVE' && !activeCycle) {
+      step = 'insert-cycle-start'
+      const [newCycle] = await db
+        .insert(zakatCycles)
+        .values({
+          userId,
+          startedAt: assessmentAt,
+          status: 'running',
+          ruleProfile: 'standard-reset',
+          nextDueAt: addLunarYear(assessmentAt),
+        })
+        .returning({ id: zakatCycles.id, nextDueAt: zakatCycles.nextDueAt })
+
+      step = 'insert-cycle-start-event'
+      await db.insert(zakatEvents).values({
         userId,
-        startedAt: assessmentAt,
-        status: 'running',
-        ruleProfile: 'standard-reset',
-        nextDueAt: addLunarYear(assessmentAt),
+        cycleId: newCycle.id,
+        eventType: 'cycle_start',
+        eventAt: assessmentAt,
+        metaJson: {
+          assessmentId,
+          reason: 'below_to_above',
+          projectedDueAt: newCycle.nextDueAt,
+        },
       })
-      .returning({ id: zakatCycles.id, nextDueAt: zakatCycles.nextDueAt })
 
-    await db.insert(zakatEvents).values({
-      userId,
-      cycleId: newCycle.id,
-      eventType: 'cycle_start',
-      eventAt: assessmentAt,
-      metaJson: {
-        assessmentId,
-        reason: 'below_to_above',
-        projectedDueAt: newCycle.nextDueAt,
-      },
-    })
+      return {
+        previousState,
+        currentState: nisabState,
+        transition,
+        activeCycleId: newCycle.id,
+        nextDueAt: newCycle.nextDueAt,
+      } satisfies TransitionResult
+    }
 
-    return {
-      previousState,
-      currentState: nisabState,
-      transition,
-      activeCycleId: newCycle.id,
-      nextDueAt: newCycle.nextDueAt,
-    } satisfies TransitionResult
-  }
+    if (transition === 'ABOVE_TO_BELOW' && activeCycle) {
+      step = 'update-cycle-end'
+      await db
+        .update(zakatCycles)
+        .set({
+          status: 'ended',
+          endedAt: assessmentAt,
+          endReason: 'fell_below_nisab',
+          updatedAt: new Date(),
+          nextDueAt: null,
+        })
+        .where(eq(zakatCycles.id, activeCycle.id))
 
-  if (transition === 'ABOVE_TO_BELOW' && activeCycle) {
-    await db
-      .update(zakatCycles)
-      .set({
-        status: 'ended',
-        endedAt: assessmentAt,
-        endReason: 'fell_below_nisab',
-        updatedAt: new Date(),
+      step = 'insert-cycle-end-event'
+      await db.insert(zakatEvents).values({
+        userId,
+        cycleId: activeCycle.id,
+        eventType: 'cycle_end',
+        eventAt: assessmentAt,
+        metaJson: {
+          assessmentId,
+          reason: 'fell_below_nisab',
+          mode: 'standard-reset',
+        },
+      })
+
+      return {
+        previousState,
+        currentState: nisabState,
+        transition,
+        activeCycleId: null,
         nextDueAt: null,
-      })
-      .where(eq(zakatCycles.id, activeCycle.id))
-
-    await db.insert(zakatEvents).values({
-      userId,
-      cycleId: activeCycle.id,
-      eventType: 'cycle_end',
-      eventAt: assessmentAt,
-      metaJson: {
-        assessmentId,
-        reason: 'fell_below_nisab',
-        mode: 'standard-reset',
-      },
-    })
+      } satisfies TransitionResult
+    }
 
     return {
       previousState,
       currentState: nisabState,
       transition,
-      activeCycleId: null,
-      nextDueAt: null,
+      activeCycleId: activeCycle?.id ?? null,
+      nextDueAt: activeCycle?.nextDueAt ?? null,
     } satisfies TransitionResult
-  }
+  } catch (error) {
+    console.error('[processNisabTransition] failed', {
+      userId,
+      assessmentId,
+      nisabState,
+      step,
+      error: toErrorLog(error),
+    })
 
-  return {
-    previousState,
-    currentState: nisabState,
-    transition,
-    activeCycleId: activeCycle?.id ?? null,
-    nextDueAt: activeCycle?.nextDueAt ?? null,
-  } satisfies TransitionResult
+    throw error
+  }
 }
