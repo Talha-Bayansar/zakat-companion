@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import Decimal from 'decimal.js'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { db } from '@/server/db'
+import { getDb } from '@/server/db'
 import { financialProfiles, users, zakatAssessments } from '@/server/db/schema'
 import { processNisabTransition } from './nisab-transition-engine'
 
@@ -51,6 +51,7 @@ const toErrorLog = (error: unknown) => {
 export const saveAssessment = createServerFn({ method: 'POST' })
   .inputValidator(saveAssessmentSchema)
   .handler(async ({ data }) => {
+    const db = getDb()
     const assessmentAt = data.assessmentAt ?? new Date()
     let step = 'init'
 

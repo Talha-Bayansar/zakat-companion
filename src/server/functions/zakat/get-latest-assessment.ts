@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { and, desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { db } from '@/server/db'
+import { getDb } from '@/server/db'
 import { zakatAssessments, zakatCycles } from '@/server/db/schema'
 
 const latestAssessmentInput = z.object({
@@ -11,6 +11,7 @@ const latestAssessmentInput = z.object({
 export const getLatestAssessment = createServerFn({ method: 'POST' })
   .inputValidator(latestAssessmentInput)
   .handler(async ({ data }) => {
+    const db = getDb()
     const [latestAssessment, activeCycle] = await Promise.all([
       db.query.zakatAssessments.findFirst({
         where: eq(zakatAssessments.userId, data.userId),
