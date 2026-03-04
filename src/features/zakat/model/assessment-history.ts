@@ -1,40 +1,28 @@
-import { z } from 'zod'
 import type { StoredFinancialValues } from './financial-values'
 import type { ZakatCalculationResult } from './calculate-zakat'
 
-const STORAGE_KEY = 'zakat-companion.assessment-history.v1'
+export type NisabState = 'ABOVE' | 'BELOW'
 
-const nisabStateSchema = z.enum(['ABOVE', 'BELOW'])
-
-const assessmentSnapshotSchema = z.object({
-  id: z.string(),
-  assessmentAt: z.string(),
-  inputs: z.object({
-    cash: z.string(),
-    gold: z.string(),
-    silver: z.string(),
-    investments: z.string(),
-    businessAssets: z.string(),
-    receivables: z.string(),
-    debtsDue: z.string(),
-    otherLiabilities: z.string(),
-    nisab: z.string(),
-  }),
-  totalAssets: z.string(),
-  totalLiabilities: z.string(),
-  netWorth: z.string(),
-  nisabValue: z.string(),
-  nisabState: nisabStateSchema,
-  zakatDue: z.string(),
-})
-
-const assessmentHistorySchema = z.array(assessmentSnapshotSchema)
-
-export type NisabState = z.infer<typeof nisabStateSchema>
-export type AssessmentSnapshot = z.infer<typeof assessmentSnapshotSchema>
-
-function hasWindow() {
-  return typeof window !== 'undefined'
+export type AssessmentSnapshot = {
+  id: string
+  assessmentAt: string
+  inputs: {
+    cash: string
+    gold: string
+    silver: string
+    investments: string
+    businessAssets: string
+    receivables: string
+    debtsDue: string
+    otherLiabilities: string
+    nisab: string
+  }
+  totalAssets: string
+  totalLiabilities: string
+  netWorth: string
+  nisabValue: string
+  nisabState: NisabState
+  zakatDue: string
 }
 
 function createId() {
@@ -76,27 +64,9 @@ export function createAssessmentSnapshot(input: {
 }
 
 export function getAssessmentHistory(): AssessmentSnapshot[] {
-  if (!hasWindow()) return []
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-
-    const parsed = assessmentHistorySchema.safeParse(JSON.parse(raw))
-    if (!parsed.success) return []
-
-    return parsed.data
-  } catch {
-    return []
-  }
+  return []
 }
 
-export function saveAssessmentSnapshot(snapshot: AssessmentSnapshot) {
-  if (!hasWindow()) return
-
-  const next = [snapshot, ...getAssessmentHistory()].sort(
-    (a, b) => new Date(b.assessmentAt).getTime() - new Date(a.assessmentAt).getTime(),
-  )
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+export function saveAssessmentSnapshot(_snapshot: AssessmentSnapshot) {
+  // Intentionally no-op during reset phase.
 }

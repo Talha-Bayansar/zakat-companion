@@ -1,5 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import Decimal from 'decimal.js'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, Tick01Icon } from '@hugeicons/core-free-icons'
@@ -18,44 +17,29 @@ import {
   type EditableFinancialField,
   type StoredFinancialValues,
 } from '@/features/zakat/model/financial-values'
-import {
-  createAssessmentSnapshot,
-  getAssessmentHistory,
-  saveAssessmentSnapshot,
-  type AssessmentSnapshot,
-} from '@/features/zakat/model/assessment-history'
+import { createAssessmentSnapshot, type AssessmentSnapshot } from '@/features/zakat/model/assessment-history'
 import { m } from '@/paraglide/messages.js'
-import { saveAssessment as saveAssessmentServer } from '@/server/functions/zakat/save-assessment'
+import { authClient } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/dashboard/')({
+  beforeLoad: async () => {
+    const session = await authClient.getSession()
+
+    if (!session.data) {
+      throw redirect({ to: '/auth/sign-in' })
+    }
+  },
   component: DashboardPage,
 })
 
 type WizardStep = 1 | 2 | 3
 
 function DashboardPage() {
+  const navigate = useNavigate()
   const preferences = useMemo(() => getPreferences(), [])
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
-  const [history, setHistory] = useState<AssessmentSnapshot[]>(() => getAssessmentHistory())
-
-  const saveAssessmentMutation = useMutation({
-    mutationFn: (payload: {
-      userId: string
-      assessmentAt: Date
-      values: {
-        cash: string
-        gold: string
-        silver: string
-        investments: string
-        businessAssets: string
-        receivables: string
-        debtsDue: string
-        otherLiabilities: string
-        nisab: string
-      }
-    }) => saveAssessmentServer({ data: payload }),
-  })
+  const [history, setHistory] = useState<AssessmentSnapshot[]>([])
 
   const result = useMemo(() => {
     const { lastUpdatedAt: _lastUpdatedAt, ...calculationValues } = form
@@ -101,40 +85,30 @@ function DashboardPage() {
     setStep(1)
   }
 
-  async function saveAssessment() {
+  async function signOut() {
+    await authClient.signOut()
+    await navigate({ to: '/auth/sign-in' })
+  }
+
+  function saveAssessment() {
     const snapshot = createAssessmentSnapshot({
       values: form,
       result,
     })
 
-    saveAssessmentSnapshot(snapshot)
-    setHistory(getAssessmentHistory())
-
-    const userId = getOrCreateLocalUserId()
-
-    try {
-      await saveAssessmentMutation.mutateAsync({
-        userId,
-        assessmentAt: new Date(),
-        values: {
-          cash: form.cash,
-          gold: form.gold,
-          silver: form.silver,
-          investments: form.investments,
-          businessAssets: form.businessAssets,
-          receivables: form.receivables,
-          debtsDue: form.debtsDue,
-          otherLiabilities: form.otherLiabilities,
-          nisab: form.nisab,
-        },
-      })
-    } catch (error) {
-      console.error('Failed to persist assessment on server', error)
-    }
+    setHistory((prev) =>
+      [snapshot, ...prev].sort(
+        (a, b) => new Date(b.assessmentAt).getTime() - new Date(a.assessmentAt).getTime(),
+      ),
+    )
   }
 
   return (
     <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
+      <Button type="button" className="ios-secondary-action mb-3 w-full" onClick={signOut}>
+        {m.auth_sign_out()}
+      </Button>
+
       <ResultCard
         currency={currency}
         totalAssets={formatMoney(result.totalAssets, currency)}
@@ -143,7 +117,7 @@ function DashboardPage() {
         nisab={formatMoney(result.nisab, currency)}
         zakatDue={formatMoney(result.zakatDue, currency)}
         isEligible={result.isEligible}
-        isSaving={saveAssessmentMutation.isPending}
+        isSaving={false}
         onSaveAssessment={saveAssessment}
       />
 
@@ -437,19 +411,6 @@ function formatAssessmentDate(value: string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
-}
-
-const LOCAL_USER_ID_KEY = 'zakat-companion.local-user-id.v1'
-
-function getOrCreateLocalUserId() {
-  if (typeof window === 'undefined') return 'server-render'
-
-  const existing = window.localStorage.getItem(LOCAL_USER_ID_KEY)
-  if (existing) return existing
-
-  const generated = `guest-${crypto.randomUUID()}`
-  window.localStorage.setItem(LOCAL_USER_ID_KEY, generated)
-  return generated
 }
 
 function formatLastUpdated(value: string | null) {
