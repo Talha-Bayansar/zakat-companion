@@ -1,4 +1,5 @@
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
+import { AppProviders } from '@/app/providers'
 import '@/app/styles/index.css'
 
 export const Route = createRootRoute({
@@ -15,7 +16,9 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body>
-        <Outlet />
+        <AppProviders>
+          <Outlet />
+        </AppProviders>
         <Scripts />
       </body>
     </html>
