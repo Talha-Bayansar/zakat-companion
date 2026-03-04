@@ -24,6 +24,7 @@ import {
   type AssessmentSnapshot,
 } from '@/features/zakat/model/assessment-history'
 import { m } from '@/paraglide/messages.js'
+import { saveAssessment as saveAssessmentServer } from '@/server/functions/zakat/save-assessment'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
@@ -81,7 +82,7 @@ function DashboardPage() {
     setStep(1)
   }
 
-  function saveAssessment() {
+  async function saveAssessment() {
     const snapshot = createAssessmentSnapshot({
       values: form,
       result,
@@ -89,6 +90,30 @@ function DashboardPage() {
 
     saveAssessmentSnapshot(snapshot)
     setHistory(getAssessmentHistory())
+
+    const userId = getOrCreateLocalUserId()
+
+    try {
+      await saveAssessmentServer({
+        data: {
+          userId,
+          assessmentAt: new Date(),
+          values: {
+            cash: form.cash,
+            gold: form.gold,
+            silver: form.silver,
+            investments: form.investments,
+            businessAssets: form.businessAssets,
+            receivables: form.receivables,
+            debtsDue: form.debtsDue,
+            otherLiabilities: form.otherLiabilities,
+            nisab: form.nisab,
+          },
+        },
+      })
+    } catch (error) {
+      console.error('Failed to persist assessment on server', error)
+    }
   }
 
   return (
@@ -290,7 +315,7 @@ function ResultCard({
   nisab: string
   zakatDue: string
   isEligible: boolean
-  onSaveAssessment: () => void
+  onSaveAssessment: () => void | Promise<void>
 }) {
   return (
     <Card className="ios-surface">
@@ -392,6 +417,19 @@ function formatAssessmentDate(value: string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
+}
+
+const LOCAL_USER_ID_KEY = 'zakat-companion.local-user-id.v1'
+
+function getOrCreateLocalUserId() {
+  if (typeof window === 'undefined') return 'server-render'
+
+  const existing = window.localStorage.getItem(LOCAL_USER_ID_KEY)
+  if (existing) return existing
+
+  const generated = `guest-${crypto.randomUUID()}`
+  window.localStorage.setItem(LOCAL_USER_ID_KEY, generated)
+  return generated
 }
 
 function formatLastUpdated(value: string | null) {
