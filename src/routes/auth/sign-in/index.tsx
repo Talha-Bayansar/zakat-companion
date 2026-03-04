@@ -1,8 +1,18 @@
-import { useState, type FormEvent } from 'react'
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { useForm } from '@tanstack/react-form'
+import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
+import { m } from '@/paraglide/messages.js'
+
+const signInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
 
 export const Route = createFileRoute('/auth/sign-in/')({
   beforeLoad: async () => {
@@ -15,66 +25,121 @@ export const Route = createFileRoute('/auth/sign-in/')({
   component: SignInPage,
 })
 
+function fieldError(error: unknown, fallback: string) {
+  if (!error) return undefined
+  if (typeof error === 'string') return error
+  if (error instanceof z.ZodError) return error.issues[0]?.message ?? fallback
+  return fallback
+}
+
 function SignInPage() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: signInSchema,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const result = await authClient.signIn.email({
+        email: value.email,
+        password: value.password,
+      })
 
-    const result = await authClient.signIn.email({
-      email,
-      password,
-    })
+      if (result.error) {
+        formApi.setFieldMeta('password', (prev) => ({
+          ...prev,
+          errors: [result.error?.message ?? m.auth_error_sign_in_failed()],
+        }))
+        return
+      }
 
-    setIsLoading(false)
-
-    if (result.error) {
-      setError(result.error.message ?? 'Failed to sign in')
-      return
-    }
-
-    await navigate({ to: '/dashboard' })
-  }
+      await navigate({ to: '/dashboard' })
+    },
+  })
 
   return (
-    <IosAppShell title="Sign in" subtitle="Welcome back" activeTab="home">
+    <IosAppShell title={m.signin_title()} subtitle={m.signin_subtitle()} activeTab="home">
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Sign in</CardTitle>
+          <CardTitle className="ios-section-title">{m.auth_sign_in()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3" onSubmit={onSubmit}>
-            <input
-              type="email"
-              className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            {error ? <p className="text-sm text-red-400">{error}</p> : null}
-            <button type="submit" className="ios-primary-action" disabled={isLoading}>
-              {isLoading ? 'Signing in…' : 'Sign in'}
-            </button>
+          <form
+            className="grid gap-3"
+            onSubmit={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              void form.handleSubmit()
+            }}
+          >
+            <form.Field
+              name="email"
+              validators={{
+                onChange: z.string().email(m.auth_error_invalid_email()),
+              }}
+            >
+              {(field) => {
+                const error = fieldError(field.state.meta.errors[0], m.auth_error_invalid_email())
+                return (
+                  <div className="grid gap-2">
+                    <Label htmlFor="sign-in-email">{m.auth_email_label()}</Label>
+                    <Input
+                      id="sign-in-email"
+                      type="email"
+                      className="ios-input"
+                      placeholder={m.auth_email_placeholder()}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                  </div>
+                )
+              }}
+            </form.Field>
+
+            <form.Field
+              name="password"
+              validators={{
+                onChange: z.string().min(1, m.auth_error_password_required()),
+              }}
+            >
+              {(field) => {
+                const error = fieldError(field.state.meta.errors[0], m.auth_error_password_required())
+                return (
+                  <div className="grid gap-2">
+                    <Label htmlFor="sign-in-password">{m.auth_password_label()}</Label>
+                    <Input
+                      id="sign-in-password"
+                      type="password"
+                      className="ios-input"
+                      placeholder={m.auth_password_placeholder()}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                  </div>
+                )
+              }}
+            </form.Field>
+
+            <form.Subscribe selector={(state) => [state.isSubmitting]}>
+              {([isSubmitting]) => (
+                <Button type="submit" className="ios-primary-action" disabled={isSubmitting}>
+                  {isSubmitting ? m.auth_signing_in() : m.auth_sign_in()}
+                </Button>
+              )}
+            </form.Subscribe>
           </form>
 
           <div className="mt-4">
             <Link to="/auth/sign-up" className="ios-secondary-action block text-center">
-              Need an account? Create one
+              {m.auth_cta_create_account()}
             </Link>
           </div>
         </CardContent>

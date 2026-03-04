@@ -1,8 +1,19 @@
-import { useState, type FormEvent } from 'react'
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { useForm } from '@tanstack/react-form'
+import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
+import { m } from '@/paraglide/messages.js'
+
+const signUpSchema = z.object({
+  name: z.string().trim().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
+})
 
 export const Route = createFileRoute('/auth/sign-up/')({
   beforeLoad: async () => {
@@ -15,76 +26,148 @@ export const Route = createFileRoute('/auth/sign-up/')({
   component: SignUpPage,
 })
 
+function fieldError(error: unknown, fallback: string) {
+  if (!error) return undefined
+  if (typeof error === 'string') return error
+  if (error instanceof z.ZodError) return error.issues[0]?.message ?? fallback
+  return fallback
+}
+
 function SignUpPage() {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: signUpSchema,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const result = await authClient.signUp.email({
+        name: value.name,
+        email: value.email,
+        password: value.password,
+      })
 
-    const result = await authClient.signUp.email({
-      name,
-      email,
-      password,
-    })
+      if (result.error) {
+        formApi.setFieldMeta('email', (prev) => ({
+          ...prev,
+          errors: [result.error?.message ?? m.auth_error_sign_up_failed()],
+        }))
+        return
+      }
 
-    setIsLoading(false)
-
-    if (result.error) {
-      setError(result.error.message ?? 'Failed to create account')
-      return
-    }
-
-    await navigate({ to: '/dashboard' })
-  }
+      await navigate({ to: '/dashboard' })
+    },
+  })
 
   return (
-    <IosAppShell title="Create account" subtitle="Start securely" activeTab="home">
+    <IosAppShell title={m.signup_title()} subtitle={m.signup_subtitle()} activeTab="home">
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Sign up</CardTitle>
+          <CardTitle className="ios-section-title">{m.auth_create_account()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-3" onSubmit={onSubmit}>
-            <input
-              className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={8}
-              required
-            />
-            {error ? <p className="text-sm text-red-400">{error}</p> : null}
-            <button type="submit" className="ios-primary-action" disabled={isLoading}>
-              {isLoading ? 'Creating…' : 'Create account'}
-            </button>
+          <form
+            className="grid gap-3"
+            onSubmit={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              void form.handleSubmit()
+            }}
+          >
+            <form.Field
+              name="name"
+              validators={{
+                onChange: z.string().trim().min(1, m.auth_error_name_required()),
+              }}
+            >
+              {(field) => {
+                const error = fieldError(field.state.meta.errors[0], m.auth_error_name_required())
+                return (
+                  <div className="grid gap-2">
+                    <Label htmlFor="sign-up-name">{m.auth_name_label()}</Label>
+                    <Input
+                      id="sign-up-name"
+                      className="ios-input"
+                      placeholder={m.auth_name_placeholder()}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                  </div>
+                )
+              }}
+            </form.Field>
+
+            <form.Field
+              name="email"
+              validators={{
+                onChange: z.string().email(m.auth_error_invalid_email()),
+              }}
+            >
+              {(field) => {
+                const error = fieldError(field.state.meta.errors[0], m.auth_error_invalid_email())
+                return (
+                  <div className="grid gap-2">
+                    <Label htmlFor="sign-up-email">{m.auth_email_label()}</Label>
+                    <Input
+                      id="sign-up-email"
+                      type="email"
+                      className="ios-input"
+                      placeholder={m.auth_email_placeholder()}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                  </div>
+                )
+              }}
+            </form.Field>
+
+            <form.Field
+              name="password"
+              validators={{
+                onChange: z.string().min(8, m.auth_error_password_min()),
+              }}
+            >
+              {(field) => {
+                const error = fieldError(field.state.meta.errors[0], m.auth_error_password_min())
+                return (
+                  <div className="grid gap-2">
+                    <Label htmlFor="sign-up-password">{m.auth_password_label()}</Label>
+                    <Input
+                      id="sign-up-password"
+                      type="password"
+                      className="ios-input"
+                      placeholder={m.auth_password_placeholder()}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                  </div>
+                )
+              }}
+            </form.Field>
+
+            <form.Subscribe selector={(state) => [state.isSubmitting]}>
+              {([isSubmitting]) => (
+                <Button type="submit" className="ios-primary-action" disabled={isSubmitting}>
+                  {isSubmitting ? m.auth_creating_account() : m.auth_create_account()}
+                </Button>
+              )}
+            </form.Subscribe>
           </form>
 
           <div className="mt-4">
             <Link to="/auth/sign-in" className="ios-secondary-action block text-center">
-              Already have an account? Sign in
+              {m.auth_cta_sign_in()}
             </Link>
           </div>
         </CardContent>

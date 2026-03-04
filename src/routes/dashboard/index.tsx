@@ -106,7 +106,7 @@ function DashboardPage() {
   return (
     <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
       <Button type="button" className="ios-secondary-action mb-3 w-full" onClick={signOut}>
-        Sign out
+        {m.auth_sign_out()}
       </Button>
 
       <ResultCard

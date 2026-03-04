@@ -14,7 +14,9 @@ type IosAppShellProps = PropsWithChildren<{
   headerAction?: ReactNode
 }>
 
-const tabItems: Array<{ key: ShellTab; label: () => string; to: string; icon: typeof Home01Icon }> = [
+type ShellRoute = '/' | '/dashboard' | '/profile'
+
+const tabItems: Array<{ key: ShellTab; label: () => string; to: ShellRoute; icon: typeof Home01Icon }> = [
   { key: 'home', label: () => m.tab_home(), to: '/', icon: Home01Icon },
   { key: 'dashboard', label: () => m.tab_dashboard(), to: '/dashboard', icon: DashboardSquare02Icon },
   { key: 'profile', label: () => m.tab_profile(), to: '/profile', icon: UserCircleIcon },
