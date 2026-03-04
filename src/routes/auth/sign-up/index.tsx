@@ -4,8 +4,8 @@ import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
 
@@ -88,8 +88,8 @@ function SignUpPage() {
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_name_required())
                 return (
-                  <div className="grid gap-2">
-                    <Label htmlFor="sign-up-name">{m.auth_name_label()}</Label>
+                  <Field>
+                    <FieldLabel htmlFor="sign-up-name">{m.auth_name_label()}</FieldLabel>
                     <Input
                       id="sign-up-name"
                       className="ios-input"
@@ -98,8 +98,8 @@ function SignUpPage() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
-                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                  </div>
+                    <FieldError errors={error ? [error] : []} />
+                  </Field>
                 )
               }}
             </form.Field>
@@ -113,8 +113,8 @@ function SignUpPage() {
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_invalid_email())
                 return (
-                  <div className="grid gap-2">
-                    <Label htmlFor="sign-up-email">{m.auth_email_label()}</Label>
+                  <Field>
+                    <FieldLabel htmlFor="sign-up-email">{m.auth_email_label()}</FieldLabel>
                     <Input
                       id="sign-up-email"
                       type="email"
@@ -124,8 +124,8 @@ function SignUpPage() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
-                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                  </div>
+                    <FieldError errors={error ? [error] : []} />
+                  </Field>
                 )
               }}
             </form.Field>
@@ -139,8 +139,8 @@ function SignUpPage() {
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_password_min())
                 return (
-                  <div className="grid gap-2">
-                    <Label htmlFor="sign-up-password">{m.auth_password_label()}</Label>
+                  <Field>
+                    <FieldLabel htmlFor="sign-up-password">{m.auth_password_label()}</FieldLabel>
                     <Input
                       id="sign-up-password"
                       type="password"
@@ -150,8 +150,8 @@ function SignUpPage() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
-                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                  </div>
+                    <FieldError errors={error ? [error] : []} />
+                  </Field>
                 )
               }}
             </form.Field>
