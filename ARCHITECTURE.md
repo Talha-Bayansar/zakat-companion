@@ -15,6 +15,7 @@
 - keep keys in `shared/lib/query/query-keys.ts`
 - define reusable options factories in feature/entity modules
 - avoid inline query keys in components
+- for client-side writes to server functions, use `useMutation` from `@tanstack/react-query` (do not call mutation server functions directly inside UI handlers)
 
 Example:
 

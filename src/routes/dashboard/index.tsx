@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import Decimal from 'decimal.js'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -37,6 +38,24 @@ function DashboardPage() {
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
   const [history, setHistory] = useState<AssessmentSnapshot[]>(() => getAssessmentHistory())
+
+  const saveAssessmentMutation = useMutation({
+    mutationFn: (payload: {
+      userId: string
+      assessmentAt: Date
+      values: {
+        cash: string
+        gold: string
+        silver: string
+        investments: string
+        businessAssets: string
+        receivables: string
+        debtsDue: string
+        otherLiabilities: string
+        nisab: string
+      }
+    }) => saveAssessmentServer({ data: payload }),
+  })
 
   const result = useMemo(() => {
     const { lastUpdatedAt: _lastUpdatedAt, ...calculationValues } = form
@@ -94,21 +113,19 @@ function DashboardPage() {
     const userId = getOrCreateLocalUserId()
 
     try {
-      await saveAssessmentServer({
-        data: {
-          userId,
-          assessmentAt: new Date(),
-          values: {
-            cash: form.cash,
-            gold: form.gold,
-            silver: form.silver,
-            investments: form.investments,
-            businessAssets: form.businessAssets,
-            receivables: form.receivables,
-            debtsDue: form.debtsDue,
-            otherLiabilities: form.otherLiabilities,
-            nisab: form.nisab,
-          },
+      await saveAssessmentMutation.mutateAsync({
+        userId,
+        assessmentAt: new Date(),
+        values: {
+          cash: form.cash,
+          gold: form.gold,
+          silver: form.silver,
+          investments: form.investments,
+          businessAssets: form.businessAssets,
+          receivables: form.receivables,
+          debtsDue: form.debtsDue,
+          otherLiabilities: form.otherLiabilities,
+          nisab: form.nisab,
         },
       })
     } catch (error) {
@@ -126,6 +143,7 @@ function DashboardPage() {
         nisab={formatMoney(result.nisab, currency)}
         zakatDue={formatMoney(result.zakatDue, currency)}
         isEligible={result.isEligible}
+        isSaving={saveAssessmentMutation.isPending}
         onSaveAssessment={saveAssessment}
       />
 
@@ -306,6 +324,7 @@ function ResultCard({
   nisab,
   zakatDue,
   isEligible,
+  isSaving,
   onSaveAssessment,
 }: {
   currency: string
@@ -315,6 +334,7 @@ function ResultCard({
   nisab: string
   zakatDue: string
   isEligible: boolean
+  isSaving: boolean
   onSaveAssessment: () => void | Promise<void>
 }) {
   return (
@@ -339,9 +359,9 @@ function ResultCard({
           </p>
         </div>
 
-        <Button type="button" className="ios-primary-action mt-3 w-full" onClick={onSaveAssessment}>
+        <Button type="button" className="ios-primary-action mt-3 w-full" onClick={onSaveAssessment} disabled={isSaving}>
           <HugeiconsIcon icon={Tick01Icon} strokeWidth={2.1} className="mr-2 h-4 w-4" />
-          Save assessment
+          {isSaving ? 'Saving...' : 'Save assessment'}
         </Button>
       </CardContent>
     </Card>
