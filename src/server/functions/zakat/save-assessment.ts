@@ -49,87 +49,115 @@ const toErrorLog = (error: unknown) => {
 }
 
 export const saveAssessment = createServerFn({ method: 'POST' })
-  .inputValidator(saveAssessmentSchema)
+  .inputValidator((input: unknown) => input)
   .handler(async ({ data }) => {
-    const assessmentAt = data.assessmentAt ?? new Date()
-    let step = 'init'
+  let step = 'validate-input'
+  let userIdForLog: string | null = null
 
-    try {
-      console.info('[saveAssessment] start', {
-        userId: data.userId,
-        assessmentAt: assessmentAt.toISOString(),
+  try {
+    const parsed = saveAssessmentSchema.safeParse(data)
+
+    if (!parsed.success) {
+      console.error('[saveAssessment] input validation failed', {
+        issues: parsed.error.issues,
+        rawDataType: typeof data,
       })
+      throw new Error('Invalid save assessment payload')
+    }
 
-      step = 'ensure-user'
-      await db
-        .insert(users)
-        .values({
-          id: data.userId,
-          name: 'Guest User',
-          email: `${data.userId}@local.zakat-companion`,
-          emailVerified: false,
-        })
-        .onConflictDoNothing({ target: users.id })
+    const input = parsed.data
+    userIdForLog = input.userId
+    const assessmentAt = input.assessmentAt ?? new Date()
 
-      const cash = toMoneyDecimal(data.values.cash)
-      const gold = toMoneyDecimal(data.values.gold)
-      const silver = toMoneyDecimal(data.values.silver)
-      const investments = toMoneyDecimal(data.values.investments)
-      const businessAssets = toMoneyDecimal(data.values.businessAssets)
-      const receivables = toMoneyDecimal(data.values.receivables)
+    console.info('[saveAssessment] start', {
+      userId: input.userId,
+      assessmentAt: assessmentAt.toISOString(),
+    })
 
-      const debtsDue = toMoneyDecimal(data.values.debtsDue)
-      const otherLiabilities = toMoneyDecimal(data.values.otherLiabilities)
-      const nisab = toMoneyDecimal(data.values.nisab)
+    step = 'ensure-user'
+    await db
+      .insert(users)
+      .values({
+        id: input.userId,
+        name: 'Guest User',
+        email: `${input.userId}@local.zakat-companion`,
+        emailVerified: false,
+      })
+      .onConflictDoNothing({ target: users.id })
 
-      const totalAssets = cash.plus(gold).plus(silver).plus(investments).plus(businessAssets).plus(receivables)
-      const totalLiabilities = debtsDue.plus(otherLiabilities)
-      const netZakatableWealth = Decimal.max(totalAssets.minus(totalLiabilities), 0)
-      const isAboveNisab = netZakatableWealth.greaterThanOrEqualTo(nisab) && nisab.greaterThan(0)
-      const zakatDueNow = isAboveNisab ? netZakatableWealth.mul(0.025) : new Decimal(0)
-      const nisabState = isAboveNisab ? 'ABOVE' : 'BELOW'
+    const cash = toMoneyDecimal(input.values.cash)
+    const gold = toMoneyDecimal(input.values.gold)
+    const silver = toMoneyDecimal(input.values.silver)
+    const investments = toMoneyDecimal(input.values.investments)
+    const businessAssets = toMoneyDecimal(input.values.businessAssets)
+    const receivables = toMoneyDecimal(input.values.receivables)
 
-      step = 'insert-assessment'
-      const [savedAssessment] = await db
-        .insert(zakatAssessments)
-        .values({
-          userId: data.userId,
-          assessmentAt,
-          cash: toDbAmount(cash),
-          gold: toDbAmount(gold),
-          silver: toDbAmount(silver),
-          investments: toDbAmount(investments),
-          businessAssets: toDbAmount(businessAssets),
-          receivables: toDbAmount(receivables),
-          debtsDue: toDbAmount(debtsDue),
-          otherLiabilities: toDbAmount(otherLiabilities),
-          totalAssets: toDbAmount(totalAssets),
-          totalLiabilities: toDbAmount(totalLiabilities),
-          netZakatableWealth: toDbAmount(netZakatableWealth),
-          nisabValue: toDbAmount(nisab),
-          zakatDueNow: toDbAmount(zakatDueNow),
-          nisabState,
-          amountDue: toDbAmount(zakatDueNow),
-          aboveNisab: isAboveNisab,
-        })
-        .returning({
-          id: zakatAssessments.id,
-          assessmentAt: zakatAssessments.assessmentAt,
-        })
+    const debtsDue = toMoneyDecimal(input.values.debtsDue)
+    const otherLiabilities = toMoneyDecimal(input.values.otherLiabilities)
+    const nisab = toMoneyDecimal(input.values.nisab)
 
-      step = 'process-transition'
-      const transition = await processNisabTransition({
-        userId: data.userId,
-        assessmentId: savedAssessment.id,
-        assessmentAt: savedAssessment.assessmentAt,
+    const totalAssets = cash.plus(gold).plus(silver).plus(investments).plus(businessAssets).plus(receivables)
+    const totalLiabilities = debtsDue.plus(otherLiabilities)
+    const netZakatableWealth = Decimal.max(totalAssets.minus(totalLiabilities), 0)
+    const isAboveNisab = netZakatableWealth.greaterThanOrEqualTo(nisab) && nisab.greaterThan(0)
+    const zakatDueNow = isAboveNisab ? netZakatableWealth.mul(0.025) : new Decimal(0)
+    const nisabState = isAboveNisab ? 'ABOVE' : 'BELOW'
+
+    step = 'insert-assessment'
+    const [savedAssessment] = await db
+      .insert(zakatAssessments)
+      .values({
+        userId: input.userId,
+        assessmentAt,
+        cash: toDbAmount(cash),
+        gold: toDbAmount(gold),
+        silver: toDbAmount(silver),
+        investments: toDbAmount(investments),
+        businessAssets: toDbAmount(businessAssets),
+        receivables: toDbAmount(receivables),
+        debtsDue: toDbAmount(debtsDue),
+        otherLiabilities: toDbAmount(otherLiabilities),
+        totalAssets: toDbAmount(totalAssets),
+        totalLiabilities: toDbAmount(totalLiabilities),
+        netZakatableWealth: toDbAmount(netZakatableWealth),
+        nisabValue: toDbAmount(nisab),
+        zakatDueNow: toDbAmount(zakatDueNow),
         nisabState,
+        amountDue: toDbAmount(zakatDueNow),
+        aboveNisab: isAboveNisab,
+      })
+      .returning({
+        id: zakatAssessments.id,
+        assessmentAt: zakatAssessments.assessmentAt,
       })
 
-      step = 'upsert-financial-profile'
-      await db
-        .insert(financialProfiles)
-        .values({
-          userId: data.userId,
+    step = 'process-transition'
+    const transition = await processNisabTransition({
+      userId: input.userId,
+      assessmentId: savedAssessment.id,
+      assessmentAt: savedAssessment.assessmentAt,
+      nisabState,
+    })
+
+    step = 'upsert-financial-profile'
+    await db
+      .insert(financialProfiles)
+      .values({
+        userId: input.userId,
+        cash: toDbAmount(cash),
+        gold: toDbAmount(gold),
+        silver: toDbAmount(silver),
+        investments: toDbAmount(investments),
+        businessAssets: toDbAmount(businessAssets),
+        receivables: toDbAmount(receivables),
+        debtsDue: toDbAmount(debtsDue),
+        otherLiabilities: toDbAmount(otherLiabilities),
+        nisabValue: toDbAmount(nisab),
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: financialProfiles.userId,
+        set: {
           cash: toDbAmount(cash),
           gold: toDbAmount(gold),
           silver: toDbAmount(silver),
@@ -140,52 +168,38 @@ export const saveAssessment = createServerFn({ method: 'POST' })
           otherLiabilities: toDbAmount(otherLiabilities),
           nisabValue: toDbAmount(nisab),
           updatedAt: new Date(),
-        })
-        .onConflictDoUpdate({
-          target: financialProfiles.userId,
-          set: {
-            cash: toDbAmount(cash),
-            gold: toDbAmount(gold),
-            silver: toDbAmount(silver),
-            investments: toDbAmount(investments),
-            businessAssets: toDbAmount(businessAssets),
-            receivables: toDbAmount(receivables),
-            debtsDue: toDbAmount(debtsDue),
-            otherLiabilities: toDbAmount(otherLiabilities),
-            nisabValue: toDbAmount(nisab),
-            updatedAt: new Date(),
-          },
-        })
-
-      step = 'select-latest-assessment'
-      const [latestAssessment] = await db
-        .select({
-          id: zakatAssessments.id,
-          assessmentAt: zakatAssessments.assessmentAt,
-          netZakatableWealth: zakatAssessments.netZakatableWealth,
-          nisabValue: zakatAssessments.nisabValue,
-          zakatDueNow: zakatAssessments.zakatDueNow,
-          nisabState: zakatAssessments.nisabState,
-        })
-        .from(zakatAssessments)
-        .where(and(eq(zakatAssessments.userId, data.userId), eq(zakatAssessments.id, savedAssessment.id)))
-
-      console.info('[saveAssessment] success', {
-        userId: data.userId,
-        assessmentId: savedAssessment.id,
-        transition: transition.transition,
+        },
       })
 
-      return {
-        assessment: latestAssessment,
-        transition,
-      }
-    } catch (error) {
-      console.error('[saveAssessment] failed', {
-        userId: data.userId,
-        step,
-        error: toErrorLog(error),
+    step = 'select-latest-assessment'
+    const [latestAssessment] = await db
+      .select({
+        id: zakatAssessments.id,
+        assessmentAt: zakatAssessments.assessmentAt,
+        netZakatableWealth: zakatAssessments.netZakatableWealth,
+        nisabValue: zakatAssessments.nisabValue,
+        zakatDueNow: zakatAssessments.zakatDueNow,
+        nisabState: zakatAssessments.nisabState,
       })
-      throw error
+      .from(zakatAssessments)
+      .where(and(eq(zakatAssessments.userId, input.userId), eq(zakatAssessments.id, savedAssessment.id)))
+
+    console.info('[saveAssessment] success', {
+      userId: input.userId,
+      assessmentId: savedAssessment.id,
+      transition: transition.transition,
+    })
+
+    return {
+      assessment: latestAssessment,
+      transition,
     }
-  })
+  } catch (error) {
+    console.error('[saveAssessment] failed', {
+      userId: userIdForLog,
+      step,
+      error: toErrorLog(error),
+    })
+    throw error
+  }
+})
