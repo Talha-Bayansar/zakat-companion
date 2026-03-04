@@ -3,7 +3,7 @@ import Decimal from 'decimal.js'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '@/server/db'
-import { financialProfiles, zakatAssessments } from '@/server/db/schema'
+import { financialProfiles, users, zakatAssessments } from '@/server/db/schema'
 import { processNisabTransition } from './nisab-transition-engine'
 
 const saveAssessmentSchema = z.object({
@@ -40,6 +40,16 @@ export const saveAssessment = createServerFn({ method: 'POST' })
   .inputValidator(saveAssessmentSchema)
   .handler(async ({ data }) => {
     const assessmentAt = data.assessmentAt ?? new Date()
+
+    await db
+      .insert(users)
+      .values({
+        id: data.userId,
+        name: 'Guest User',
+        email: `${data.userId}@local.zakat-companion`,
+        emailVerified: false,
+      })
+      .onConflictDoNothing({ target: users.id })
 
     const cash = toMoneyDecimal(data.values.cash)
     const gold = toMoneyDecimal(data.values.gold)
