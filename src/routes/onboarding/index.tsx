@@ -8,7 +8,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
-import { getPreferences, savePreferences } from '@/features/preferences/model/preferences'
+import { getPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 
 type OnboardingValues = {
@@ -53,12 +53,6 @@ function OnboardingPage() {
       onSubmit: onboardingSchema,
     },
     onSubmit: async ({ value }) => {
-      savePreferences({
-        ...preferences,
-        zakatSchool: value.zakatSchool,
-        reminderDay: value.reminderDay,
-        currency: value.currency,
-      })
       setSavedState(value)
     },
   })
