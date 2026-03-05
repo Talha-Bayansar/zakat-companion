@@ -9,6 +9,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 
 const signInSchema = z.object({
   email: z.string().email(),
@@ -35,6 +36,7 @@ function fieldError(error: unknown, fallback: string) {
 
 function SignInPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const form = useForm({
     defaultValues: {
@@ -61,6 +63,7 @@ function SignInPage() {
           return
         }
 
+        await queryClient.invalidateQueries()
         toast.success(m.auth_signed_in_success())
         await navigate({ to: '/dashboard' })
       } catch {

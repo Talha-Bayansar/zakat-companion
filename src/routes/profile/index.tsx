@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
 import { toast } from 'sonner'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/profile/')({
   component: ProfilePage,
@@ -15,6 +17,7 @@ export const Route = createFileRoute('/profile/')({
 
 function ProfilePage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
 
@@ -29,6 +32,7 @@ function ProfilePage() {
         return
       }
 
+      await queryClient.invalidateQueries()
       toast.success(m.auth_signed_out_success())
       await navigate({ to: '/auth/sign-in' })
     } catch {
@@ -39,7 +43,8 @@ function ProfilePage() {
   }
 
   return (
-    <IosAppShell title={m.profile_title()} subtitle={m.profile_subtitle()} activeTab="profile">
+    <AuthWrapper>
+      <IosAppShell title={m.profile_title()} subtitle={m.profile_subtitle()} activeTab="profile">
       <Card className="ios-surface">
         <CardHeader>
           <CardTitle className="ios-section-title">{m.profile_settings_title()}</CardTitle>
@@ -86,6 +91,7 @@ function ProfilePage() {
           </Card>
         </div>
       ) : null}
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }

@@ -9,6 +9,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 
 const signUpSchema = z.object({
   name: z.string().trim().min(1),
@@ -36,6 +37,7 @@ function fieldError(error: unknown, fallback: string) {
 
 function SignUpPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const form = useForm({
     defaultValues: {
@@ -64,6 +66,7 @@ function SignUpPage() {
           return
         }
 
+        await queryClient.invalidateQueries()
         toast.success(m.auth_account_created_success())
         await navigate({ to: '/dashboard' })
       } catch {

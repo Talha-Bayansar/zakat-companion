@@ -17,6 +17,11 @@ export async function subscribeToPush(options: { userId: string }) {
   }
 
   const registration = await navigator.serviceWorker.register('/sw.js')
+
+  if (!('pushManager' in registration)) {
+    throw new Error('push_manager_unavailable')
+  }
+
   const permission = await Notification.requestPermission()
 
   if (permission !== 'granted') {
@@ -28,10 +33,13 @@ export async function subscribeToPush(options: { userId: string }) {
   const { publicKey } = (await keyResponse.json()) as { publicKey?: string }
   if (!publicKey) throw new Error('missing_public_key')
 
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: base64UrlToUint8Array(publicKey),
-  })
+  const existing = await registration.pushManager.getSubscription()
+  const subscription =
+    existing ??
+    (await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: base64UrlToUint8Array(publicKey),
+    }))
 
   const json = subscription.toJSON()
   if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {

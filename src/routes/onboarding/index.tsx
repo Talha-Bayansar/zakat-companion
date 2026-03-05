@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -58,7 +59,8 @@ function OnboardingPage() {
   })
 
   return (
-    <IosAppShell title={m.onboarding_title()} subtitle={m.onboarding_subtitle()} activeTab="dashboard">
+    <AuthWrapper>
+      <IosAppShell title={m.onboarding_title()} subtitle={m.onboarding_subtitle()} activeTab="dashboard">
       <Card className="ios-surface">
         <CardHeader>
           <CardTitle className="ios-section-title">{m.onboarding_card_title()}</CardTitle>
@@ -194,6 +196,7 @@ function OnboardingPage() {
           </CardHeader>
         </Card>
       ) : null}
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }
