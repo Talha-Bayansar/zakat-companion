@@ -1,10 +1,11 @@
 import type { WizardStep } from './wizard-step'
+import { m } from '@/paraglide/messages.js'
 
 export function StepIndicator({ step }: { step: WizardStep }) {
   const steps: Array<{ id: WizardStep; label: string }> = [
-    { id: 1, label: 'Assets' },
-    { id: 2, label: 'Liabilities' },
-    { id: 3, label: 'Nisab' },
+    { id: 1, label: m.step_assets() },
+    { id: 2, label: m.step_liabilities() },
+    { id: 3, label: m.step_nisab() },
   ]
 
   return (

@@ -1,5 +1,5 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { useEffect, useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,9 @@ import { WizardSection } from '@/features/zakat/components/wizard-section'
 import type { WizardStep } from '@/features/zakat/components/wizard-step'
 import { formatLastUpdated } from '@/features/zakat/components/zakat-formatters'
 import { getPreferences } from '@/features/preferences/model/preferences'
+import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-assessment-history-infinite-query'
+import { useSaveAssessmentMutation } from '@/features/zakat/api/use-save-assessment-mutation'
 import { calculateZakat, formatMoney, type ZakatCalculationInput } from '@/features/zakat/model/calculate-zakat'
 import {
   defaultFinancialValues,
@@ -19,9 +22,10 @@ import {
   type EditableFinancialField,
   type StoredFinancialValues,
 } from '@/features/zakat/model/financial-values'
-import { createAssessmentSnapshot } from '@/features/zakat/model/assessment-history'
 import { m } from '@/paraglide/messages.js'
 import { authClient } from '@/lib/auth-client'
+import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard/calculator/')({
   beforeLoad: async () => {
@@ -35,6 +39,12 @@ function CalculatorPage() {
   const preferences = useMemo(() => getPreferences(), [])
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
+  const [didHydrate, setDidHydrate] = useState(false)
+
+  const { data: currentUser } = useCurrentUserQuery()
+  const userId = currentUser?.id
+  const historyQuery = useAssessmentHistoryInfiniteQuery(userId)
+  const saveAssessmentMutation = useSaveAssessmentMutation(userId)
 
   const result = useMemo(() => {
     const { lastUpdatedAt: _lastUpdatedAt, ...calculationValues } = form
@@ -42,6 +52,30 @@ function CalculatorPage() {
   }, [form])
 
   const currency = preferences.currency || 'EUR'
+
+  useEffect(() => {
+    if (didHydrate) return
+    const firstRow = historyQuery.data?.pages[0]?.items[0]
+    if (!firstRow) return
+
+    const latest = mapAssessmentHistoryRowToSnapshot(firstRow)
+    const nextForm: StoredFinancialValues = {
+      cash: latest.inputs.cash,
+      gold: latest.inputs.gold,
+      silver: latest.inputs.silver,
+      investments: latest.inputs.investments,
+      businessAssets: latest.inputs.businessAssets,
+      receivables: latest.inputs.receivables,
+      debtsDue: latest.inputs.debtsDue,
+      otherLiabilities: latest.inputs.otherLiabilities,
+      nisab: latest.inputs.nisab,
+      lastUpdatedAt: latest.assessmentAt,
+    }
+
+    setForm(nextForm)
+    saveFinancialValues(nextForm)
+    setDidHydrate(true)
+  }, [didHydrate, historyQuery.data])
 
   function updateField(name: EditableFinancialField, value: string) {
     const next = { ...form, [name]: value, lastUpdatedAt: new Date().toISOString() }
@@ -55,12 +89,37 @@ function CalculatorPage() {
     setStep(1)
   }
 
-  function saveAssessment() {
-    createAssessmentSnapshot({ values: form, result })
+  async function saveAssessment() {
+    if (!userId) {
+      toast.error(m.error_session_not_ready())
+      return
+    }
+
+    try {
+      await saveAssessmentMutation.mutateAsync({
+        userId,
+        values: {
+          cash: form.cash,
+          gold: form.gold,
+          silver: form.silver,
+          investments: form.investments,
+          businessAssets: form.businessAssets,
+          receivables: form.receivables,
+          debtsDue: form.debtsDue,
+          otherLiabilities: form.otherLiabilities,
+          nisab: form.nisab,
+        },
+      })
+
+      toast.success(m.assessment_saved())
+    } catch {
+      toast.error(m.error_save_assessment_failed())
+    }
   }
 
   return (
-    <IosAppShell title="Calculator" subtitle={m.dashboard_subtitle()} activeTab="dashboard">
+    <IosAppShell title={m.calculator_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
+      <Link to="/dashboard" className="ios-secondary-action w-full">← {m.back_to_dashboard()}</Link>
       <ResultCard
         currency={currency}
         totalAssets={formatMoney(result.totalAssets, currency)}
@@ -69,7 +128,7 @@ function CalculatorPage() {
         nisab={formatMoney(result.nisab, currency)}
         zakatDue={formatMoney(result.zakatDue, currency)}
         isEligible={result.isEligible}
-        isSaving={false}
+        isSaving={saveAssessmentMutation.isPending}
         onSaveAssessment={saveAssessment}
       />
 
@@ -109,8 +168,8 @@ function CalculatorPage() {
             <WizardSection title={m.dashboard_wizard_step3_title()} hint={m.dashboard_wizard_step3_hint()}>
               <MoneyField label="Nisab threshold" value={form.nisab} helperText={m.dashboard_wizard_field_nisab_guide()} onChange={(v) => updateField('nisab', v)} />
               <div className="grid grid-cols-2 gap-2.5">
-                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '5500')}>Gold nisab preset</Button>
-                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '450')}>Silver nisab preset</Button>
+                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '5500')}>{m.nisab_preset_gold()}</Button>
+                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '450')}>{m.nisab_preset_silver()}</Button>
               </div>
             </WizardSection>
           ) : null}
@@ -118,7 +177,7 @@ function CalculatorPage() {
           <WizardPager step={step} setStep={setStep} />
 
           <Button type="button" className="ios-secondary-action w-full" onClick={resetAll}>
-            Clear all saved values
+            {m.clear_saved_values()}
           </Button>
         </CardContent>
       </Card>
