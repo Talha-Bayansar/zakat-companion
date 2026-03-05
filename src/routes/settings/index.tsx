@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Button } from '@/components/ui/button'
@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
-import { subscribeToPush, unsubscribeFromPush } from '@/features/notifications/lib/push-client'
+import { NotificationToggleRow } from '@/features/notifications/components/notification-toggle-row'
+import { isPushSubscribed, subscribeToPush, unsubscribeFromPush } from '@/features/notifications/lib/push-client'
 import { getPreferences, savePreferences, type UserPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 import { getLocale, locales, setLocale } from '@/paraglide/runtime.js'
@@ -32,9 +34,40 @@ function SettingsPage() {
   const [reminderDayInput, setReminderDayInput] = useState(String(initialPreferences.reminderDay))
   const [saved, setSaved] = useState(false)
   const [notificationBusy, setNotificationBusy] = useState(false)
+  const [hasPushSubscription, setHasPushSubscription] = useState(false)
 
   const notificationSupported = typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator
   const notificationPermission = typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
+  const notificationsEnabledEffective = notificationPermission === 'granted' && hasPushSubscription
+
+  useEffect(() => {
+    let active = true
+
+    async function syncPushState() {
+      if (!notificationSupported) {
+        if (active) setHasPushSubscription(false)
+        return
+      }
+
+      const subscribed = await isPushSubscribed()
+      if (!active) return
+      setHasPushSubscription(subscribed)
+
+      const shouldEnable = notificationPermission === 'granted' && subscribed
+      setPreferences((prev) => {
+        if (prev.notificationsEnabled === shouldEnable) return prev
+        const next = { ...prev, notificationsEnabled: shouldEnable }
+        savePreferences(next)
+        return next
+      })
+    }
+
+    void syncPushState()
+
+    return () => {
+      active = false
+    }
+  }, [notificationSupported, notificationPermission])
 
   async function enableNotifications() {
     if (!currentUser?.id) {
@@ -50,8 +83,12 @@ function SettingsPage() {
     setNotificationBusy(true)
     try {
       await subscribeToPush({ userId: currentUser.id })
-      setPreferences((prev) => ({ ...prev, notificationsEnabled: true }))
-      savePreferences({ ...preferences, notificationsEnabled: true })
+      setHasPushSubscription(true)
+      setPreferences((prev) => {
+        const next = { ...prev, notificationsEnabled: true }
+        savePreferences(next)
+        return next
+      })
       toast.success(m.settings_notifications_enabled_success())
     } catch (error) {
       const message = error instanceof Error ? error.message : 'unknown'
@@ -74,9 +111,12 @@ function SettingsPage() {
     setNotificationBusy(true)
     try {
       await unsubscribeFromPush({ userId: currentUser.id })
-      const next = { ...preferences, notificationsEnabled: false }
-      setPreferences(next)
-      savePreferences(next)
+      setHasPushSubscription(false)
+      setPreferences((prev) => {
+        const next = { ...prev, notificationsEnabled: false }
+        savePreferences(next)
+        return next
+      })
       toast.success(m.settings_notifications_disabled_success())
     } catch {
       toast.error(m.settings_notifications_disable_failed())
@@ -86,7 +126,8 @@ function SettingsPage() {
   }
 
   return (
-    <IosAppShell title={m.preferences_title()} subtitle={m.preferences_subtitle()} activeTab="profile">
+    <AuthWrapper>
+      <IosAppShell title={m.preferences_title()} subtitle={m.preferences_subtitle()} activeTab="profile">
       <Card className="ios-surface">
         <CardHeader>
           <CardTitle className="ios-section-title">{m.settings_language_title()}</CardTitle>
@@ -174,30 +215,28 @@ function SettingsPage() {
             />
           </div>
 
-          <div className="rounded-2xl border border-white/70 bg-white/70 p-3">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-medium text-slate-700">{m.settings_enable_notifications()}</span>
-              <span className="text-xs text-slate-500">
-                {notificationSupported
-                  ? notificationPermission === 'granted'
-                    ? m.settings_notification_status_granted()
-                    : notificationPermission === 'denied'
-                      ? m.settings_notification_status_denied()
-                      : m.settings_notification_status_default()
-                  : m.settings_notification_status_unsupported()}
-              </span>
-            </div>
-
-            {preferences.notificationsEnabled ? (
-              <Button type="button" variant="outline" className="w-full" onClick={disableNotifications} loading={notificationBusy}>
-                {m.settings_disable_notifications_action()}
-              </Button>
-            ) : (
-              <Button type="button" className="w-full" onClick={enableNotifications} loading={notificationBusy}>
-                {m.settings_enable_notifications_action()}
-              </Button>
-            )}
-          </div>
+          <NotificationToggleRow
+            label={m.settings_enable_notifications()}
+            status={
+              notificationSupported
+                ? notificationPermission === 'granted'
+                  ? m.settings_notification_status_granted()
+                  : notificationPermission === 'denied'
+                    ? m.settings_notification_status_denied()
+                    : m.settings_notification_status_default()
+                : m.settings_notification_status_unsupported()
+            }
+            checked={notificationsEnabledEffective}
+            disabled={!currentUser?.id}
+            busy={notificationBusy}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                void enableNotifications()
+              } else {
+                void disableNotifications()
+              }
+            }}
+          />
 
           <Button
             type="button"
@@ -228,6 +267,7 @@ function SettingsPage() {
       <Link to="/profile" className="ios-secondary-action">
         {m.back_to_profile()}
       </Link>
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }
