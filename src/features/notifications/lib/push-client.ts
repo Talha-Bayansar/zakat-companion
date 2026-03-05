@@ -55,6 +55,13 @@ export async function subscribeToPush(options: { userId: string }) {
   return { permission }
 }
 
+export async function isPushSubscribed() {
+  if (!('serviceWorker' in navigator)) return false
+  const registration = await navigator.serviceWorker.getRegistration('/sw.js')
+  const sub = await registration?.pushManager.getSubscription()
+  return Boolean(sub)
+}
+
 export async function unsubscribeFromPush(options: { userId: string }) {
   if (!('serviceWorker' in navigator)) return
 
