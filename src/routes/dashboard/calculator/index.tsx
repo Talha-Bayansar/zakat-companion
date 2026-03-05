@@ -3,14 +3,12 @@ import { useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import {
-  MoneyField,
-  ResultCard,
-  StepIndicator,
-  WizardPager,
-  WizardSection,
-  type WizardStep,
-} from '@/features/zakat/components/zakat-calculator-components'
+import { MoneyField } from '@/features/zakat/components/money-field'
+import { ResultCard } from '@/features/zakat/components/result-card'
+import { StepIndicator } from '@/features/zakat/components/step-indicator'
+import { WizardPager } from '@/features/zakat/components/wizard-pager'
+import { WizardSection } from '@/features/zakat/components/wizard-section'
+import type { WizardStep } from '@/features/zakat/components/wizard-step'
 import { formatLastUpdated } from '@/features/zakat/components/zakat-formatters'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { calculateZakat, formatMoney, type ZakatCalculationInput } from '@/features/zakat/model/calculate-zakat'

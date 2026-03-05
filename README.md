@@ -23,6 +23,7 @@ Zakat Companion PWA scaffold using TanStack Start, shadcn/ui conventions, Better
 
 - keep route files compact; move UI building blocks into `src/features/<feature>/components/*` (never under `src/routes`)
 - prefer composition via reusable building blocks over monolithic page components
+- one standalone component per file (avoid "kitchen sink" component files)
 - target short, navigable files (avoid large multi-hundred-line page files when possible)
 - use reusable TanStack Query hooks for all data retrieval/mutations
 - keep infinite lists on `useInfiniteQuery` + shared infinite-scroll sentinel pattern

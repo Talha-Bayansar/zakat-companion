@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
-import { HistoryCard } from '@/features/zakat/components/zakat-calculator-components'
+import { HistoryCard } from '@/features/zakat/components/history-card'
 import { getAssessmentHistory } from '@/features/zakat/model/assessment-history'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { authClient } from '@/lib/auth-client'
