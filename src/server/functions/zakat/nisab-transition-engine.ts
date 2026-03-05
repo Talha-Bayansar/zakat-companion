@@ -1,5 +1,5 @@
 import { and, desc, eq, ne } from 'drizzle-orm'
-import { getDb } from '@/server/db'
+import { db } from '@/server/db'
 import { zakatAssessments, zakatCycles, zakatEvents } from '@/server/db/schema'
 
 const LUNAR_YEAR_DAYS = 354
@@ -39,8 +39,6 @@ export const processNisabTransition = async (params: {
   nisabState: NisabState
 }) => {
   const { userId, assessmentId, assessmentAt, nisabState } = params
-  const db = getDb()
-
   let step = 'load-current-state'
 
   try {
