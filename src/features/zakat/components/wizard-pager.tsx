@@ -9,7 +9,7 @@ export function WizardPager({ step, setStep }: { step: WizardStep; setStep: (ste
     <div className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 p-2">
       <Button
         type="button"
-        aria-label="Go to previous wizard step"
+        aria-label={m.aria_prev_wizard_step()}
         className="h-11 w-11 rounded-xl border border-slate-200 bg-white text-slate-800 shadow-none"
         onClick={() => setStep(Math.max(1, step - 1) as WizardStep)}
         disabled={step === 1}
@@ -22,7 +22,7 @@ export function WizardPager({ step, setStep }: { step: WizardStep; setStep: (ste
       {step < 3 ? (
         <Button
           type="button"
-          aria-label="Go to next wizard step"
+          aria-label={m.aria_next_wizard_step()}
           className="h-11 w-11 rounded-xl bg-slate-900 text-white shadow-[0_10px_24px_rgba(15,23,42,0.22)]"
           onClick={() => setStep(Math.min(3, step + 1) as WizardStep)}
         >
@@ -31,7 +31,7 @@ export function WizardPager({ step, setStep }: { step: WizardStep; setStep: (ste
       ) : (
         <Button
           type="button"
-          aria-label="Restart wizard from first step"
+          aria-label={m.aria_restart_wizard_step()}
           className="h-11 w-11 rounded-xl bg-slate-900 text-white shadow-[0_10px_24px_rgba(15,23,42,0.22)]"
           onClick={() => setStep(1)}
         >

@@ -64,10 +64,10 @@ function SignUpPage() {
           return
         }
 
-        toast.success('Account created successfully')
+        toast.success(m.auth_account_created_success())
         await navigate({ to: '/dashboard' })
       } catch {
-        toast.error('Network error. Please try again.')
+        toast.error(m.error_network_try_again())
       }
     },
   })

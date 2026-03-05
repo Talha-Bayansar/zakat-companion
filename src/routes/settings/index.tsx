@@ -28,11 +28,11 @@ function SettingsPage() {
   const [saved, setSaved] = useState(false)
 
   return (
-    <IosAppShell title="Preferences" subtitle="Language, reminder, and calculation defaults" activeTab="profile">
+    <IosAppShell title={m.preferences_title()} subtitle={m.preferences_subtitle()} activeTab="profile">
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Language</CardTitle>
-          <CardDescription className="ios-copy-muted">Choose your preferred app language.</CardDescription>
+          <CardTitle className="ios-section-title">{m.settings_language_title()}</CardTitle>
+          <CardDescription className="ios-copy-muted">{m.settings_language_desc()}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{m.language_label()}</p>
@@ -54,8 +54,8 @@ function SettingsPage() {
 
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Zakat defaults</CardTitle>
-          <CardDescription className="ios-copy-muted">Set your preferred defaults for onboarding and future calculations.</CardDescription>
+          <CardTitle className="ios-section-title">{m.settings_zakat_defaults_title()}</CardTitle>
+          <CardDescription className="ios-copy-muted">{m.settings_zakat_defaults_desc()}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
@@ -106,7 +106,7 @@ function SettingsPage() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="settings-time">Reminder time</Label>
+            <Label htmlFor="settings-time">{m.settings_reminder_time_label()}</Label>
             <Input
               id="settings-time"
               className="ios-input"
@@ -117,7 +117,7 @@ function SettingsPage() {
           </div>
 
           <label className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 text-sm">
-            <span className="font-medium text-slate-700">Enable notifications</span>
+            <span className="font-medium text-slate-700">{m.settings_enable_notifications()}</span>
             <input
               type="checkbox"
               className="accent-slate-900"
@@ -147,13 +147,13 @@ function SettingsPage() {
               window.setTimeout(() => setSaved(false), 1500)
             }}
           >
-            {saved ? 'Saved' : 'Save preferences'}
+            {saved ? m.common_saved() : m.settings_save_preferences()}
           </Button>
         </CardContent>
       </Card>
 
       <Link to="/profile" className="ios-secondary-action">
-        Back to Profile
+        {m.back_to_profile()}
       </Link>
     </IosAppShell>
   )

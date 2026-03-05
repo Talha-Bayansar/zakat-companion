@@ -2,6 +2,7 @@ import { HeadContent, Link, Outlet, Scripts, createRootRoute } from '@tanstack/r
 import { AppProviders } from '@/app/providers'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { m } from '@/paraglide/messages.js'
 import '@/app/styles/index.css'
 
 export const Route = createRootRoute({
@@ -15,7 +16,7 @@ function RootComponent() {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Zakat Companion</title>
+        <title>{m.app_name()}</title>
         <HeadContent />
       </head>
       <body>
@@ -34,22 +35,22 @@ function RootError() {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Something went wrong · Zakat Companion</title>
+        <title>{m.root_error_page_title()}</title>
         <HeadContent />
       </head>
       <body>
         <main className="mx-auto flex min-h-screen max-w-md items-center px-4">
           <Card className="ios-surface w-full">
             <CardHeader>
-              <CardTitle className="ios-section-title">Something went wrong</CardTitle>
+              <CardTitle className="ios-section-title">{m.root_error_title()}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="ios-copy-muted">Please refresh the page. If this continues, sign in again.</p>
+              <p className="ios-copy-muted">{m.root_error_desc()}</p>
               <Button type="button" className="w-full" onClick={() => window.location.reload()}>
-                Refresh page
+                {m.root_error_refresh()}
               </Button>
               <Link to="/" className="ios-secondary-action w-full text-center">
-                Go to home
+                {m.root_error_go_home()}
               </Link>
             </CardContent>
           </Card>

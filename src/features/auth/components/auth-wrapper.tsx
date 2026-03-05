@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Spinner } from '@/components/ui/spinner'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { m } from '@/paraglide/messages.js'
 
 export function AuthWrapper({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ export function AuthWrapper({ children }: { children: ReactNode }) {
   if (isLoading || isFetching || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-slate-600">
-        <Spinner className="mr-2" /> Checking session...
+        <Spinner className="mr-2" /> {m.auth_checking_session()}
       </div>
     )
   }

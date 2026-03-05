@@ -25,14 +25,14 @@ function ProfilePage() {
       const result = await authClient.signOut()
 
       if (result?.error) {
-        toast.error(result.error.message ?? 'Failed to sign out')
+        toast.error(result.error.message ?? m.auth_error_sign_out_failed())
         return
       }
 
-      toast.success('Signed out successfully')
+      toast.success(m.auth_signed_out_success())
       await navigate({ to: '/auth/sign-in' })
     } catch {
-      toast.error('Network error. Please try again.')
+      toast.error(m.error_network_try_again())
     } finally {
       setIsSigningOut(false)
     }
@@ -47,7 +47,7 @@ function ProfilePage() {
         </CardHeader>
         <CardContent>
           <Link to="/settings" className="ios-secondary-action w-full justify-between">
-            <span>Preferences</span>
+            <span>{m.preferences_title()}</span>
             <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2.2} className="h-5 w-5 text-slate-500" aria-hidden />
           </Link>
         </CardContent>
@@ -55,8 +55,8 @@ function ProfilePage() {
 
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Account</CardTitle>
-          <CardDescription className="ios-copy-muted">Danger zone actions.</CardDescription>
+          <CardTitle className="ios-section-title">{m.profile_account_title()}</CardTitle>
+          <CardDescription className="ios-copy-muted">{m.profile_account_desc()}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button type="button" variant="destructive" className="w-full" onClick={() => setConfirmOpen(true)}>
@@ -71,15 +71,15 @@ function ProfilePage() {
             <CardHeader>
               <CardTitle className="ios-section-title flex items-center gap-2">
                 <HugeiconsIcon icon={Alert01Icon} className="h-5 w-5 text-rose-600" strokeWidth={2.2} />
-                Confirm sign out
+                {m.profile_confirm_signout_title()}
               </CardTitle>
-              <CardDescription className="ios-copy-muted">You will need to sign in again to access your dashboard.</CardDescription>
+              <CardDescription className="ios-copy-muted">{m.profile_confirm_signout_desc()}</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
               <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
-                Cancel
+                {m.common_cancel()}
               </Button>
-              <Button type="button" variant="destructive" onClick={signOut} loading={isSigningOut} loadingText="Signing out...">
+              <Button type="button" variant="destructive" onClick={signOut} loading={isSigningOut} loadingText={m.auth_signing_out()}>
                 {m.auth_sign_out()}
               </Button>
             </CardContent>
