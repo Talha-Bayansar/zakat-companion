@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/profile/')({
   component: ProfilePage,
@@ -19,8 +20,22 @@ function ProfilePage() {
 
   async function signOut() {
     setIsSigningOut(true)
-    await authClient.signOut()
-    await navigate({ to: '/auth/sign-in' })
+
+    try {
+      const result = await authClient.signOut()
+
+      if (result?.error) {
+        toast.error(result.error.message ?? 'Failed to sign out')
+        return
+      }
+
+      toast.success('Signed out successfully')
+      await navigate({ to: '/auth/sign-in' })
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setIsSigningOut(false)
+    }
   }
 
   return (
