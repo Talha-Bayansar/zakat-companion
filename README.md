@@ -19,6 +19,14 @@ Zakat Companion PWA scaffold using TanStack Start, shadcn/ui conventions, Better
 - feature-sliced design modules
 - server functions preferred over API routes
 
+## Project rules (must follow in future iterations)
+
+- keep route files compact; split UI blocks, formatters, and mapping logic into focused sibling modules
+- prefer composition via reusable building blocks over monolithic page components
+- target short, navigable files (avoid large multi-hundred-line page files when possible)
+- use reusable TanStack Query hooks for all data retrieval/mutations
+- keep infinite lists on `useInfiniteQuery` + shared infinite-scroll sentinel pattern
+
 ## UI direction (project-wide)
 
 - iOS-like visual language is the default (glassmorphism cards, soft gradients, rounded controls, calm motion)
