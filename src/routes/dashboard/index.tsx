@@ -44,8 +44,10 @@ function DashboardPage() {
     nisab: latest?.inputs.nisab ?? values.nisab,
   })
 
+  const userName = currentUser?.name?.trim() || m.onboarding_you()
+
   return (
-    <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_overview_subtitle()} activeTab="dashboard">
+    <IosAppShell title={m.dashboard_title()} subtitle={`${m.dashboard_overview_subtitle()} · ${m.signed_in_as({ name: userName })}`} activeTab="dashboard">
       <Card className="ios-surface">
         <CardHeader>
           <CardTitle className="ios-section-title">{m.dashboard_quick_summary_title()}</CardTitle>

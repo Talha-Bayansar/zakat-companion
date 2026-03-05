@@ -21,6 +21,7 @@ import { Route as DashboardCalculatorIndexRouteImport } from './routes/dashboard
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DashboardHistoryAssessmentIdIndexRouteImport } from './routes/dashboard/history/$assessmentId/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -83,6 +84,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardHistoryAssessmentIdIndexRoute =
+  DashboardHistoryAssessmentIdIndexRouteImport.update({
+    id: '/dashboard/history/$assessmentId/',
+    path: '/dashboard/history/$assessmentId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
   '/dashboard/calculator/': typeof DashboardCalculatorIndexRoute
   '/dashboard/history/': typeof DashboardHistoryIndexRoute
+  '/dashboard/history/$assessmentId/': typeof DashboardHistoryAssessmentIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,6 +119,7 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpIndexRoute
   '/dashboard/calculator': typeof DashboardCalculatorIndexRoute
   '/dashboard/history': typeof DashboardHistoryIndexRoute
+  '/dashboard/history/$assessmentId': typeof DashboardHistoryAssessmentIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -126,6 +135,7 @@ export interface FileRoutesById {
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
   '/dashboard/calculator/': typeof DashboardCalculatorIndexRoute
   '/dashboard/history/': typeof DashboardHistoryIndexRoute
+  '/dashboard/history/$assessmentId/': typeof DashboardHistoryAssessmentIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up/'
     | '/dashboard/calculator/'
     | '/dashboard/history/'
+    | '/dashboard/history/$assessmentId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/dashboard/calculator'
     | '/dashboard/history'
+    | '/dashboard/history/$assessmentId'
   id:
     | '__root__'
     | '/'
@@ -170,6 +182,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up/'
     | '/dashboard/calculator/'
     | '/dashboard/history/'
+    | '/dashboard/history/$assessmentId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -185,6 +198,7 @@ export interface RootRouteChildren {
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
   DashboardCalculatorIndexRoute: typeof DashboardCalculatorIndexRoute
   DashboardHistoryIndexRoute: typeof DashboardHistoryIndexRoute
+  DashboardHistoryAssessmentIdIndexRoute: typeof DashboardHistoryAssessmentIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -273,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/history/$assessmentId/': {
+      id: '/dashboard/history/$assessmentId/'
+      path: '/dashboard/history/$assessmentId'
+      fullPath: '/dashboard/history/$assessmentId/'
+      preLoaderRoute: typeof DashboardHistoryAssessmentIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -289,6 +310,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
   DashboardCalculatorIndexRoute: DashboardCalculatorIndexRoute,
   DashboardHistoryIndexRoute: DashboardHistoryIndexRoute,
+  DashboardHistoryAssessmentIdIndexRoute:
+    DashboardHistoryAssessmentIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

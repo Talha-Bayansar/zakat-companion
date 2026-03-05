@@ -128,5 +128,11 @@
   "step_assets": "Assets",
   "step_liabilities": "Liabilities",
   "step_nisab": "Nisab",
-  "step_counter": "STEP {step} OF 3"
+  "step_counter": "STEP {step} OF 3",
+  "back_to_dashboard": "Back to dashboard",
+  "back_to_history": "Back to history",
+  "signed_in_as": "Signed in as {name}",
+  "history_detail_title": "Assessment details",
+  "history_detail_subtitle": "Full breakdown",
+  "history_detail_not_found": "Assessment not found"
 }

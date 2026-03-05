@@ -1,7 +1,9 @@
+import { Link } from '@tanstack/react-router'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { AssessmentSnapshot } from '@/features/zakat/model/assessment-history'
 import { formatAssessmentDate, formatFromStored } from './zakat-formatters'
-import { SummaryRow } from './summary-row'
 import { m } from '@/paraglide/messages.js'
 
 export function HistoryCard({ history, currency }: { history: AssessmentSnapshot[]; currency: string }) {
@@ -18,28 +20,19 @@ export function HistoryCard({ history, currency }: { history: AssessmentSnapshot
           </div>
         ) : (
           history.map((snapshot) => (
-            <div key={snapshot.id} className="rounded-2xl border border-white/80 bg-white/85 p-3">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold tracking-[0.12em] text-slate-500">{formatAssessmentDate(snapshot.assessmentAt)}</p>
-                <span
-                  className={
-                    snapshot.nisabState === 'ABOVE'
-                      ? 'rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700'
-                      : 'rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600'
-                  }
-                >
-                  {snapshot.nisabState === 'ABOVE' ? m.nisab_state_above() : m.nisab_state_below()}
-                </span>
+            <Link
+              key={snapshot.id}
+              to="/dashboard/history/$assessmentId"
+              params={{ assessmentId: snapshot.id }}
+              className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/85 p-3"
+            >
+              <div>
+                <p className="text-xs font-semibold tracking-[0.08em] text-slate-500">{formatAssessmentDate(snapshot.assessmentAt)}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{m.zakat_label_due()}: {formatFromStored(snapshot.zakatDue, currency)}</p>
+                <p className="text-xs text-slate-600">{snapshot.nisabState === 'ABOVE' ? m.nisab_state_above() : m.nisab_state_below()}</p>
               </div>
-
-              <div className="space-y-1.5 text-sm">
-                <SummaryRow label={m.zakat_label_assets()} value={formatFromStored(snapshot.totalAssets, currency)} />
-                <SummaryRow label={m.zakat_label_liabilities()} value={formatFromStored(snapshot.totalLiabilities, currency)} />
-                <SummaryRow label={m.zakat_label_net_wealth()} value={formatFromStored(snapshot.netWorth, currency)} />
-                <SummaryRow label={m.zakat_label_nisab_value()} value={formatFromStored(snapshot.nisabValue, currency)} />
-                <SummaryRow label={m.zakat_label_due()} value={formatFromStored(snapshot.zakatDue, currency)} />
-              </div>
-            </div>
+              <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2.2} className="h-5 w-5 text-slate-500" aria-hidden />
+            </Link>
           ))
         )}
       </CardContent>

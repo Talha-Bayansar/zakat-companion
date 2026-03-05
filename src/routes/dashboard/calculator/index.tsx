@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -119,6 +119,7 @@ function CalculatorPage() {
 
   return (
     <IosAppShell title={m.calculator_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
+      <Link to="/dashboard" className="ios-secondary-action w-full">← {m.back_to_dashboard()}</Link>
       <ResultCard
         currency={currency}
         totalAssets={formatMoney(result.totalAssets, currency)}

@@ -128,5 +128,11 @@
   "step_assets": "Varlıklar",
   "step_liabilities": "Yükümlülükler",
   "step_nisab": "Nisab",
-  "step_counter": "ADIM {step} / 3"
+  "step_counter": "ADIM {step} / 3",
+  "back_to_dashboard": "Panele dön",
+  "back_to_history": "Geçmişe dön",
+  "signed_in_as": "Giriş yapan: {name}",
+  "history_detail_title": "Değerlendirme detayları",
+  "history_detail_subtitle": "Tam döküm",
+  "history_detail_not_found": "Değerlendirme bulunamadı"
 }

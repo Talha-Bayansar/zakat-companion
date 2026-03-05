@@ -128,5 +128,11 @@
   "step_assets": "Bezittingen",
   "step_liabilities": "Verplichtingen",
   "step_nisab": "Nisab",
-  "step_counter": "STAP {step} VAN 3"
+  "step_counter": "STAP {step} VAN 3",
+  "back_to_dashboard": "Terug naar dashboard",
+  "back_to_history": "Terug naar geschiedenis",
+  "signed_in_as": "Ingelogd als {name}",
+  "history_detail_title": "Beoordelingsdetails",
+  "history_detail_subtitle": "Volledige uitsplitsing",
+  "history_detail_not_found": "Beoordeling niet gevonden"
 }

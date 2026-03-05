@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { InfiniteScrollSentinel } from '@/components/shared/infinite-scroll-sentinel'
 import { Spinner } from '@/components/ui/spinner'
@@ -30,6 +30,7 @@ function DashboardHistoryPage() {
 
   return (
     <IosAppShell title={m.history_title()} subtitle={m.history_subtitle()} activeTab="dashboard">
+      <Link to="/dashboard" className="ios-secondary-action w-full">← {m.back_to_dashboard()}</Link>
       <HistoryCard history={history} currency={currency} />
 
       {historyQuery.isLoading ? (
