@@ -178,5 +178,17 @@
   "field_receivables": "Vorderingen",
   "field_debts_due_now": "Nu verschuldigde schulden",
   "field_other_liabilities": "Overige verplichtingen",
-  "field_nisab_threshold": "Nisab-drempel"
+  "field_nisab_threshold": "Nisab-drempel",
+  "settings_notifications_unsupported": "Pushmeldingen worden niet ondersteund op dit apparaat/deze browser.",
+  "settings_notifications_enabled_success": "Meldingen succesvol ingeschakeld.",
+  "settings_notifications_permission_denied": "Toestemming voor meldingen is geweigerd.",
+  "settings_notifications_enable_failed": "Kon meldingen niet inschakelen.",
+  "settings_notifications_disabled_success": "Meldingen succesvol uitgeschakeld.",
+  "settings_notifications_disable_failed": "Kon meldingen niet uitschakelen.",
+  "settings_notification_status_granted": "Toegestaan",
+  "settings_notification_status_denied": "Geblokkeerd",
+  "settings_notification_status_default": "Niet ingeschakeld",
+  "settings_notification_status_unsupported": "Niet ondersteund",
+  "settings_enable_notifications_action": "Pushmeldingen inschakelen",
+  "settings_disable_notifications_action": "Pushmeldingen uitschakelen"
 }

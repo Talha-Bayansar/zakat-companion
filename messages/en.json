@@ -178,5 +178,17 @@
   "field_receivables": "Receivables",
   "field_debts_due_now": "Debts due now",
   "field_other_liabilities": "Other liabilities",
-  "field_nisab_threshold": "Nisab threshold"
+  "field_nisab_threshold": "Nisab threshold",
+  "settings_notifications_unsupported": "Push notifications are not supported on this device/browser.",
+  "settings_notifications_enabled_success": "Notifications enabled successfully.",
+  "settings_notifications_permission_denied": "Notification permission was denied.",
+  "settings_notifications_enable_failed": "Could not enable notifications.",
+  "settings_notifications_disabled_success": "Notifications disabled successfully.",
+  "settings_notifications_disable_failed": "Could not disable notifications.",
+  "settings_notification_status_granted": "Allowed",
+  "settings_notification_status_denied": "Blocked",
+  "settings_notification_status_default": "Not enabled",
+  "settings_notification_status_unsupported": "Unsupported",
+  "settings_enable_notifications_action": "Enable push notifications",
+  "settings_disable_notifications_action": "Disable push notifications"
 }

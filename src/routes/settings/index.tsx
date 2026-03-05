@@ -1,11 +1,14 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
+import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { subscribeToPush, unsubscribeFromPush } from '@/features/notifications/lib/push-client'
 import { getPreferences, savePreferences, type UserPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
 import { getLocale, locales, setLocale } from '@/paraglide/runtime.js'
@@ -23,9 +26,64 @@ function localeLabel(locale: (typeof locales)[number]) {
 function SettingsPage() {
   const activeLocale = getLocale()
   const initialPreferences = useMemo(() => getPreferences(), [])
+  const { data: currentUser } = useCurrentUserQuery()
+
   const [preferences, setPreferences] = useState<UserPreferences>(initialPreferences)
   const [reminderDayInput, setReminderDayInput] = useState(String(initialPreferences.reminderDay))
   const [saved, setSaved] = useState(false)
+  const [notificationBusy, setNotificationBusy] = useState(false)
+
+  const notificationSupported = typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator
+  const notificationPermission = typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
+
+  async function enableNotifications() {
+    if (!currentUser?.id) {
+      toast.error(m.error_session_not_ready())
+      return
+    }
+
+    if (!notificationSupported) {
+      toast.error(m.settings_notifications_unsupported())
+      return
+    }
+
+    setNotificationBusy(true)
+    try {
+      await subscribeToPush({ userId: currentUser.id })
+      setPreferences((prev) => ({ ...prev, notificationsEnabled: true }))
+      savePreferences({ ...preferences, notificationsEnabled: true })
+      toast.success(m.settings_notifications_enabled_success())
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown'
+      if (message === 'permission_denied') {
+        toast.error(m.settings_notifications_permission_denied())
+      } else {
+        toast.error(m.settings_notifications_enable_failed())
+      }
+    } finally {
+      setNotificationBusy(false)
+    }
+  }
+
+  async function disableNotifications() {
+    if (!currentUser?.id) {
+      toast.error(m.error_session_not_ready())
+      return
+    }
+
+    setNotificationBusy(true)
+    try {
+      await unsubscribeFromPush({ userId: currentUser.id })
+      const next = { ...preferences, notificationsEnabled: false }
+      setPreferences(next)
+      savePreferences(next)
+      toast.success(m.settings_notifications_disabled_success())
+    } catch {
+      toast.error(m.settings_notifications_disable_failed())
+    } finally {
+      setNotificationBusy(false)
+    }
+  }
 
   return (
     <IosAppShell title={m.preferences_title()} subtitle={m.preferences_subtitle()} activeTab="profile">
@@ -116,15 +174,30 @@ function SettingsPage() {
             />
           </div>
 
-          <label className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 text-sm">
-            <span className="font-medium text-slate-700">{m.settings_enable_notifications()}</span>
-            <input
-              type="checkbox"
-              className="accent-slate-900"
-              checked={preferences.notificationsEnabled}
-              onChange={(event) => setPreferences((prev) => ({ ...prev, notificationsEnabled: event.target.checked }))}
-            />
-          </label>
+          <div className="rounded-2xl border border-white/70 bg-white/70 p-3">
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="font-medium text-slate-700">{m.settings_enable_notifications()}</span>
+              <span className="text-xs text-slate-500">
+                {notificationSupported
+                  ? notificationPermission === 'granted'
+                    ? m.settings_notification_status_granted()
+                    : notificationPermission === 'denied'
+                      ? m.settings_notification_status_denied()
+                      : m.settings_notification_status_default()
+                  : m.settings_notification_status_unsupported()}
+              </span>
+            </div>
+
+            {preferences.notificationsEnabled ? (
+              <Button type="button" variant="outline" className="w-full" onClick={disableNotifications} loading={notificationBusy}>
+                {m.settings_disable_notifications_action()}
+              </Button>
+            ) : (
+              <Button type="button" className="w-full" onClick={enableNotifications} loading={notificationBusy}>
+                {m.settings_enable_notifications_action()}
+              </Button>
+            )}
+          </div>
 
           <Button
             type="button"

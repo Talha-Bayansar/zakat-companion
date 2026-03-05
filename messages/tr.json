@@ -178,5 +178,17 @@
   "field_receivables": "Alacaklar",
   "field_debts_due_now": "Şimdi ödenecek borçlar",
   "field_other_liabilities": "Diğer yükümlülükler",
-  "field_nisab_threshold": "Nisab eşiği"
+  "field_nisab_threshold": "Nisab eşiği",
+  "settings_notifications_unsupported": "Bu cihaz/tarayıcıda anlık bildirimler desteklenmiyor.",
+  "settings_notifications_enabled_success": "Bildirimler başarıyla etkinleştirildi.",
+  "settings_notifications_permission_denied": "Bildirim izni reddedildi.",
+  "settings_notifications_enable_failed": "Bildirimler etkinleştirilemedi.",
+  "settings_notifications_disabled_success": "Bildirimler başarıyla devre dışı bırakıldı.",
+  "settings_notifications_disable_failed": "Bildirimler devre dışı bırakılamadı.",
+  "settings_notification_status_granted": "İzin verildi",
+  "settings_notification_status_denied": "Engellendi",
+  "settings_notification_status_default": "Etkin değil",
+  "settings_notification_status_unsupported": "Desteklenmiyor",
+  "settings_enable_notifications_action": "Anlık bildirimleri etkinleştir",
+  "settings_disable_notifications_action": "Anlık bildirimleri devre dışı bırak"
 }
