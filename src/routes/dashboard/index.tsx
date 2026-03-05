@@ -1,23 +1,19 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SummaryRow } from '@/features/zakat/components/summary-row'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-assessment-history-infinite-query'
 import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { calculateZakat, formatMoney } from '@/features/zakat/model/calculate-zakat'
 import { getFinancialValues } from '@/features/zakat/model/financial-values'
 import { m } from '@/paraglide/messages.js'
-import { authClient } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/dashboard/')({
-  beforeLoad: async () => {
-    const session = await authClient.getSession()
-    if (!session.data) throw redirect({ to: '/auth/sign-in' })
-  },
   component: DashboardPage,
 })
 
@@ -47,7 +43,8 @@ function DashboardPage() {
   const userName = currentUser?.name?.trim() || m.onboarding_you()
 
   return (
-    <IosAppShell title={m.dashboard_title()} subtitle={`${m.dashboard_overview_subtitle()} · ${m.signed_in_as({ name: userName })}`} activeTab="dashboard">
+    <AuthWrapper>
+      <IosAppShell title={m.dashboard_title()} subtitle={`${m.dashboard_overview_subtitle()} · ${m.signed_in_as({ name: userName })}`} activeTab="dashboard">
       <Card className="ios-surface">
         <CardHeader>
           <CardTitle className="ios-section-title">{m.dashboard_quick_summary_title()}</CardTitle>
@@ -75,6 +72,7 @@ function DashboardPage() {
           </Link>
         </CardContent>
       </Card>
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }

@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +12,7 @@ import type { WizardStep } from '@/features/zakat/components/wizard-step'
 import { formatLastUpdated } from '@/features/zakat/components/zakat-formatters'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-assessment-history-infinite-query'
 import { useSaveAssessmentMutation } from '@/features/zakat/api/use-save-assessment-mutation'
 import { calculateZakat, formatMoney, type ZakatCalculationInput } from '@/features/zakat/model/calculate-zakat'
@@ -23,15 +24,10 @@ import {
   type StoredFinancialValues,
 } from '@/features/zakat/model/financial-values'
 import { m } from '@/paraglide/messages.js'
-import { authClient } from '@/lib/auth-client'
 import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard/calculator/')({
-  beforeLoad: async () => {
-    const session = await authClient.getSession()
-    if (!session.data) throw redirect({ to: '/auth/sign-in' })
-  },
   component: CalculatorPage,
 })
 
@@ -118,7 +114,8 @@ function CalculatorPage() {
   }
 
   return (
-    <IosAppShell title={m.calculator_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
+    <AuthWrapper>
+      <IosAppShell title={m.calculator_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
       <Link to="/dashboard" className="ios-secondary-action w-full">← {m.back_to_dashboard()}</Link>
       <ResultCard
         currency={currency}
@@ -181,6 +178,7 @@ function CalculatorPage() {
           </Button>
         </CardContent>
       </Card>
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }
