@@ -11,8 +11,8 @@ import {
   WizardPager,
   WizardSection,
   type WizardStep,
-} from '@/routes/dashboard/-dashboard-components'
-import { formatLastUpdated } from '@/routes/dashboard/-dashboard-formatters'
+} from '@/features/zakat/components/dashboard/dashboard-components'
+import { formatLastUpdated } from '@/features/zakat/components/dashboard/dashboard-formatters'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { calculateZakat, formatMoney, type ZakatCalculationInput } from '@/features/zakat/model/calculate-zakat'
 import {

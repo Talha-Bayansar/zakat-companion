@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import type { AssessmentSnapshot } from '@/features/zakat/model/assessment-history'
-import { formatAssessmentDate, formatFromStored } from './-dashboard-formatters'
+import { formatAssessmentDate, formatFromStored } from './dashboard-formatters'
 
 export type WizardStep = 1 | 2 | 3
 
