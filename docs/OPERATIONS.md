@@ -6,6 +6,9 @@ Required environment variables:
 
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET`
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
+- `VAPID_CONTACT_EMAIL` (format: `mailto:you@example.com`)
 
 After changing env vars:
 
@@ -22,6 +25,30 @@ When schema changes are shipped:
 3. Ensure `DATABASE_URL` secret exists in GitHub Actions.
 4. Merge to `master` (workflow runs `npm run db:migrate`).
 5. Check workflow success in `.github/workflows/run-migrations.yml`.
+
+## Reminder runner (plan + deliver)
+
+Endpoint: `POST /api/reminders/run`
+
+Payload options:
+
+- `dryRun` (boolean, default `true`)
+- `mode` (`plan` | `deliver` | `all`, default `all`)
+- `now` (ISO datetime override for deterministic testing)
+
+Examples:
+
+```bash
+# plan only
+curl -X POST http://localhost:3000/api/reminders/run \
+  -H 'content-type: application/json' \
+  -d '{"dryRun":true,"mode":"plan"}'
+
+# run planner + delivery execution (writes statuses/events)
+curl -X POST http://localhost:3000/api/reminders/run \
+  -H 'content-type: application/json' \
+  -d '{"dryRun":false,"mode":"all"}'
+```
 
 ## Auth smoke test
 

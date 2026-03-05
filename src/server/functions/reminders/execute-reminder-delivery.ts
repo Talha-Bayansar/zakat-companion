@@ -1,6 +1,7 @@
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 import { db } from '@/server/db'
-import { zakatEvents } from '@/server/db/schema'
+import { pushSubscriptions, zakatEvents } from '@/server/db/schema'
+import { sendWebPushReminder } from '@/server/functions/reminders/send-web-push-reminder'
 
 type ReminderMeta = {
   idempotencyKey?: string
@@ -57,14 +58,32 @@ function nextRetryAt(now: Date, retryCount: number) {
   return new Date(now.getTime() + backoffMinutes * 60_000).toISOString()
 }
 
-async function deliverReminder(_meta: ReminderMeta): Promise<DeliveryResult> {
-  // Placeholder delivery adapter for now.
-  // Next step: connect push/webhook channels and map transient/permanent failures.
-  return {
-    ok: true,
-    transient: false,
-    provider: 'noop',
+async function deliverReminder(input: {
+  userId: string
+  meta: ReminderMeta
+}): Promise<DeliveryResult> {
+  const subscriptions = await db.query.pushSubscriptions.findMany({
+    where: eq(pushSubscriptions.userId, input.userId),
+  })
+
+  const result = await sendWebPushReminder({
+    subscriptions,
+    reminderKind: input.meta.reminderKind,
+    deepLink: input.meta.deepLink,
+  })
+
+  if (result.invalidEndpoints?.length) {
+    await db
+      .delete(pushSubscriptions)
+      .where(
+        and(
+          eq(pushSubscriptions.userId, input.userId),
+          inArray(pushSubscriptions.endpoint, result.invalidEndpoints),
+        ),
+      )
   }
+
+  return result
 }
 
 export async function executeReminderDelivery(input?: {
@@ -123,7 +142,7 @@ export async function executeReminderDelivery(input?: {
 
     const retryCount = meta.retryCount ?? 0
 
-    const result = await deliverReminder(meta)
+    const result = await deliverReminder({ userId: event.userId, meta })
     const baseMeta: ReminderMeta = {
       ...meta,
       lastAttemptAt: now.toISOString(),

@@ -15,6 +15,13 @@
       "when": 1772578130787,
       "tag": "0001_clammy_gideon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772731860955,
+      "tag": "0002_colorful_gambit",
+      "breakpoints": true
     }
   ]
 }
