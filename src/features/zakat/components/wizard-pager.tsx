@@ -2,6 +2,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import type { WizardStep } from './wizard-step'
+import { m } from '@/paraglide/messages.js'
 
 export function WizardPager({ step, setStep }: { step: WizardStep; setStep: (step: WizardStep) => void }) {
   return (
@@ -16,7 +17,7 @@ export function WizardPager({ step, setStep }: { step: WizardStep; setStep: (ste
         <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2.2} className="h-5 w-5" />
       </Button>
 
-      <p className="text-xs font-semibold tracking-[0.16em] text-slate-500">STEP {step} OF 3</p>
+      <p className="text-xs font-semibold tracking-[0.16em] text-slate-500">{m.step_counter({ step })}</p>
 
       {step < 3 ? (
         <Button

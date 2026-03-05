@@ -45,30 +45,30 @@ function DashboardPage() {
   })
 
   return (
-    <IosAppShell title={m.dashboard_title()} subtitle="Overview" activeTab="dashboard">
+    <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_overview_subtitle()} activeTab="dashboard">
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Quick summary</CardTitle>
+          <CardTitle className="ios-section-title">{m.dashboard_quick_summary_title()}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <SummaryRow label="Net zakatable wealth" value={formatMoney(result.netWorth, currency)} />
-          <SummaryRow label="Nisab" value={formatMoney(result.nisab, currency)} />
-          <SummaryRow label="Zakat due" value={formatMoney(result.zakatDue, currency)} />
-          <SummaryRow label="Status" value={result.isEligible ? 'Above nisab' : 'Below nisab'} />
+          <SummaryRow label={m.zakat_label_net_wealth()} value={formatMoney(result.netWorth, currency)} />
+          <SummaryRow label={m.zakat_label_nisab()} value={formatMoney(result.nisab, currency)} />
+          <SummaryRow label={m.zakat_label_due()} value={formatMoney(result.zakatDue, currency)} />
+          <SummaryRow label={m.dashboard_status_label()} value={result.isEligible ? m.nisab_state_above() : m.nisab_state_below()} />
         </CardContent>
       </Card>
 
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Actions</CardTitle>
+          <CardTitle className="ios-section-title">{m.dashboard_actions_title()}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2.5">
           <Link to="/dashboard/calculator" className="ios-secondary-action w-full justify-between">
-            <span>Open zakat calculator</span>
+            <span>{m.dashboard_open_calculator()}</span>
             <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2.2} className="h-5 w-5 text-slate-500" aria-hidden />
           </Link>
           <Link to="/dashboard/history" className="ios-secondary-action w-full justify-between">
-            <span>Open assessment history</span>
+            <span>{m.dashboard_open_history()}</span>
             <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2.2} className="h-5 w-5 text-slate-500" aria-hidden />
           </Link>
         </CardContent>

@@ -91,7 +91,7 @@ function CalculatorPage() {
 
   async function saveAssessment() {
     if (!userId) {
-      toast.error('Session not ready. Please refresh and try again.')
+      toast.error(m.error_session_not_ready())
       return
     }
 
@@ -111,14 +111,14 @@ function CalculatorPage() {
         },
       })
 
-      toast.success('Assessment saved')
+      toast.success(m.assessment_saved())
     } catch {
-      toast.error('Failed to save assessment on server')
+      toast.error(m.error_save_assessment_failed())
     }
   }
 
   return (
-    <IosAppShell title="Calculator" subtitle={m.dashboard_subtitle()} activeTab="dashboard">
+    <IosAppShell title={m.calculator_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
       <ResultCard
         currency={currency}
         totalAssets={formatMoney(result.totalAssets, currency)}
@@ -167,8 +167,8 @@ function CalculatorPage() {
             <WizardSection title={m.dashboard_wizard_step3_title()} hint={m.dashboard_wizard_step3_hint()}>
               <MoneyField label="Nisab threshold" value={form.nisab} helperText={m.dashboard_wizard_field_nisab_guide()} onChange={(v) => updateField('nisab', v)} />
               <div className="grid grid-cols-2 gap-2.5">
-                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '5500')}>Gold nisab preset</Button>
-                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '450')}>Silver nisab preset</Button>
+                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '5500')}>{m.nisab_preset_gold()}</Button>
+                <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '450')}>{m.nisab_preset_silver()}</Button>
               </div>
             </WizardSection>
           ) : null}
@@ -176,7 +176,7 @@ function CalculatorPage() {
           <WizardPager step={step} setStep={setStep} />
 
           <Button type="button" className="ios-secondary-action w-full" onClick={resetAll}>
-            Clear all saved values
+            {m.clear_saved_values()}
           </Button>
         </CardContent>
       </Card>

@@ -8,6 +8,7 @@ import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-asse
 import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { authClient } from '@/lib/auth-client'
+import { m } from '@/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/history/')({
   beforeLoad: async () => {
@@ -28,24 +29,24 @@ function DashboardHistoryPage() {
   const history = (historyQuery.data?.pages.flatMap((page) => page.items) ?? []).map(mapAssessmentHistoryRowToSnapshot)
 
   return (
-    <IosAppShell title="Assessment history" subtitle="Saved zakat snapshots" activeTab="dashboard">
+    <IosAppShell title={m.history_title()} subtitle={m.history_subtitle()} activeTab="dashboard">
       <HistoryCard history={history} currency={currency} />
 
       {historyQuery.isLoading ? (
         <div className="ios-surface flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm text-slate-500">
-          <Spinner /> Loading history...
+          <Spinner /> {m.history_loading()}
         </div>
       ) : historyQuery.hasNextPage ? (
         <>
           <InfiniteScrollSentinel onIntersect={() => historyQuery.fetchNextPage()} disabled={historyQuery.isFetchingNextPage} />
           {historyQuery.isFetchingNextPage ? (
             <div className="ios-surface flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm text-slate-500">
-              <Spinner /> Loading more...
+              <Spinner /> {m.history_loading_more()}
             </div>
           ) : null}
         </>
       ) : (
-        <p className="text-center text-xs text-slate-500">You reached the end of history.</p>
+        <p className="text-center text-xs text-slate-500">{m.history_end_reached()}</p>
       )}
     </IosAppShell>
   )
