@@ -1,7 +1,14 @@
+import { executeReminderDelivery } from '@/server/functions/reminders/execute-reminder-delivery'
 import { runReminderPlanner } from '@/server/functions/reminders/run-reminder-planner'
 
 export async function POST({ request }: { request: Request }) {
-  let payload: { dryRun?: boolean; now?: string; limitUsers?: number } = {}
+  let payload: {
+    dryRun?: boolean
+    now?: string
+    limitUsers?: number
+    mode?: 'plan' | 'deliver' | 'all'
+    limit?: number
+  } = {}
 
   try {
     payload = (await request.json()) as typeof payload
@@ -9,11 +16,32 @@ export async function POST({ request }: { request: Request }) {
     payload = {}
   }
 
-  const result = await runReminderPlanner({
-    dryRun: payload.dryRun ?? true,
-    now: payload.now ? new Date(payload.now) : undefined,
-    limitUsers: payload.limitUsers,
-  })
+  const dryRun = payload.dryRun ?? true
+  const now = payload.now ? new Date(payload.now) : undefined
+  const mode = payload.mode ?? 'all'
 
-  return Response.json(result)
+  const planning =
+    mode === 'deliver'
+      ? null
+      : await runReminderPlanner({
+          dryRun,
+          now,
+          limitUsers: payload.limitUsers,
+        })
+
+  const delivery =
+    mode === 'plan'
+      ? null
+      : await executeReminderDelivery({
+          dryRun,
+          now,
+          limit: payload.limit,
+        })
+
+  return Response.json({
+    dryRun,
+    mode,
+    planning,
+    delivery,
+  })
 }
