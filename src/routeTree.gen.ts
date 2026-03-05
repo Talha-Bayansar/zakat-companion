@@ -16,6 +16,8 @@ import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as DashboardHistoryIndexRouteImport } from './routes/dashboard/history/index'
+import { Route as DashboardCalculatorIndexRouteImport } from './routes/dashboard/calculator/index'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -55,6 +57,17 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardHistoryIndexRoute = DashboardHistoryIndexRouteImport.update({
+  id: '/dashboard/history/',
+  path: '/dashboard/history/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardCalculatorIndexRoute =
+  DashboardCalculatorIndexRouteImport.update({
+    id: '/dashboard/calculator/',
+    path: '/dashboard/calculator/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
   id: '/auth/sign-up/',
   path: '/auth/sign-up/',
@@ -82,6 +95,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
+  '/dashboard/calculator/': typeof DashboardCalculatorIndexRoute
+  '/dashboard/history/': typeof DashboardHistoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +109,8 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
+  '/dashboard/calculator': typeof DashboardCalculatorIndexRoute
+  '/dashboard/history': typeof DashboardHistoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +124,8 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
+  '/dashboard/calculator/': typeof DashboardCalculatorIndexRoute
+  '/dashboard/history/': typeof DashboardHistoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +140,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
+    | '/dashboard/calculator/'
+    | '/dashboard/history/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +154,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/dashboard/calculator'
+    | '/dashboard/history'
   id:
     | '__root__'
     | '/'
@@ -145,6 +168,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
+    | '/dashboard/calculator/'
+    | '/dashboard/history/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +183,8 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   AuthSignInIndexRoute: typeof AuthSignInIndexRoute
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
+  DashboardCalculatorIndexRoute: typeof DashboardCalculatorIndexRoute
+  DashboardHistoryIndexRoute: typeof DashboardHistoryIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -211,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/history/': {
+      id: '/dashboard/history/'
+      path: '/dashboard/history'
+      fullPath: '/dashboard/history/'
+      preLoaderRoute: typeof DashboardHistoryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/calculator/': {
+      id: '/dashboard/calculator/'
+      path: '/dashboard/calculator'
+      fullPath: '/dashboard/calculator/'
+      preLoaderRoute: typeof DashboardCalculatorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/sign-up/': {
       id: '/auth/sign-up/'
       path: '/auth/sign-up'
@@ -246,6 +287,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   AuthSignInIndexRoute: AuthSignInIndexRoute,
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
+  DashboardCalculatorIndexRoute: DashboardCalculatorIndexRoute,
+  DashboardHistoryIndexRoute: DashboardHistoryIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
