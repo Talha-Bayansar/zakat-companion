@@ -2,13 +2,18 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import Decimal from 'decimal.js'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, Tick01Icon } from '@hugeicons/core-free-icons'
-import { type ReactNode, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
+import { InfiniteScrollSentinel } from '@/components/shared/infinite-scroll-sentinel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
+import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
 import { getPreferences } from '@/features/preferences/model/preferences'
+import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-assessment-history-infinite-query'
+import { useSaveAssessmentMutation } from '@/features/zakat/api/use-save-assessment-mutation'
 import { calculateZakat, formatMoney, type ZakatCalculationInput } from '@/features/zakat/model/calculate-zakat'
 import {
   defaultFinancialValues,
@@ -17,9 +22,10 @@ import {
   type EditableFinancialField,
   type StoredFinancialValues,
 } from '@/features/zakat/model/financial-values'
-import { createAssessmentSnapshot, type AssessmentSnapshot } from '@/features/zakat/model/assessment-history'
+import { type AssessmentSnapshot } from '@/features/zakat/model/assessment-history'
 import { m } from '@/paraglide/messages.js'
 import { authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard/')({
   beforeLoad: async () => {
@@ -38,12 +44,47 @@ function DashboardPage() {
   const preferences = useMemo(() => getPreferences(), [])
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
-  const [history, setHistory] = useState<AssessmentSnapshot[]>([])
+  const [didHydrateFromServer, setDidHydrateFromServer] = useState(false)
+
+  const { data: currentUser } = useCurrentUserQuery()
+  const userId = currentUser?.id
+
+  const historyQuery = useAssessmentHistoryInfiniteQuery(userId)
+  const saveAssessmentMutation = useSaveAssessmentMutation(userId)
+
+  const history = useMemo(() => {
+    const items = historyQuery.data?.pages.flatMap((page) => page.items) ?? []
+    return items.map(mapAssessmentToSnapshot)
+  }, [historyQuery.data])
 
   const result = useMemo(() => {
     const { lastUpdatedAt: _lastUpdatedAt, ...calculationValues } = form
     return calculateZakat(calculationValues as ZakatCalculationInput)
   }, [form])
+
+  useEffect(() => {
+    if (didHydrateFromServer) return
+    if (!history.length) return
+
+    const latest = history[0]
+    const nextForm: StoredFinancialValues = {
+      cash: latest.inputs.cash,
+      gold: latest.inputs.gold,
+      silver: latest.inputs.silver,
+      investments: latest.inputs.investments,
+      businessAssets: latest.inputs.businessAssets,
+      receivables: latest.inputs.receivables,
+      debtsDue: latest.inputs.debtsDue,
+      otherLiabilities: latest.inputs.otherLiabilities,
+      nisab: latest.inputs.nisab,
+      lastUpdatedAt: latest.assessmentAt,
+    }
+
+    setForm(nextForm)
+    saveFinancialValues(nextForm)
+    setDidHydrateFromServer(true)
+  }, [didHydrateFromServer, history])
+
   const currency = preferences.currency || 'EUR'
   const wizardCopy = {
     title: m.dashboard_wizard_title(),
@@ -84,18 +125,32 @@ function DashboardPage() {
     setStep(1)
   }
 
+  async function saveAssessment() {
+    if (!userId) {
+      toast.error('Session not ready. Please refresh and try again.')
+      return
+    }
 
-  function saveAssessment() {
-    const snapshot = createAssessmentSnapshot({
-      values: form,
-      result,
-    })
+    try {
+      await saveAssessmentMutation.mutateAsync({
+        userId,
+        values: {
+          cash: form.cash,
+          gold: form.gold,
+          silver: form.silver,
+          investments: form.investments,
+          businessAssets: form.businessAssets,
+          receivables: form.receivables,
+          debtsDue: form.debtsDue,
+          otherLiabilities: form.otherLiabilities,
+          nisab: form.nisab,
+        },
+      })
 
-    setHistory((prev) =>
-      [snapshot, ...prev].sort(
-        (a, b) => new Date(b.assessmentAt).getTime() - new Date(a.assessmentAt).getTime(),
-      ),
-    )
+      toast.success('Assessment saved')
+    } catch {
+      toast.error('Failed to save assessment on server')
+    }
   }
 
   return (
@@ -108,7 +163,7 @@ function DashboardPage() {
         nisab={formatMoney(result.nisab, currency)}
         zakatDue={formatMoney(result.zakatDue, currency)}
         isEligible={result.isEligible}
-        isSaving={false}
+        isSaving={saveAssessmentMutation.isPending}
         onSaveAssessment={saveAssessment}
       />
 
@@ -230,7 +285,14 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      <HistoryCard history={history} currency={currency} />
+      <HistoryCard
+        history={history}
+        currency={currency}
+        isLoading={historyQuery.isLoading}
+        isFetchingNextPage={historyQuery.isFetchingNextPage}
+        hasNextPage={historyQuery.hasNextPage}
+        onLoadMore={() => historyQuery.fetchNextPage()}
+      />
     </IosAppShell>
   )
 }
@@ -336,50 +398,104 @@ function ResultCard({
 function HistoryCard({
   history,
   currency,
+  isLoading,
+  isFetchingNextPage,
+  hasNextPage,
+  onLoadMore,
 }: {
   history: AssessmentSnapshot[]
   currency: string
+  isLoading: boolean
+  isFetchingNextPage: boolean
+  hasNextPage?: boolean
+  onLoadMore: () => void
 }) {
   return (
     <Card className="ios-surface">
       <CardHeader>
         <CardTitle className="ios-section-title">Previous assessments</CardTitle>
-        <p className="ios-copy-muted">Saved snapshots in reverse chronological order.</p>
+        <p className="ios-copy-muted">Saved snapshots with infinite scroll.</p>
       </CardHeader>
       <CardContent className="space-y-2">
-        {history.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+            <Spinner />
+            <span>Loading saved assessments...</span>
+          </div>
+        ) : history.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
             No saved assessments yet. Tap “Save assessment” to keep this result.
           </div>
         ) : (
-          history.map((snapshot) => (
-            <div key={snapshot.id} className="rounded-2xl border border-white/80 bg-white/85 p-3">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold tracking-[0.12em] text-slate-500">{formatAssessmentDate(snapshot.assessmentAt)}</p>
-                <span
-                  className={
-                    snapshot.nisabState === 'ABOVE'
-                      ? 'rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700'
-                      : 'rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600'
-                  }
-                >
-                  {snapshot.nisabState === 'ABOVE' ? 'Above nisab' : 'Below nisab'}
-                </span>
-              </div>
+          <>
+            {history.map((snapshot) => (
+              <div key={snapshot.id} className="rounded-2xl border border-white/80 bg-white/85 p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold tracking-[0.12em] text-slate-500">{formatAssessmentDate(snapshot.assessmentAt)}</p>
+                  <span
+                    className={
+                      snapshot.nisabState === 'ABOVE'
+                        ? 'rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700'
+                        : 'rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600'
+                    }
+                  >
+                    {snapshot.nisabState === 'ABOVE' ? 'Above nisab' : 'Below nisab'}
+                  </span>
+                </div>
 
-              <div className="space-y-1.5 text-sm">
-                <SummaryRow label="Assets" value={formatFromStored(snapshot.totalAssets, currency)} />
-                <SummaryRow label="Liabilities" value={formatFromStored(snapshot.totalLiabilities, currency)} />
-                <SummaryRow label="Net zakatable wealth" value={formatFromStored(snapshot.netWorth, currency)} />
-                <SummaryRow label="Nisab value" value={formatFromStored(snapshot.nisabValue, currency)} />
-                <SummaryRow label="Zakat due" value={formatFromStored(snapshot.zakatDue, currency)} />
+                <div className="space-y-1.5 text-sm">
+                  <SummaryRow label="Assets" value={formatFromStored(snapshot.totalAssets, currency)} />
+                  <SummaryRow label="Liabilities" value={formatFromStored(snapshot.totalLiabilities, currency)} />
+                  <SummaryRow label="Net zakatable wealth" value={formatFromStored(snapshot.netWorth, currency)} />
+                  <SummaryRow label="Nisab value" value={formatFromStored(snapshot.nisabValue, currency)} />
+                  <SummaryRow label="Zakat due" value={formatFromStored(snapshot.zakatDue, currency)} />
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+
+            {hasNextPage ? (
+              <>
+                <InfiniteScrollSentinel onIntersect={onLoadMore} disabled={isFetchingNextPage} />
+                {isFetchingNextPage ? (
+                  <div className="flex items-center justify-center py-2 text-sm text-slate-500">
+                    <Spinner className="mr-2" /> Loading more...
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <p className="py-1 text-center text-xs text-slate-500">You reached the end of history.</p>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
   )
+}
+
+type AssessmentHistoryRow = NonNullable<ReturnType<typeof useAssessmentHistoryInfiniteQuery>['data']>['pages'][number]['items'][number]
+
+function mapAssessmentToSnapshot(row: AssessmentHistoryRow): AssessmentSnapshot {
+  return {
+    id: row.id,
+    assessmentAt: row.assessmentAt.toISOString(),
+    inputs: {
+      cash: row.cash,
+      gold: row.gold,
+      silver: row.silver,
+      investments: row.investments,
+      businessAssets: row.businessAssets,
+      receivables: row.receivables,
+      debtsDue: row.debtsDue,
+      otherLiabilities: row.otherLiabilities,
+      nisab: row.nisabValue,
+    },
+    totalAssets: row.totalAssets,
+    totalLiabilities: row.totalLiabilities,
+    netWorth: row.netZakatableWealth,
+    nisabValue: row.nisabValue,
+    nisabState: row.nisabState,
+    zakatDue: row.zakatDueNow,
+  }
 }
 
 function formatFromStored(amount: string, currency: string) {

@@ -9,6 +9,7 @@ export const queryKeys = {
   },
   zakatAssessment: {
     all: ['zakat-assessment'] as const,
-    latestByUser: (userId: string) => [...queryKeys.zakatAssessment.all, 'latest', userId] as const
+    latestByUser: (userId: string) => [...queryKeys.zakatAssessment.all, 'latest', userId] as const,
+    historyInfiniteByUser: (userId: string) => [...queryKeys.zakatAssessment.all, 'history-infinite', userId] as const,
   }
 }

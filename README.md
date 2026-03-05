@@ -26,6 +26,8 @@ Zakat Companion PWA scaffold using TanStack Start, shadcn/ui conventions, Better
 - prefer shared layout wrappers (`src/components/layout/*`) over page-specific shell code
 - maintain this design language across all future routes/components unless explicitly changed
 - loading states must use shared `Spinner` via `Button`'s `loading` / `loadingText` props (default pattern for future components)
+- data fetching/mutations should use reusable TanStack Query hooks wrapping server functions (avoid ad-hoc per-page fetch logic)
+- long lists should prefer infinite-query + shared `InfiniteScrollSentinel` pattern
 
 ## Runtime note
 
