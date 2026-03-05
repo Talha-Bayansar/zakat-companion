@@ -78,9 +78,6 @@ function SignInPage() {
           >
             <form.Field
               name="email"
-              validators={{
-                onChange: z.string().email(m.auth_error_invalid_email()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_invalid_email())
@@ -104,9 +101,6 @@ function SignInPage() {
 
             <form.Field
               name="password"
-              validators={{
-                onChange: z.string().min(1, m.auth_error_password_required()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_password_required())

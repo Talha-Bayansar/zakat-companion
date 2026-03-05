@@ -81,9 +81,6 @@ function SignUpPage() {
           >
             <form.Field
               name="name"
-              validators={{
-                onChange: z.string().trim().min(1, m.auth_error_name_required()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_name_required())
@@ -106,9 +103,6 @@ function SignUpPage() {
 
             <form.Field
               name="email"
-              validators={{
-                onChange: z.string().email(m.auth_error_invalid_email()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_invalid_email())
@@ -132,9 +126,6 @@ function SignUpPage() {
 
             <form.Field
               name="password"
-              validators={{
-                onChange: z.string().min(8, m.auth_error_password_min()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_password_min())
