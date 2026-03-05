@@ -6,21 +6,23 @@ import { m } from '@/paraglide/messages.js'
 
 export function AuthWrapper({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
-  const { data: user, isLoading, isFetching } = useCurrentUserQuery()
+  const { data: user, isLoading } = useCurrentUserQuery()
 
   useEffect(() => {
-    if (!isLoading && !isFetching && !user) {
+    if (!isLoading && user === null) {
       void navigate({ to: '/auth/sign-in' })
     }
-  }, [isLoading, isFetching, user, navigate])
+  }, [isLoading, user, navigate])
 
-  if (isLoading || isFetching || !user) {
+  if (isLoading || typeof user === 'undefined') {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-slate-600">
         <Spinner className="mr-2" /> {m.auth_checking_session()}
       </div>
     )
   }
+
+  if (!user) return null
 
   return <>{children}</>
 }
