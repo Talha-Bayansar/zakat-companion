@@ -33,8 +33,23 @@ function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [notificationBusy, setNotificationBusy] = useState(false)
 
-  const notificationSupported = typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator
-  const notificationPermission = typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
+  const hasWindow = typeof window !== 'undefined'
+  const hasNotificationApi = hasWindow && 'Notification' in window
+  const hasServiceWorkerApi = hasWindow && 'serviceWorker' in navigator
+  const isSecureContext = hasWindow ? window.isSecureContext : false
+
+  const notificationSupported = hasNotificationApi && hasServiceWorkerApi && isSecureContext
+  const notificationPermission = hasNotificationApi ? Notification.permission : 'default'
+
+  const unsupportedReason = !hasWindow
+    ? null
+    : !isSecureContext
+      ? m.settings_notifications_reason_insecure_context()
+      : !hasNotificationApi
+        ? m.settings_notifications_reason_notification_api_missing()
+        : !hasServiceWorkerApi
+          ? m.settings_notifications_reason_service_worker_missing()
+          : null
 
   async function enableNotifications() {
     if (!currentUser?.id) {
@@ -187,6 +202,10 @@ function SettingsPage() {
                   : m.settings_notification_status_unsupported()}
               </span>
             </div>
+
+            {!notificationSupported && unsupportedReason ? (
+              <p className="mb-2 text-xs text-rose-700">{m.settings_notifications_not_supported_with_reason({ reason: unsupportedReason })}</p>
+            ) : null}
 
             {preferences.notificationsEnabled ? (
               <Button type="button" variant="outline" className="w-full" onClick={disableNotifications} loading={notificationBusy}>

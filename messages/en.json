@@ -190,5 +190,9 @@
   "settings_notification_status_default": "Not enabled",
   "settings_notification_status_unsupported": "Unsupported",
   "settings_enable_notifications_action": "Enable push notifications",
-  "settings_disable_notifications_action": "Disable push notifications"
+  "settings_disable_notifications_action": "Disable push notifications",
+  "settings_notifications_not_supported_with_reason": "Notifications are not supported here: {reason}",
+  "settings_notifications_reason_insecure_context": "This page is not running in a secure context (HTTPS required).",
+  "settings_notifications_reason_notification_api_missing": "Browser Notification API is unavailable.",
+  "settings_notifications_reason_service_worker_missing": "Service Worker API is unavailable (often blocked in in-app browsers)."
 }
