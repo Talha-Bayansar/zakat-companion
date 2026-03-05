@@ -3,14 +3,16 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { getDb } from '@/server/db'
 import * as schema from '@/server/db/schema'
-import { getRequiredRuntimeValue, type RuntimeBindings } from '@/server/env'
-
 let cachedAuth: any = null
 let cachedAuthKey: string | null = null
 
-export function getAuth(bindings?: RuntimeBindings) {
-  const secret = getRequiredRuntimeValue('BETTER_AUTH_SECRET', bindings)
-  const databaseUrl = getRequiredRuntimeValue('DATABASE_URL', bindings)
+export function getAuth() {
+  const secret = process.env.BETTER_AUTH_SECRET
+  const databaseUrl = process.env.DATABASE_URL
+
+  if (!secret) throw new Error('BETTER_AUTH_SECRET is not set')
+  if (!databaseUrl) throw new Error('DATABASE_URL is not set')
+
   const cacheKey = `${databaseUrl}::${secret}`
 
   if (cachedAuth && cachedAuthKey === cacheKey) {
@@ -19,7 +21,7 @@ export function getAuth(bindings?: RuntimeBindings) {
 
   const auth = betterAuth({
     secret,
-    database: drizzleAdapter(getDb(bindings), {
+    database: drizzleAdapter(getDb(), {
       provider: 'pg',
       schema,
     }),
