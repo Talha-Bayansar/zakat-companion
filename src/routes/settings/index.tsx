@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
 import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { NotificationToggleRow } from '@/features/notifications/components/notification-toggle-row'
 import { isPushSubscribed, subscribeToPush, unsubscribeFromPush } from '@/features/notifications/lib/push-client'
 import { getPreferences, savePreferences, type UserPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
@@ -214,30 +215,28 @@ function SettingsPage() {
             />
           </div>
 
-          <div className="rounded-2xl border border-white/70 bg-white/70 p-3">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-medium text-slate-700">{m.settings_enable_notifications()}</span>
-              <span className="text-xs text-slate-500">
-                {notificationSupported
-                  ? notificationPermission === 'granted'
-                    ? m.settings_notification_status_granted()
-                    : notificationPermission === 'denied'
-                      ? m.settings_notification_status_denied()
-                      : m.settings_notification_status_default()
-                  : m.settings_notification_status_unsupported()}
-              </span>
-            </div>
-
-            {notificationsEnabledEffective ? (
-              <Button type="button" variant="outline" className="w-full" onClick={disableNotifications} loading={notificationBusy} disabled={!currentUser?.id}>
-                {m.settings_disable_notifications_action()}
-              </Button>
-            ) : (
-              <Button type="button" className="w-full" onClick={enableNotifications} loading={notificationBusy} disabled={!currentUser?.id}>
-                {m.settings_enable_notifications_action()}
-              </Button>
-            )}
-          </div>
+          <NotificationToggleRow
+            label={m.settings_enable_notifications()}
+            status={
+              notificationSupported
+                ? notificationPermission === 'granted'
+                  ? m.settings_notification_status_granted()
+                  : notificationPermission === 'denied'
+                    ? m.settings_notification_status_denied()
+                    : m.settings_notification_status_default()
+                : m.settings_notification_status_unsupported()
+            }
+            checked={notificationsEnabledEffective}
+            disabled={!currentUser?.id}
+            busy={notificationBusy}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                void enableNotifications()
+              } else {
+                void disableNotifications()
+              }
+            }}
+          />
 
           <Button
             type="button"
