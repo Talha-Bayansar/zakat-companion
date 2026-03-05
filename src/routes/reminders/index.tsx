@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { m } from '@/paraglide/messages.js'
 
 export const Route = createFileRoute('/reminders/')({
   component: RemindersPage,
@@ -8,13 +9,13 @@ export const Route = createFileRoute('/reminders/')({
 
 function RemindersPage() {
   return (
-    <IosAppShell title="Reminders" subtitle="Smart annual and monthly nudges" activeTab="dashboard">
+    <IosAppShell title={m.reminders_title()} subtitle={m.reminders_subtitle()} activeTab="dashboard">
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Reminder center coming next</CardTitle>
+          <CardTitle className="ios-section-title">{m.reminders_coming_next_title()}</CardTitle>
         </CardHeader>
         <CardContent className="ios-copy-muted">
-          We’re preparing polished reminder controls here with notification timing, cadence, and regional prayer-aware defaults.
+          {m.reminders_coming_next_body()}
         </CardContent>
       </Card>
     </IosAppShell>

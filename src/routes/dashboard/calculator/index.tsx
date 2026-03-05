@@ -141,10 +141,10 @@ function CalculatorPage() {
           {step === 1 ? (
             <WizardSection title={m.dashboard_wizard_step1_title()} hint={m.dashboard_wizard_step1_hint()}>
               <div className="grid grid-cols-2 gap-2.5">
-                <MoneyField label="Cash" value={form.cash} helperText={m.dashboard_wizard_field_cash_guide()} onChange={(v) => updateField('cash', v)} />
-                <MoneyField label="Gold value" value={form.gold} helperText={m.dashboard_wizard_field_gold_guide()} onChange={(v) => updateField('gold', v)} />
-                <MoneyField label="Silver value" value={form.silver} helperText={m.dashboard_wizard_field_silver_guide()} onChange={(v) => updateField('silver', v)} />
-                <MoneyField label="Investments" value={form.investments} helperText={m.dashboard_wizard_field_investments_guide()} onChange={(v) => updateField('investments', v)} />
+                <MoneyField label={m.field_cash()} value={form.cash} helperText={m.dashboard_wizard_field_cash_guide()} onChange={(v) => updateField('cash', v)} />
+                <MoneyField label={m.field_gold_value()} value={form.gold} helperText={m.dashboard_wizard_field_gold_guide()} onChange={(v) => updateField('gold', v)} />
+                <MoneyField label={m.field_silver_value()} value={form.silver} helperText={m.dashboard_wizard_field_silver_guide()} onChange={(v) => updateField('silver', v)} />
+                <MoneyField label={m.field_investments()} value={form.investments} helperText={m.dashboard_wizard_field_investments_guide()} onChange={(v) => updateField('investments', v)} />
               </div>
             </WizardSection>
           ) : null}
@@ -153,17 +153,17 @@ function CalculatorPage() {
             <WizardSection title={m.dashboard_wizard_step2_title()} hint={m.dashboard_wizard_step2_hint()}>
               <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{m.dashboard_wizard_step2_due_now_guide()}</div>
               <div className="grid grid-cols-2 gap-2.5">
-                <MoneyField label="Business assets" value={form.businessAssets} helperText={m.dashboard_wizard_field_business_assets_guide()} onChange={(v) => updateField('businessAssets', v)} />
-                <MoneyField label="Receivables" value={form.receivables} helperText={m.dashboard_wizard_field_receivables_guide()} onChange={(v) => updateField('receivables', v)} />
-                <MoneyField label="Debts due now" value={form.debtsDue} helperText={m.dashboard_wizard_field_debts_due_guide()} onChange={(v) => updateField('debtsDue', v)} />
-                <MoneyField label="Other liabilities" value={form.otherLiabilities} helperText={m.dashboard_wizard_field_other_liabilities_guide()} onChange={(v) => updateField('otherLiabilities', v)} />
+                <MoneyField label={m.field_business_assets()} value={form.businessAssets} helperText={m.dashboard_wizard_field_business_assets_guide()} onChange={(v) => updateField('businessAssets', v)} />
+                <MoneyField label={m.field_receivables()} value={form.receivables} helperText={m.dashboard_wizard_field_receivables_guide()} onChange={(v) => updateField('receivables', v)} />
+                <MoneyField label={m.field_debts_due_now()} value={form.debtsDue} helperText={m.dashboard_wizard_field_debts_due_guide()} onChange={(v) => updateField('debtsDue', v)} />
+                <MoneyField label={m.field_other_liabilities()} value={form.otherLiabilities} helperText={m.dashboard_wizard_field_other_liabilities_guide()} onChange={(v) => updateField('otherLiabilities', v)} />
               </div>
             </WizardSection>
           ) : null}
 
           {step === 3 ? (
             <WizardSection title={m.dashboard_wizard_step3_title()} hint={m.dashboard_wizard_step3_hint()}>
-              <MoneyField label="Nisab threshold" value={form.nisab} helperText={m.dashboard_wizard_field_nisab_guide()} onChange={(v) => updateField('nisab', v)} />
+              <MoneyField label={m.field_nisab_threshold()} value={form.nisab} helperText={m.dashboard_wizard_field_nisab_guide()} onChange={(v) => updateField('nisab', v)} />
               <div className="grid grid-cols-2 gap-2.5">
                 <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '5500')}>{m.nisab_preset_gold()}</Button>
                 <Button type="button" className="ios-secondary-action" onClick={() => updateField('nisab', '450')}>{m.nisab_preset_silver()}</Button>

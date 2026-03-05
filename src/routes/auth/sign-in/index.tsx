@@ -61,10 +61,10 @@ function SignInPage() {
           return
         }
 
-        toast.success('Signed in successfully')
+        toast.success(m.auth_signed_in_success())
         await navigate({ to: '/dashboard' })
       } catch {
-        toast.error('Network error. Please try again.')
+        toast.error(m.error_network_try_again())
       }
     },
   })
