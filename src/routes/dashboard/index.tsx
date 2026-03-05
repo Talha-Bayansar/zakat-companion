@@ -2,12 +2,13 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import Decimal from 'decimal.js'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, Tick01Icon } from '@hugeicons/core-free-icons'
-import { type ReactNode, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { calculateZakat, formatMoney, type ZakatCalculationInput } from '@/features/zakat/model/calculate-zakat'
 import {
@@ -20,6 +21,9 @@ import {
 import { createAssessmentSnapshot, type AssessmentSnapshot } from '@/features/zakat/model/assessment-history'
 import { m } from '@/paraglide/messages.js'
 import { authClient } from '@/lib/auth-client'
+import { getAssessmentHistory } from '@/server/functions/zakat/get-assessment-history'
+import { saveAssessment as saveAssessmentOnServer } from '@/server/functions/zakat/save-assessment'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard/')({
   beforeLoad: async () => {
@@ -39,6 +43,9 @@ function DashboardPage() {
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
   const [history, setHistory] = useState<AssessmentSnapshot[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
   const result = useMemo(() => {
     const { lastUpdatedAt: _lastUpdatedAt, ...calculationValues } = form
@@ -67,6 +74,62 @@ function DashboardPage() {
     nisabGuide: m.dashboard_wizard_field_nisab_guide(),
   } as const
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadServerData() {
+      setIsLoadingHistory(true)
+
+      try {
+        const session = await authClient.getSession()
+        const currentUserId = session.data?.user?.id
+
+        if (!currentUserId) {
+          if (!cancelled) setIsLoadingHistory(false)
+          return
+        }
+
+        if (!cancelled) setUserId(currentUserId)
+
+        const rows = await getAssessmentHistory({ data: { userId: currentUserId, limit: 20 } })
+
+        if (cancelled) return
+
+        const nextHistory = rows.map(mapAssessmentToSnapshot)
+        setHistory(nextHistory)
+
+        const latest = nextHistory[0]
+        if (latest) {
+          const nextForm: StoredFinancialValues = {
+            cash: latest.inputs.cash,
+            gold: latest.inputs.gold,
+            silver: latest.inputs.silver,
+            investments: latest.inputs.investments,
+            businessAssets: latest.inputs.businessAssets,
+            receivables: latest.inputs.receivables,
+            debtsDue: latest.inputs.debtsDue,
+            otherLiabilities: latest.inputs.otherLiabilities,
+            nisab: latest.inputs.nisab,
+            lastUpdatedAt: latest.assessmentAt,
+          }
+
+          setForm(nextForm)
+          saveFinancialValues(nextForm)
+        }
+      } catch {
+        if (!cancelled) toast.error('Failed to load assessment history')
+      } finally {
+        if (!cancelled) setIsLoadingHistory(false)
+      }
+    }
+
+    void loadServerData()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   function updateField(name: EditableFinancialField, value: string) {
     const next = {
       ...form,
@@ -85,17 +148,52 @@ function DashboardPage() {
   }
 
 
-  function saveAssessment() {
-    const snapshot = createAssessmentSnapshot({
-      values: form,
-      result,
-    })
+  async function saveAssessment() {
+    if (!userId) {
+      toast.error('Session not ready. Please refresh and try again.')
+      return
+    }
 
-    setHistory((prev) =>
-      [snapshot, ...prev].sort(
-        (a, b) => new Date(b.assessmentAt).getTime() - new Date(a.assessmentAt).getTime(),
-      ),
-    )
+    setIsSaving(true)
+
+    try {
+      await saveAssessmentOnServer({
+        data: {
+          userId,
+          values: {
+            cash: form.cash,
+            gold: form.gold,
+            silver: form.silver,
+            investments: form.investments,
+            businessAssets: form.businessAssets,
+            receivables: form.receivables,
+            debtsDue: form.debtsDue,
+            otherLiabilities: form.otherLiabilities,
+            nisab: form.nisab,
+          },
+        },
+      })
+
+      const rows = await getAssessmentHistory({ data: { userId, limit: 20 } })
+      const nextHistory = rows.map(mapAssessmentToSnapshot)
+      setHistory(nextHistory)
+      toast.success('Assessment saved')
+    } catch {
+      const fallbackSnapshot = createAssessmentSnapshot({
+        values: form,
+        result,
+      })
+
+      setHistory((prev) =>
+        [fallbackSnapshot, ...prev].sort(
+          (a, b) => new Date(b.assessmentAt).getTime() - new Date(a.assessmentAt).getTime(),
+        ),
+      )
+
+      toast.error('Failed to save assessment on server')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -108,7 +206,7 @@ function DashboardPage() {
         nisab={formatMoney(result.nisab, currency)}
         zakatDue={formatMoney(result.zakatDue, currency)}
         isEligible={result.isEligible}
-        isSaving={false}
+        isSaving={isSaving}
         onSaveAssessment={saveAssessment}
       />
 
@@ -230,7 +328,7 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      <HistoryCard history={history} currency={currency} />
+      <HistoryCard history={history} currency={currency} isLoading={isLoadingHistory} />
     </IosAppShell>
   )
 }
@@ -336,9 +434,11 @@ function ResultCard({
 function HistoryCard({
   history,
   currency,
+  isLoading,
 }: {
   history: AssessmentSnapshot[]
   currency: string
+  isLoading: boolean
 }) {
   return (
     <Card className="ios-surface">
@@ -347,7 +447,12 @@ function HistoryCard({
         <p className="ios-copy-muted">Saved snapshots in reverse chronological order.</p>
       </CardHeader>
       <CardContent className="space-y-2">
-        {history.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+            <Spinner />
+            <span>Loading saved assessments...</span>
+          </div>
+        ) : history.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
             No saved assessments yet. Tap “Save assessment” to keep this result.
           </div>
@@ -380,6 +485,32 @@ function HistoryCard({
       </CardContent>
     </Card>
   )
+}
+
+type AssessmentHistoryRow = Awaited<ReturnType<typeof getAssessmentHistory>>[number]
+
+function mapAssessmentToSnapshot(row: AssessmentHistoryRow): AssessmentSnapshot {
+  return {
+    id: row.id,
+    assessmentAt: row.assessmentAt.toISOString(),
+    inputs: {
+      cash: row.cash,
+      gold: row.gold,
+      silver: row.silver,
+      investments: row.investments,
+      businessAssets: row.businessAssets,
+      receivables: row.receivables,
+      debtsDue: row.debtsDue,
+      otherLiabilities: row.otherLiabilities,
+      nisab: row.nisabValue,
+    },
+    totalAssets: row.totalAssets,
+    totalLiabilities: row.totalLiabilities,
+    netWorth: row.netZakatableWealth,
+    nisabValue: row.nisabValue,
+    nisabState: row.nisabState,
+    zakatDue: row.zakatDueNow,
+  }
 }
 
 function formatFromStored(amount: string, currency: string) {
