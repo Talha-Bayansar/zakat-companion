@@ -30,18 +30,23 @@ function ProfilePage() {
           <CardTitle className="ios-section-title">{m.profile_settings_title()}</CardTitle>
           <CardDescription className="ios-copy-muted">{m.profile_settings_body()}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent>
           <Link to="/settings" className="ios-secondary-action w-full justify-between">
             <span>Preferences</span>
             <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2.2} className="h-5 w-5 text-slate-500" aria-hidden />
           </Link>
+        </CardContent>
+      </Card>
 
-          <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">Account</p>
-            <Button type="button" variant="destructive" className="w-full" onClick={() => setConfirmOpen(true)}>
-              {m.auth_sign_out()}
-            </Button>
-          </div>
+      <Card className="ios-surface">
+        <CardHeader>
+          <CardTitle className="ios-section-title">Account</CardTitle>
+          <CardDescription className="ios-copy-muted">Danger zone actions.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button type="button" variant="destructive" className="w-full" onClick={() => setConfirmOpen(true)}>
+            {m.auth_sign_out()}
+          </Button>
         </CardContent>
       </Card>
 
@@ -59,8 +64,8 @@ function ProfilePage() {
               <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
                 Cancel
               </Button>
-              <Button type="button" variant="destructive" onClick={signOut} disabled={isSigningOut}>
-                {isSigningOut ? 'Signing out...' : m.auth_sign_out()}
+              <Button type="button" variant="destructive" onClick={signOut} loading={isSigningOut} loadingText="Signing out...">
+                {m.auth_sign_out()}
               </Button>
             </CardContent>
           </Card>
