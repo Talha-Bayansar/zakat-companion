@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import Decimal from 'decimal.js'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, Tick01Icon } from '@hugeicons/core-free-icons'
@@ -35,7 +35,6 @@ export const Route = createFileRoute('/dashboard/')({
 type WizardStep = 1 | 2 | 3
 
 function DashboardPage() {
-  const navigate = useNavigate()
   const preferences = useMemo(() => getPreferences(), [])
   const [step, setStep] = useState<WizardStep>(1)
   const [form, setForm] = useState<StoredFinancialValues>(() => getFinancialValues())
@@ -85,10 +84,6 @@ function DashboardPage() {
     setStep(1)
   }
 
-  async function signOut() {
-    await authClient.signOut()
-    await navigate({ to: '/auth/sign-in' })
-  }
 
   function saveAssessment() {
     const snapshot = createAssessmentSnapshot({
@@ -105,10 +100,6 @@ function DashboardPage() {
 
   return (
     <IosAppShell title={m.dashboard_title()} subtitle={m.dashboard_subtitle()} activeTab="dashboard">
-      <Button type="button" className="ios-secondary-action mb-3 w-full" onClick={signOut}>
-        {m.auth_sign_out()}
-      </Button>
-
       <ResultCard
         currency={currency}
         totalAssets={formatMoney(result.totalAssets, currency)}
