@@ -324,9 +324,9 @@ function ResultCard({
           </p>
         </div>
 
-        <Button type="button" className="ios-primary-action mt-3 w-full" onClick={onSaveAssessment} disabled={isSaving}>
+        <Button type="button" className="ios-primary-action mt-3 w-full" onClick={onSaveAssessment} loading={isSaving} loadingText="Saving...">
           <HugeiconsIcon icon={Tick01Icon} strokeWidth={2.1} className="mr-2 h-4 w-4" />
-          {isSaving ? 'Saving...' : 'Save assessment'}
+          Save assessment
         </Button>
       </CardContent>
     </Card>

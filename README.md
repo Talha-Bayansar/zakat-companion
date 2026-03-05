@@ -25,6 +25,7 @@ Zakat Companion PWA scaffold using TanStack Start, shadcn/ui conventions, Better
 - use shadcn/ui primitives for consistency and accessibility
 - prefer shared layout wrappers (`src/components/layout/*`) over page-specific shell code
 - maintain this design language across all future routes/components unless explicitly changed
+- loading states must use shared `Spinner` via `Button`'s `loading` / `loadingText` props (default pattern for future components)
 
 ## Runtime note
 
