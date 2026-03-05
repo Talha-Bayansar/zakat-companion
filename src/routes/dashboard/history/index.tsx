@@ -1,20 +1,16 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { InfiniteScrollSentinel } from '@/components/shared/infinite-scroll-sentinel'
 import { Spinner } from '@/components/ui/spinner'
 import { HistoryCard } from '@/features/zakat/components/history-card'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-assessment-history-infinite-query'
 import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
 import { getPreferences } from '@/features/preferences/model/preferences'
-import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/history/')({
-  beforeLoad: async () => {
-    const session = await authClient.getSession()
-    if (!session.data) throw redirect({ to: '/auth/sign-in' })
-  },
   component: DashboardHistoryPage,
 })
 
@@ -29,7 +25,8 @@ function DashboardHistoryPage() {
   const history = (historyQuery.data?.pages.flatMap((page) => page.items) ?? []).map(mapAssessmentHistoryRowToSnapshot)
 
   return (
-    <IosAppShell title={m.history_title()} subtitle={m.history_subtitle()} activeTab="dashboard">
+    <AuthWrapper>
+      <IosAppShell title={m.history_title()} subtitle={m.history_subtitle()} activeTab="dashboard">
       <Link to="/dashboard" className="ios-secondary-action w-full">← {m.back_to_dashboard()}</Link>
       <HistoryCard history={history} currency={currency} />
 
@@ -49,6 +46,7 @@ function DashboardHistoryPage() {
       ) : (
         <p className="text-center text-xs text-slate-500">{m.history_end_reached()}</p>
       )}
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }
