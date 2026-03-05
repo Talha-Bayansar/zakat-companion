@@ -39,15 +39,20 @@ This scaffold uses the current Vite-based TanStack Start setup (not Vinxi script
 5. build first vertical slice: calculate-zakat
 
 
-## Cloudflare deploy
+## Netlify deploy
 
-This repo includes `wrangler.jsonc` configured for TanStack Start build output:
+This repo is configured for Netlify using `@netlify/vite-plugin-tanstack-start`.
 
-- Worker entry: `dist/server/server.js`
-- Static assets: `dist/client`
-
-Build before deploy:
+Build and deploy with Netlify CLI:
 
 ```bash
 npm run build
+npx netlify deploy
 ```
+
+For manual Netlify configuration, `netlify.toml` is included with:
+
+- build command: `vite build`
+- publish dir: `dist/client`
+- local dev command: `vite dev`
+- local dev port: `3000`

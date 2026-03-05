@@ -4,17 +4,14 @@ import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { db } from '@/server/db'
 import * as schema from '@/server/db/schema'
 
-const betterAuthSecret = process.env.BETTER_AUTH_SECRET
-
-if (!betterAuthSecret) {
-  throw new Error('BETTER_AUTH_SECRET is not set')
-}
+const secret = process.env.BETTER_AUTH_SECRET
+if (!secret) throw new Error('BETTER_AUTH_SECRET is not set')
 
 export const auth = betterAuth({
-  secret: betterAuthSecret,
+  secret,
   database: drizzleAdapter(db, {
     provider: 'pg',
-    schema
+    schema,
   }),
   emailAndPassword: {
     enabled: true,

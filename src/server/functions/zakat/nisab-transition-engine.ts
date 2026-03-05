@@ -39,7 +39,6 @@ export const processNisabTransition = async (params: {
   nisabState: NisabState
 }) => {
   const { userId, assessmentId, assessmentAt, nisabState } = params
-
   let step = 'load-current-state'
 
   try {

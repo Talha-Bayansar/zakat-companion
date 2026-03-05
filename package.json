@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^2.13.0",
+    "@netlify/vite-plugin-tanstack-start": "^1.2.15",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/router-plugin": "^1.163.3",
     "@types/node": "^22.10.1",
