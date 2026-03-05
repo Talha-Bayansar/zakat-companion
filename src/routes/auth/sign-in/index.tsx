@@ -1,5 +1,5 @@
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { revalidateLogic, useForm } from '@tanstack/react-form'
+import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,10 +40,6 @@ function SignInPage() {
       email: '',
       password: '',
     },
-    validationLogic: revalidateLogic({
-      mode: 'submit',
-      modeAfterSubmission: 'change',
-    }),
     validators: {
       onSubmit: signInSchema,
     },
@@ -82,9 +78,6 @@ function SignInPage() {
           >
             <form.Field
               name="email"
-              validators={{
-                onDynamic: z.string().email(m.auth_error_invalid_email()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_invalid_email())
@@ -108,9 +101,6 @@ function SignInPage() {
 
             <form.Field
               name="password"
-              validators={{
-                onDynamic: z.string().min(1, m.auth_error_password_required()),
-              }}
             >
               {(field) => {
                 const error = fieldError(field.state.meta.errors[0], m.auth_error_password_required())
