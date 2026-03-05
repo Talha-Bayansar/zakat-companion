@@ -57,3 +57,11 @@ For manual Netlify configuration, `netlify.toml` is included with:
 - publish dir: `dist/client`
 - local dev command: `vite dev`
 - local dev port: `3000`
+
+## Operations
+
+See `docs/OPERATIONS.md` for:
+
+- production env checks
+- DB migration runbook
+- auth smoke e2e test steps

@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "test:e2e:smoke": "playwright test tests/e2e/auth-smoke.spec.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@inlang/paraglide-js": "^2.13.0",
     "@netlify/vite-plugin-tanstack-start": "^1.2.15",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/router-plugin": "^1.163.3",
     "@types/node": "^22.10.1",

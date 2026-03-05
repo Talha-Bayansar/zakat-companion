@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
+import { toast } from 'sonner'
 
 const signUpSchema = z.object({
   name: z.string().trim().min(1),
@@ -46,21 +47,28 @@ function SignUpPage() {
       onSubmit: signUpSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      const result = await authClient.signUp.email({
-        name: value.name,
-        email: value.email,
-        password: value.password,
-      })
+      try {
+        const result = await authClient.signUp.email({
+          name: value.name,
+          email: value.email,
+          password: value.password,
+        })
 
-      if (result.error) {
-        formApi.setFieldMeta('email', (prev) => ({
-          ...prev,
-          errors: [result.error?.message ?? m.auth_error_sign_up_failed()],
-        }))
-        return
+        if (result.error) {
+          const message = result.error?.message ?? m.auth_error_sign_up_failed()
+          formApi.setFieldMeta('email', (prev) => ({
+            ...prev,
+            errors: [message],
+          }))
+          toast.error(message)
+          return
+        }
+
+        toast.success('Account created successfully')
+        await navigate({ to: '/dashboard' })
+      } catch {
+        toast.error('Network error. Please try again.')
       }
-
-      await navigate({ to: '/dashboard' })
     },
   })
 
