@@ -1,5 +1,5 @@
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { useForm } from '@tanstack/react-form'
+import { revalidateLogic, useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -42,6 +42,10 @@ function SignUpPage() {
       email: '',
       password: '',
     },
+    validationLogic: revalidateLogic({
+      mode: 'submit',
+      modeAfterSubmission: 'change',
+    }),
     validators: {
       onSubmit: signUpSchema,
     },
@@ -82,7 +86,7 @@ function SignUpPage() {
             <form.Field
               name="name"
               validators={{
-                onChange: z.string().trim().min(1, m.auth_error_name_required()),
+                onDynamic: z.string().trim().min(1, m.auth_error_name_required()),
               }}
             >
               {(field) => {
@@ -107,7 +111,7 @@ function SignUpPage() {
             <form.Field
               name="email"
               validators={{
-                onChange: z.string().email(m.auth_error_invalid_email()),
+                onDynamic: z.string().email(m.auth_error_invalid_email()),
               }}
             >
               {(field) => {
@@ -133,7 +137,7 @@ function SignUpPage() {
             <form.Field
               name="password"
               validators={{
-                onChange: z.string().min(8, m.auth_error_password_min()),
+                onDynamic: z.string().min(8, m.auth_error_password_min()),
               }}
             >
               {(field) => {
