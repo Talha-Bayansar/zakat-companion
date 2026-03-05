@@ -1,20 +1,16 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { IosAppShell } from '@/components/layout/ios-app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { SummaryRow } from '@/features/zakat/components/summary-row'
 import { formatAssessmentDate, formatFromStored } from '@/features/zakat/components/zakat-formatters'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
+import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useAssessmentByIdQuery } from '@/features/zakat/api/use-assessment-by-id-query'
 import { getPreferences } from '@/features/preferences/model/preferences'
-import { authClient } from '@/lib/auth-client'
 import { m } from '@/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/history/$assessmentId/')({
-  beforeLoad: async () => {
-    const session = await authClient.getSession()
-    if (!session.data) throw redirect({ to: '/auth/sign-in' })
-  },
   component: AssessmentDetailPage,
 })
 
@@ -29,7 +25,8 @@ function AssessmentDetailPage() {
   const row = detailQuery.data
 
   return (
-    <IosAppShell title={m.history_detail_title()} subtitle={m.history_detail_subtitle()} activeTab="dashboard">
+    <AuthWrapper>
+      <IosAppShell title={m.history_detail_title()} subtitle={m.history_detail_subtitle()} activeTab="dashboard">
       <Link to="/dashboard/history" className="ios-secondary-action w-full">← {m.back_to_history()}</Link>
 
       {detailQuery.isLoading ? (
@@ -53,6 +50,7 @@ function AssessmentDetailPage() {
           </CardContent>
         </Card>
       )}
-    </IosAppShell>
+      </IosAppShell>
+    </AuthWrapper>
   )
 }
