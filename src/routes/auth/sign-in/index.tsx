@@ -124,8 +124,8 @@ function SignInPage() {
 
             <form.Subscribe selector={(state) => [state.isSubmitting]}>
               {([isSubmitting]) => (
-                <Button type="submit" className="ios-primary-action" disabled={isSubmitting}>
-                  {isSubmitting ? m.auth_signing_in() : m.auth_sign_in()}
+                <Button type="submit" className="ios-primary-action" loading={isSubmitting} loadingText={m.auth_signing_in()}>
+                  {m.auth_sign_in()}
                 </Button>
               )}
             </form.Subscribe>

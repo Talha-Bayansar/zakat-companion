@@ -149,8 +149,8 @@ function SignUpPage() {
 
             <form.Subscribe selector={(state) => [state.isSubmitting]}>
               {([isSubmitting]) => (
-                <Button type="submit" className="ios-primary-action" disabled={isSubmitting}>
-                  {isSubmitting ? m.auth_creating_account() : m.auth_create_account()}
+                <Button type="submit" className="ios-primary-action" loading={isSubmitting} loadingText={m.auth_creating_account()}>
+                  {m.auth_create_account()}
                 </Button>
               )}
             </form.Subscribe>
