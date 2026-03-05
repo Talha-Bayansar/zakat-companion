@@ -28,9 +28,6 @@ export function extractBindings(input: unknown): RuntimeBindings | undefined {
   if (!input || typeof input !== 'object') return undefined
 
   const ctx = input as Record<string, unknown>
-  const cloudflareEnv = (ctx.cloudflare as { env?: RuntimeBindings } | undefined)?.env
-  if (cloudflareEnv) return cloudflareEnv
-
   const directEnv = ctx.env as RuntimeBindings | undefined
   if (directEnv) return directEnv
 
