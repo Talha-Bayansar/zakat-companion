@@ -22,6 +22,10 @@ import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as DashboardHistoryAssessmentIdIndexRouteImport } from './routes/dashboard/history/$assessmentId/index'
+import { Route as ApiRemindersRunIndexRouteImport } from './routes/api/reminders/run/index'
+import { Route as ApiPushUnsubscribeIndexRouteImport } from './routes/api/push/unsubscribe/index'
+import { Route as ApiPushSubscribeIndexRouteImport } from './routes/api/push/subscribe/index'
+import { Route as ApiPushPublicKeyIndexRouteImport } from './routes/api/push/public-key/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -90,6 +94,26 @@ const DashboardHistoryAssessmentIdIndexRoute =
     path: '/dashboard/history/$assessmentId/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiRemindersRunIndexRoute = ApiRemindersRunIndexRouteImport.update({
+  id: '/api/reminders/run/',
+  path: '/api/reminders/run/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPushUnsubscribeIndexRoute = ApiPushUnsubscribeIndexRouteImport.update({
+  id: '/api/push/unsubscribe/',
+  path: '/api/push/unsubscribe/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPushSubscribeIndexRoute = ApiPushSubscribeIndexRouteImport.update({
+  id: '/api/push/subscribe/',
+  path: '/api/push/subscribe/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPushPublicKeyIndexRoute = ApiPushPublicKeyIndexRouteImport.update({
+  id: '/api/push/public-key/',
+  path: '/api/push/public-key/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -104,6 +128,10 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
   '/dashboard/calculator/': typeof DashboardCalculatorIndexRoute
   '/dashboard/history/': typeof DashboardHistoryIndexRoute
+  '/api/push/public-key/': typeof ApiPushPublicKeyIndexRoute
+  '/api/push/subscribe/': typeof ApiPushSubscribeIndexRoute
+  '/api/push/unsubscribe/': typeof ApiPushUnsubscribeIndexRoute
+  '/api/reminders/run/': typeof ApiRemindersRunIndexRoute
   '/dashboard/history/$assessmentId/': typeof DashboardHistoryAssessmentIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -119,6 +147,10 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpIndexRoute
   '/dashboard/calculator': typeof DashboardCalculatorIndexRoute
   '/dashboard/history': typeof DashboardHistoryIndexRoute
+  '/api/push/public-key': typeof ApiPushPublicKeyIndexRoute
+  '/api/push/subscribe': typeof ApiPushSubscribeIndexRoute
+  '/api/push/unsubscribe': typeof ApiPushUnsubscribeIndexRoute
+  '/api/reminders/run': typeof ApiRemindersRunIndexRoute
   '/dashboard/history/$assessmentId': typeof DashboardHistoryAssessmentIdIndexRoute
 }
 export interface FileRoutesById {
@@ -135,6 +167,10 @@ export interface FileRoutesById {
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
   '/dashboard/calculator/': typeof DashboardCalculatorIndexRoute
   '/dashboard/history/': typeof DashboardHistoryIndexRoute
+  '/api/push/public-key/': typeof ApiPushPublicKeyIndexRoute
+  '/api/push/subscribe/': typeof ApiPushSubscribeIndexRoute
+  '/api/push/unsubscribe/': typeof ApiPushUnsubscribeIndexRoute
+  '/api/reminders/run/': typeof ApiRemindersRunIndexRoute
   '/dashboard/history/$assessmentId/': typeof DashboardHistoryAssessmentIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -152,6 +188,10 @@ export interface FileRouteTypes {
     | '/auth/sign-up/'
     | '/dashboard/calculator/'
     | '/dashboard/history/'
+    | '/api/push/public-key/'
+    | '/api/push/subscribe/'
+    | '/api/push/unsubscribe/'
+    | '/api/reminders/run/'
     | '/dashboard/history/$assessmentId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -167,6 +207,10 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/dashboard/calculator'
     | '/dashboard/history'
+    | '/api/push/public-key'
+    | '/api/push/subscribe'
+    | '/api/push/unsubscribe'
+    | '/api/reminders/run'
     | '/dashboard/history/$assessmentId'
   id:
     | '__root__'
@@ -182,6 +226,10 @@ export interface FileRouteTypes {
     | '/auth/sign-up/'
     | '/dashboard/calculator/'
     | '/dashboard/history/'
+    | '/api/push/public-key/'
+    | '/api/push/subscribe/'
+    | '/api/push/unsubscribe/'
+    | '/api/reminders/run/'
     | '/dashboard/history/$assessmentId/'
   fileRoutesById: FileRoutesById
 }
@@ -198,6 +246,10 @@ export interface RootRouteChildren {
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
   DashboardCalculatorIndexRoute: typeof DashboardCalculatorIndexRoute
   DashboardHistoryIndexRoute: typeof DashboardHistoryIndexRoute
+  ApiPushPublicKeyIndexRoute: typeof ApiPushPublicKeyIndexRoute
+  ApiPushSubscribeIndexRoute: typeof ApiPushSubscribeIndexRoute
+  ApiPushUnsubscribeIndexRoute: typeof ApiPushUnsubscribeIndexRoute
+  ApiRemindersRunIndexRoute: typeof ApiRemindersRunIndexRoute
   DashboardHistoryAssessmentIdIndexRoute: typeof DashboardHistoryAssessmentIdIndexRoute
 }
 
@@ -294,6 +346,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardHistoryAssessmentIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/reminders/run/': {
+      id: '/api/reminders/run/'
+      path: '/api/reminders/run'
+      fullPath: '/api/reminders/run/'
+      preLoaderRoute: typeof ApiRemindersRunIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/push/unsubscribe/': {
+      id: '/api/push/unsubscribe/'
+      path: '/api/push/unsubscribe'
+      fullPath: '/api/push/unsubscribe/'
+      preLoaderRoute: typeof ApiPushUnsubscribeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/push/subscribe/': {
+      id: '/api/push/subscribe/'
+      path: '/api/push/subscribe'
+      fullPath: '/api/push/subscribe/'
+      preLoaderRoute: typeof ApiPushSubscribeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/push/public-key/': {
+      id: '/api/push/public-key/'
+      path: '/api/push/public-key'
+      fullPath: '/api/push/public-key/'
+      preLoaderRoute: typeof ApiPushPublicKeyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -310,6 +390,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
   DashboardCalculatorIndexRoute: DashboardCalculatorIndexRoute,
   DashboardHistoryIndexRoute: DashboardHistoryIndexRoute,
+  ApiPushPublicKeyIndexRoute: ApiPushPublicKeyIndexRoute,
+  ApiPushSubscribeIndexRoute: ApiPushSubscribeIndexRoute,
+  ApiPushUnsubscribeIndexRoute: ApiPushUnsubscribeIndexRoute,
+  ApiRemindersRunIndexRoute: ApiRemindersRunIndexRoute,
   DashboardHistoryAssessmentIdIndexRoute:
     DashboardHistoryAssessmentIdIndexRoute,
 }

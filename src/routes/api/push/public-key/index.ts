@@ -1,9 +1,17 @@
-export async function GET() {
-  const publicKey = process.env.VAPID_PUBLIC_KEY
+import { createFileRoute } from '@tanstack/react-router'
 
-  if (!publicKey) {
-    return Response.json({ error: 'missing_vapid_public_key' }, { status: 500 })
-  }
+export const Route = createFileRoute('/api/push/public-key/')({
+  server: {
+    handlers: {
+      GET: async () => {
+        const publicKey = process.env.VAPID_PUBLIC_KEY
 
-  return Response.json({ publicKey })
-}
+        if (!publicKey) {
+          return Response.json({ error: 'missing_vapid_public_key' }, { status: 500 })
+        }
+
+        return Response.json({ publicKey })
+      },
+    },
+  },
+})

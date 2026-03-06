@@ -1,12 +1,19 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { registerPushSubscription } from '@/server/functions/notifications/register-push-subscription'
 
-export async function POST({ request }: { request: Request }) {
-  const payload = (await request.json()) as {
-    userId: string
-    endpoint: string
-    keys: { p256dh: string; auth: string }
-  }
+export const Route = createFileRoute('/api/push/subscribe/')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const payload = (await request.json()) as {
+          userId: string
+          endpoint: string
+          keys: { p256dh: string; auth: string }
+        }
 
-  const result = await registerPushSubscription({ data: payload })
-  return Response.json(result)
-}
+        const result = await registerPushSubscription({ data: payload })
+        return Response.json(result)
+      },
+    },
+  },
+})
