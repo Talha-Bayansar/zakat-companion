@@ -11,6 +11,7 @@ import { useLifecycleOverviewQuery } from '@/features/zakat/api/use-lifecycle-ov
 import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { m } from '@/paraglide/messages.js'
+import { getLocale } from '@/paraglide/runtime.js'
 
 export const Route = createFileRoute('/dashboard/history/')({
   component: DashboardHistoryPage,
@@ -27,11 +28,45 @@ function formatDateTime(value?: string | Date | null) {
   }).format(date)
 }
 
-function timelineLabel(type: string) {
-  if (type === 'state_above') return 'Moved above nisab'
-  if (type === 'state_below') return 'Moved below nisab'
-  if (type === 'cycle_start') return 'Cycle started'
-  if (type === 'cycle_end') return 'Cycle ended'
+function tLifecycleHistory(locale: string) {
+  if (locale === 'tr') {
+    return {
+      timelineTitle: 'Döngü geçiş zaman çizelgesi',
+      empty: 'Henüz döngü geçişi yok.',
+      movedAbove: 'Nisab üstüne çıktı',
+      movedBelow: 'Nisab altına indi',
+      cycleStarted: 'Döngü başladı',
+      cycleEnded: 'Döngü bitti',
+    }
+  }
+
+  if (locale === 'nl') {
+    return {
+      timelineTitle: 'Tijdlijn van cyclusovergangen',
+      empty: 'Nog geen cyclusovergangen.',
+      movedAbove: 'Boven nisab gegaan',
+      movedBelow: 'Onder nisab gegaan',
+      cycleStarted: 'Cyclus gestart',
+      cycleEnded: 'Cyclus beëindigd',
+    }
+  }
+
+  return {
+    timelineTitle: 'Lifecycle transitions timeline',
+    empty: 'No lifecycle transitions yet.',
+    movedAbove: 'Moved above nisab',
+    movedBelow: 'Moved below nisab',
+    cycleStarted: 'Cycle started',
+    cycleEnded: 'Cycle ended',
+  }
+}
+
+function timelineLabel(type: string, locale: string) {
+  const t = tLifecycleHistory(locale)
+  if (type === 'state_above') return t.movedAbove
+  if (type === 'state_below') return t.movedBelow
+  if (type === 'cycle_start') return t.cycleStarted
+  if (type === 'cycle_end') return t.cycleEnded
   return type
 }
 
@@ -46,6 +81,8 @@ function DashboardHistoryPage() {
 
   const history = (historyQuery.data?.pages.flatMap((page) => page.items) ?? []).map(mapAssessmentHistoryRowToSnapshot)
   const timeline = lifecycleQuery.data?.timeline ?? []
+  const locale = getLocale()
+  const lifecycleT = tLifecycleHistory(locale)
 
   return (
     <AuthWrapper>
@@ -55,18 +92,18 @@ function DashboardHistoryPage() {
 
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Lifecycle transitions timeline</CardTitle>
+          <CardTitle className="ios-section-title">{lifecycleT.timelineTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           {timeline.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-4 text-sm text-slate-500">
-              No lifecycle transitions yet.
+              {lifecycleT.empty}
             </div>
           ) : (
             <div className="rounded-2xl border border-white/80 bg-white/85 px-3 divide-y divide-slate-200/70">
               {timeline.map((event) => (
                 <div key={event.id} className="py-3">
-                  <p className="text-sm font-semibold text-slate-900">{timelineLabel(event.type)}</p>
+                  <p className="text-sm font-semibold text-slate-900">{timelineLabel(event.type, locale)}</p>
                   <p className="text-xs text-slate-500">{formatDateTime(event.eventAt)}</p>
                 </div>
               ))}
