@@ -7,6 +7,7 @@ import { SummaryRow } from '@/features/zakat/components/summary-row'
 import { useCurrentUserQuery } from '@/features/auth/api/use-current-user-query'
 import { AuthWrapper } from '@/features/auth/components/auth-wrapper'
 import { useAssessmentHistoryInfiniteQuery } from '@/features/zakat/api/use-assessment-history-infinite-query'
+import { useLifecycleOverviewQuery } from '@/features/zakat/api/use-lifecycle-overview-query'
 import { mapAssessmentHistoryRowToSnapshot } from '@/features/zakat/model/map-assessment-history-row'
 import { getPreferences } from '@/features/preferences/model/preferences'
 import { calculateZakat, formatMoney } from '@/features/zakat/model/calculate-zakat'
@@ -17,6 +18,17 @@ export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
 })
 
+function formatDateTime(value?: string | Date | null) {
+  if (!value) return '—'
+  const date = typeof value === 'string' ? new Date(value) : value
+  if (Number.isNaN(date.getTime())) return '—'
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
+}
+
 function DashboardPage() {
   const preferences = getPreferences()
   const values = getFinancialValues()
@@ -24,6 +36,7 @@ function DashboardPage() {
 
   const { data: currentUser } = useCurrentUserQuery()
   const historyQuery = useAssessmentHistoryInfiniteQuery(currentUser?.id)
+  const lifecycleQuery = useLifecycleOverviewQuery(currentUser?.id)
 
   const firstRow = historyQuery.data?.pages[0]?.items[0]
   const latest = firstRow ? mapAssessmentHistoryRowToSnapshot(firstRow) : null
@@ -41,6 +54,7 @@ function DashboardPage() {
   })
 
   const userName = currentUser?.name?.trim() || m.onboarding_you()
+  const lifecycle = lifecycleQuery.data
 
   return (
     <AuthWrapper>
@@ -54,6 +68,20 @@ function DashboardPage() {
           <SummaryRow label={m.zakat_label_nisab()} value={formatMoney(result.nisab, currency)} />
           <SummaryRow label={m.zakat_label_due()} value={formatMoney(result.zakatDue, currency)} />
           <SummaryRow label={m.dashboard_status_label()} value={result.isEligible ? m.nisab_state_above() : m.nisab_state_below()} />
+        </CardContent>
+      </Card>
+
+      <Card className="ios-surface">
+        <CardHeader>
+          <CardTitle className="ios-section-title">Lifecycle</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <SummaryRow
+            label="Current nisab state"
+            value={(lifecycle?.currentNisabState ?? (result.isEligible ? 'ABOVE' : 'BELOW')) === 'ABOVE' ? m.nisab_state_above() : m.nisab_state_below()}
+          />
+          <SummaryRow label="Active cycle" value={lifecycle?.hasActiveCycle ? 'Running' : 'Not active'} />
+          <SummaryRow label="Next due date" value={formatDateTime(lifecycle?.activeCycle?.nextDueAt ?? null)} />
         </CardContent>
       </Card>
 
