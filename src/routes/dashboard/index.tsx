@@ -13,6 +13,7 @@ import { getPreferences } from '@/features/preferences/model/preferences'
 import { calculateZakat, formatMoney } from '@/features/zakat/model/calculate-zakat'
 import { getFinancialValues } from '@/features/zakat/model/financial-values'
 import { m } from '@/paraglide/messages.js'
+import { getLocale } from '@/paraglide/runtime.js'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
@@ -27,6 +28,39 @@ function formatDateTime(value?: string | Date | null) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(date)
+}
+
+function tLifecycleDashboard(locale: string) {
+  if (locale === 'tr') {
+    return {
+      title: 'Döngü',
+      currentState: 'Güncel nisab durumu',
+      activeCycle: 'Aktif döngü',
+      running: 'Devam ediyor',
+      notActive: 'Aktif değil',
+      nextDue: 'Sonraki vade tarihi',
+    }
+  }
+
+  if (locale === 'nl') {
+    return {
+      title: 'Cyclus',
+      currentState: 'Huidige nisab-status',
+      activeCycle: 'Actieve cyclus',
+      running: 'Actief',
+      notActive: 'Niet actief',
+      nextDue: 'Volgende vervaldatum',
+    }
+  }
+
+  return {
+    title: 'Lifecycle',
+    currentState: 'Current nisab state',
+    activeCycle: 'Active cycle',
+    running: 'Running',
+    notActive: 'Not active',
+    nextDue: 'Next due date',
+  }
 }
 
 function DashboardPage() {
@@ -55,6 +89,8 @@ function DashboardPage() {
 
   const userName = currentUser?.name?.trim() || m.onboarding_you()
   const lifecycle = lifecycleQuery.data
+  const locale = getLocale()
+  const lifecycleT = tLifecycleDashboard(locale)
 
   return (
     <AuthWrapper>
@@ -73,15 +109,15 @@ function DashboardPage() {
 
       <Card className="ios-surface">
         <CardHeader>
-          <CardTitle className="ios-section-title">Lifecycle</CardTitle>
+          <CardTitle className="ios-section-title">{lifecycleT.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <SummaryRow
-            label="Current nisab state"
+            label={lifecycleT.currentState}
             value={(lifecycle?.currentNisabState ?? (result.isEligible ? 'ABOVE' : 'BELOW')) === 'ABOVE' ? m.nisab_state_above() : m.nisab_state_below()}
           />
-          <SummaryRow label="Active cycle" value={lifecycle?.hasActiveCycle ? 'Running' : 'Not active'} />
-          <SummaryRow label="Next due date" value={formatDateTime(lifecycle?.activeCycle?.nextDueAt ?? null)} />
+          <SummaryRow label={lifecycleT.activeCycle} value={lifecycle?.hasActiveCycle ? lifecycleT.running : lifecycleT.notActive} />
+          <SummaryRow label={lifecycleT.nextDue} value={formatDateTime(lifecycle?.activeCycle?.nextDueAt ?? null)} />
         </CardContent>
       </Card>
 
