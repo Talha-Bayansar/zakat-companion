@@ -75,7 +75,9 @@ export const processNisabTransition = async (params: {
       },
     })
 
-    if (transition === 'BELOW_TO_ABOVE' && !activeCycle) {
+    const shouldStartCycle = nisabState === 'ABOVE' && !activeCycle && (transition === 'BELOW_TO_ABOVE' || previousState === null)
+
+    if (shouldStartCycle) {
       step = 'insert-cycle-start'
       const [newCycle] = await db
         .insert(zakatCycles)
@@ -96,7 +98,7 @@ export const processNisabTransition = async (params: {
         eventAt: assessmentAt,
         metaJson: {
           assessmentId,
-          reason: 'below_to_above',
+          reason: transition === 'BELOW_TO_ABOVE' ? 'below_to_above' : 'initial_above',
           projectedDueAt: newCycle.nextDueAt,
         },
       })
