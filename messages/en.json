@@ -190,5 +190,6 @@
   "settings_notification_status_default": "Not enabled",
   "settings_notification_status_unsupported": "Unsupported",
   "settings_enable_notifications_action": "Enable push notifications",
-  "settings_disable_notifications_action": "Disable push notifications"
+  "settings_disable_notifications_action": "Disable push notifications",
+  "settings_notifications_public_key_endpoint_missing": "Push setup endpoint not found (/api/push/public-key). Please redeploy the latest backend."
 }

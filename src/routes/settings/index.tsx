@@ -94,6 +94,8 @@ function SettingsPage() {
       const message = error instanceof Error ? error.message : 'unknown'
       if (message === 'permission_denied') {
         toast.error(m.settings_notifications_permission_denied())
+      } else if (message === 'public_key_endpoint_not_found') {
+        toast.error(m.settings_notifications_public_key_endpoint_missing())
       } else {
         toast.error(m.settings_notifications_enable_failed())
       }

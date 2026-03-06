@@ -190,5 +190,6 @@
   "settings_notification_status_default": "Niet ingeschakeld",
   "settings_notification_status_unsupported": "Niet ondersteund",
   "settings_enable_notifications_action": "Pushmeldingen inschakelen",
-  "settings_disable_notifications_action": "Pushmeldingen uitschakelen"
+  "settings_disable_notifications_action": "Pushmeldingen uitschakelen",
+  "settings_notifications_public_key_endpoint_missing": "Push-instelling endpoint niet gevonden (/api/push/public-key). Deploy de nieuwste backend opnieuw."
 }

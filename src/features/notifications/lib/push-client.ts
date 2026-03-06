@@ -29,7 +29,10 @@ export async function subscribeToPush(options: { userId: string }) {
   }
 
   const keyResponse = await fetch('/api/push/public-key')
-  if (!keyResponse.ok) throw new Error('missing_public_key')
+  if (!keyResponse.ok) {
+    if (keyResponse.status === 404) throw new Error('public_key_endpoint_not_found')
+    throw new Error('missing_public_key')
+  }
   const { publicKey } = (await keyResponse.json()) as { publicKey?: string }
   if (!publicKey) throw new Error('missing_public_key')
 

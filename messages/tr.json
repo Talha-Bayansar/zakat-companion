@@ -190,5 +190,6 @@
   "settings_notification_status_default": "Etkin değil",
   "settings_notification_status_unsupported": "Desteklenmiyor",
   "settings_enable_notifications_action": "Anlık bildirimleri etkinleştir",
-  "settings_disable_notifications_action": "Anlık bildirimleri devre dışı bırak"
+  "settings_disable_notifications_action": "Anlık bildirimleri devre dışı bırak",
+  "settings_notifications_public_key_endpoint_missing": "Push kurulum uç noktası bulunamadı (/api/push/public-key). Lütfen en son backend sürümünü yeniden dağıt."
 }
