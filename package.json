@@ -17,12 +17,18 @@
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "@better-auth/drizzle-adapter": "^1.6.9",
     "@inlang/paraglide-js": "latest",
+    "@neondatabase/serverless": "^1.1.0",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "latest",
+    "better-auth": "^1.6.9",
+    "drizzle-orm": "^0.45.2",
     "typescript": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "zod": "^4.4.3"
   }
 }
