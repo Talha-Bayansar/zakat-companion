@@ -1,0 +1,21 @@
+{
+  "app_title": "Zakat Companion",
+  "app_tagline": "Zekat takibini sakin ve mobil öncelikli bir hesap kabuğuyla yönetin.",
+  "app_intro": "İlk parça, kimlik doğrulama, gezinme ve yerelleştirme için zemini hazırlar.",
+  "auth_card_title": "Güvenli giriş noktası",
+  "auth_card_body": "Better Auth bağlandığında oturum açma ve hesap oluşturma burada yer alacak.",
+  "auth_primary_cta": "Oturum aç",
+  "auth_secondary_cta": "Hesap oluştur",
+  "language_label": "Dil",
+  "language_english": "İngilizce",
+  "language_turkish": "Türkçe",
+  "language_dutch": "Felemenkçe",
+  "nav_overview": "Genel bakış",
+  "nav_history": "Geçmiş",
+  "nav_settings": "Ayarlar",
+  "primary_navigation_label": "Ana gezinme",
+  "shell_badge": "İlk parça",
+  "shell_note": "Yerelleştirme, Paraglide JS ile İngilizce, Türkçe ve Felemenkçe için hazırlandı.",
+  "history_page_note": "Bu yer tutucu, ilk parça için sekme yapısını belirler.",
+  "settings_page_note": "Profil değiştirme, hatırlatmalar ve kimlik ayarları sonraki parçalarda buraya gelecek."
+}

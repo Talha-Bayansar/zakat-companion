@@ -1,0 +1,21 @@
+{
+  "app_title": "Zakat Companion",
+  "app_tagline": "Track zakat with a calm, mobile-first account shell.",
+  "app_intro": "The first slice lays the foundation for auth, navigation, and localization.",
+  "auth_card_title": "Secure entry point",
+  "auth_card_body": "Sign in and account creation will live here once Better Auth is wired in.",
+  "auth_primary_cta": "Sign in",
+  "auth_secondary_cta": "Create account",
+  "language_label": "Language",
+  "language_english": "English",
+  "language_turkish": "Turkish",
+  "language_dutch": "Dutch",
+  "nav_overview": "Overview",
+  "nav_history": "History",
+  "nav_settings": "Settings",
+  "primary_navigation_label": "Primary navigation",
+  "shell_badge": "First slice",
+  "shell_note": "Localization is prepared with Paraglide JS for English, Turkish, and Dutch.",
+  "history_page_note": "This placeholder establishes the tab structure for the first slice.",
+  "settings_page_note": "Profile switching, reminders, and auth settings will land here in the next slices."
+}

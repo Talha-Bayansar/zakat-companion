@@ -1,0 +1,51 @@
+# Context
+
+## Domain Terms
+
+- `wealth snapshot`: the user's current zakatable assets and liabilities used to determine nisab status and zakat due amount.
+- `zakatable categories`: the asset and liability types the app includes in the wealth snapshot by default.
+- `nisab benchmark`: the threshold reference used to determine whether zakat is due; gold is the default benchmark, with silver as a selectable alternative.
+- `madhab`: the user's chosen school of Islamic jurisprudence that governs how the app calculates zakat rules.
+- `multi-madhab support`: the app allows the user to select among multiple madhabs for zakat calculation rules.
+- `zakat date rule`: the app's hawl and reset behavior must follow the user's selected madhab.
+- `calculation scope`: the first release may use a standard zakat percentage baseline, with room to expand into category-specific rules later.
+- `full fiqh handling`: the app should model madhab-specific zakat rules as fully as practical, rather than using a simplified universal rule set.
+- `wealth classes`: the app should support cash, gold and silver, trade inventory, receivables, and debts/liabilities in the initial model.
+- `profile`: a separate zakat tracking record for a person or household member that can be managed by an authenticated user.
+- `delegated manager`: an authenticated user who is allowed to maintain one or more profiles owned by someone else.
+- `balance update reminder`: a notification that prompts the user to refresh the wealth snapshot.
+- `zakat due reminder`: a notification that alerts the user when zakat is due or approaching due.
+- `reminder cadence`: user-configurable intervals controlling how often balance update reminders are sent.
+- `due reminder lifecycle`: the app sends a reminder before the due date, on the due date, and optionally follows up until the user marks the zakat as paid.
+- `timezone-aware reminders`: notifications should respect the user's local timezone and quiet hours.
+- `paid state`: the user’s confirmation that a zakat obligation has been settled for the current cycle.
+- `delivery target`: the app should ship as a PWA first.
+- `application shape`: the app should be a single full-stack TypeScript application.
+- `frontend stack`: TanStack Start + React + TypeScript.
+- `backend shape`: the backend should live inside the same full-stack app.
+- `primary datastore`: PostgreSQL.
+- `database layer`: Drizzle ORM.
+- `auth layer`: Better Auth.
+- `auth scope`: email-and-password sign-in only for the initial release.
+- `permission model`: delegated access should be implemented as custom app permissions in the product domain.
+- `push transport`: web push is the notification delivery mechanism.
+- `hosting direction`: Cloudflare for the app runtime, with Neon as the Postgres provider.
+- `runtime`: Cloudflare Workers.
+- `reminder job`: an explicit unit of reminder work that can be processed by cron today and a queue later.
+- `reminder execution model`: reminders should be represented as database-backed jobs from day one.
+- `validation layer`: Zod.
+- `e2e testing`: Playwright.
+- `ci system`: GitHub Actions.
+- `design direction`: warm, disciplined, and faith-aware rather than purely utilitarian.
+- `layout priority`: mobile-first.
+- `ui approach`: headless-first with custom styling and a small opinionated component kit.
+- `component primitive library`: Base UI primitives via shadcn/ui.
+- `component distribution`: local-first, not a private registry initially.
+- `styling layer`: Tailwind CSS.
+- `visual direction`: calm base with subtle branded accents.
+- `mobile experience`: the mobile version should feel native-app-like.
+- `mobile navigation`: a bottom tab bar.
+- `primary navigation count`: three primary tabs on mobile.
+- `responsive navigation`: bottom bar on mobile, different navigation on larger screens.
+- `profile management entry point`: profile switching and profile creation start from `Settings`.
+- `history surface`: historical cycles and calculations can be a primary tab.
