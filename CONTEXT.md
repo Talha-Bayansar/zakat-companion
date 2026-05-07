@@ -39,6 +39,11 @@
 - `design direction`: warm, disciplined, and faith-aware rather than purely utilitarian.
 - `layout priority`: mobile-first.
 - `ui approach`: headless-first with custom styling and a small opinionated component kit. Avoid Card-like containers unless they are clearly the best fit; prefer grouped sections, separators, and lightweight surfaces.
+- `form approach`: forms should use TanStack Form with Zod validation and shadcn-style field composition.
+- `translation rule`: all user-facing copy, including validation messages, error messages, loading labels, and empty-state text, should come from the message catalog.
+- `loading rule`: use `Spinner` for general loading states and `Skeleton` for layout-specific loading states.
+- `empty-state rule`: use `Empty` for views with no data yet.
+- `destructive action rule`: use a reusable confirmation dialog for destructive actions such as sign-out or delete flows.
 - `component primitive library`: Base UI primitives via shadcn/ui.
 - `component distribution`: local-first, not a private registry initially.
 - `styling layer`: Tailwind CSS.

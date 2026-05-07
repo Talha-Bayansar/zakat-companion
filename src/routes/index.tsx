@@ -28,13 +28,15 @@ function LandingPage() {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
-              to="/app"
+              to="/sign-in"
+              search={{ redirect: undefined }}
               className={cn(buttonVariants({ variant: "default", size: "lg" }))}
             >
               {m.landing_enter_app()}
             </Link>
             <Link
-              to="/app/settings"
+              to="/sign-up"
+              search={{ redirect: undefined }}
               className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
             >
               {m.landing_view_settings()}
@@ -43,8 +45,7 @@ function LandingPage() {
         </section>
 
         <p className="pt-10 text-xs leading-5 text-muted-foreground">
-          {m.landing_surface()}{" "}
-          <span className="font-medium text-foreground">/app</span>.
+          {m.landing_surface()}
         </p>
       </div>
     </main>
