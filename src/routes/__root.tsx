@@ -1,46 +1,58 @@
-/// <reference types="vite/client" />
+import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
+import { TanStackDevtools } from "@tanstack/react-devtools"
 
-import type { ReactNode } from 'react'
-import {
-  HeadContent,
-  Outlet,
-  Scripts,
-  createRootRoute,
-} from '@tanstack/react-router'
-import { baseLocale, t } from '../lib/i18n'
-import '../styles.css'
+import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: t(baseLocale, 'app_title') },
       {
-        name: 'description',
-        content: t(baseLocale, 'app_tagline'),
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      {
+        title: "TanStack Start Starter",
+      },
+    ],
+    links: [
+      {
+        rel: "stylesheet",
+        href: appCss,
       },
     ],
   }),
-  component: RootComponent,
+  notFoundComponent: () => (
+    <main className="container mx-auto p-4 pt-16">
+      <h1>404</h1>
+      <p>The requested page could not be found.</p>
+    </main>
+  ),
+  shellComponent: RootDocument,
 })
 
-function RootComponent() {
+function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
-  )
-}
-
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  return (
-    <html lang={baseLocale}>
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
         {children}
+        <TanStackDevtools
+          config={{
+            position: "bottom-right",
+          }}
+          plugins={[
+            {
+              name: "Tanstack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>

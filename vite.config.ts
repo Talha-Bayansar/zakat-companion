@@ -1,18 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { paraglideVitePlugin } from '@inlang/paraglide-js'
+import { defineConfig } from "vite"
+import { devtools } from "@tanstack/devtools-vite"
+import { tanstackStart } from "@tanstack/react-start/plugin/vite"
+import viteReact from "@vitejs/plugin-react"
+import viteTsConfigPaths from "vite-tsconfig-paths"
+import tailwindcss from "@tailwindcss/vite"
+import { nitro } from "nitro/vite"
 
-export default defineConfig({
-  server: {
-    port: 3000,
-  },
+const config = defineConfig({
   plugins: [
-    tanstackStart(),
-    paraglideVitePlugin({
-      project: './project.inlang',
-      outdir: './src/paraglide',
+    devtools(),
+    nitro(),
+    // this is the plugin that enables path aliases
+    viteTsConfigPaths({
+      projects: ["./tsconfig.json"],
     }),
-    react(),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
   ],
 })
+
+export default config

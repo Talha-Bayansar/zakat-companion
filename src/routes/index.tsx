@@ -1,43 +1,19 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Link } from '@tanstack/react-router'
-import { LocaleSwitcher } from '../components/locale-switcher'
-import { useLocale } from '../lib/use-locale'
-import { t } from '../lib/i18n'
+import { createFileRoute } from "@tanstack/react-router"
+import { Button } from "@/components/ui/button"
 
-export const Route = createFileRoute('/')({
-  component: Home,
-})
+export const Route = createFileRoute("/")({ component: App })
 
-function Home() {
-  const { locale, setLocale } = useLocale()
-
+function App() {
   return (
-    <div className="app-shell">
-      <main className="page landing-page">
-        <section className="hero landing-hero">
-          <span className="eyebrow">{t(locale, 'landing_badge')}</span>
-          <h1>{t(locale, 'app_title')}</h1>
-          <p>{t(locale, 'app_tagline')}</p>
-          <p>{t(locale, 'app_intro')}</p>
-
-          <div className="hero-grid">
-            <article className="card">
-              <h2>{t(locale, 'landing_card_title')}</h2>
-              <p>{t(locale, 'landing_card_body')}</p>
-              <div className="button-row">
-                <Link className="button button-primary" to="/sign-in">
-                  {t(locale, 'landing_primary_cta')}
-                </Link>
-                <Link className="button button-secondary" to="/sign-up">
-                  {t(locale, 'landing_secondary_cta')}
-                </Link>
-              </div>
-            </article>
-
-            <LocaleSwitcher locale={locale} setLocale={setLocale} label={t(locale, 'language_label')} />
-          </div>
-        </section>
-      </main>
+    <div className="flex min-h-svh p-6">
+      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
+        <div>
+          <h1 className="font-medium">Project ready!</h1>
+          <p>You may now add components and start building.</p>
+          <p>We&apos;ve already added the button component for you.</p>
+          <Button className="mt-2">Button</Button>
+        </div>
+      </div>
     </div>
   )
 }

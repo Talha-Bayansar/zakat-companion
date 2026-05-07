@@ -1,6 +1,14 @@
 node_modules
-dist
-.vite
-coverage
 .DS_Store
+dist
+dist-ssr
+*.local
+count.txt
 .env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
