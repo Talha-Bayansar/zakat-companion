@@ -1,12 +1,21 @@
+import { PageHeader, PageSection } from "@/shared/ui/page"
+import { Surface } from "@/shared/ui/surface"
+
 export function SettingsPage() {
   return (
-    <main className="flex min-h-svh items-center justify-center p-6">
-      <section className="max-w-md space-y-2">
-        <h1 className="text-2xl font-medium">Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          Feature scaffold for preferences and account configuration.
+    <PageSection>
+      <PageHeader
+        eyebrow="Settings"
+        title="Keep account setup in one place"
+        description="Profile creation, switching, delegated access, and reminder preferences will live here."
+      />
+
+      <Surface>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Account actions and preferences will use the same reusable patterns
+          as other screens.
         </p>
-      </section>
-    </main>
+      </Surface>
+    </PageSection>
   )
 }

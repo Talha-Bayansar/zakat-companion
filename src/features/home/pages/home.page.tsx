@@ -1,16 +1,22 @@
-import { Button } from "@/shared/ui/button"
+import { PageHeader, PageSection } from "@/shared/ui/page"
+import { Surface } from "@/shared/ui/surface"
 
 export function HomePage() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already moved the button component into shared UI.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-      </div>
-    </div>
+    <PageSection>
+      <PageHeader
+        eyebrow="Home"
+        title="Start with the latest wealth snapshot"
+        description="This first shell slice gives the app a stable place to land before auth and data flows are connected."
+      />
+
+      <Surface>
+        <p className="text-sm font-medium">Next up</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          We will wire the sign-in flow and keep these primary tabs protected
+          for authenticated users.
+        </p>
+      </Surface>
+    </PageSection>
   )
 }

@@ -44,6 +44,9 @@
 - `styling layer`: Tailwind CSS.
 - `visual direction`: calm base with subtle branded accents.
 - `mobile experience`: the mobile version should feel native-app-like.
+- `ui rule`: default to a standard iOS feel across the app, with compact spacing, unified icon-and-label controls, restrained surfaces, and familiar mobile navigation patterns.
+- `ui primitives`: shared surface, typography, spacing, and interaction primitives should live in `src/shared/ui/` and be reused before introducing page-specific styling.
+- `route convention`: route files should use folder-based `index.tsx` files for named routes; avoid standalone named route files unless the router requires a special exception.
 - `mobile navigation`: a bottom tab bar.
 - `primary navigation count`: three primary tabs on mobile.
 - `responsive navigation`: bottom bar on mobile, different navigation on larger screens.
