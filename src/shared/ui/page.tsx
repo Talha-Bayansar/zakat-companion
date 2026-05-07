@@ -7,7 +7,7 @@ function PageSection({
   ...props
 }: HTMLAttributes<HTMLElement>) {
   return (
-    <section className={cn("space-y-4 sm:space-y-5", className)} {...props} />
+    <section className={cn("flex flex-col gap-4 sm:gap-5", className)} {...props} />
   )
 }
 
@@ -70,7 +70,7 @@ function PageHeader({
   children?: ReactNode
 }) {
   return (
-    <header className={cn("space-y-2", className)}>
+    <header className={cn("flex flex-col gap-2", className)}>
       {eyebrow ? <PageKicker>{eyebrow}</PageKicker> : null}
       <PageTitle>{title}</PageTitle>
       {description ? <PageLead>{description}</PageLead> : null}

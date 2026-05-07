@@ -1,47 +1,51 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 
-import { Link } from "@tanstack/react-router"
+import { m } from "@/paraglide/messages"
 
-import { PageHeader, PageSection } from "@/shared/ui/page"
-import { Surface } from "@/shared/ui/surface"
-import { buttonVariants } from "@/shared/ui/button"
 import { cn } from "@/shared/lib/cn"
+import { buttonVariants } from "@/shared/ui/button"
 
 export const Route = createFileRoute("/")({ component: LandingPage })
 
 function LandingPage() {
   return (
-    <main className="flex min-h-svh items-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-5xl">
-        <PageSection className="max-w-2xl">
-          <PageHeader
-            eyebrow="Zakat Companion"
-            title="Track zakat with a calm, native-feeling app"
-            description="The public landing page stays separate from the app. Start inside the app area when you are ready."
-          />
+    <main className="relative min-h-svh overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.08),transparent_30%),linear-gradient(180deg,rgba(248,250,252,1),rgba(255,255,255,1))]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[linear-gradient(135deg,rgba(16,185,129,0.08),transparent_60%)]" />
 
-          <div className="flex flex-wrap gap-3">
+      <div className="relative mx-auto flex min-h-svh w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <section className="flex flex-col gap-8">
+          <div className="flex flex-col gap-3">
+            <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+              {m.landing_eyebrow()}
+            </p>
+            <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
+              {m.landing_title()}
+            </h1>
+            <p className="max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+              {m.landing_description()}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               to="/app"
-              className={cn(buttonVariants({ variant: "default" }))}
+              className={cn(buttonVariants({ variant: "default", size: "lg" }))}
             >
-              Enter app
+              {m.landing_enter_app()}
             </Link>
             <Link
               to="/app/settings"
-              className={cn(buttonVariants({ variant: "ghost" }))}
+              className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
             >
-              View settings
+              {m.landing_view_settings()}
             </Link>
           </div>
+        </section>
 
-          <Surface variant="elevated" className="mt-2" padding="lg">
-            <p className="text-sm leading-6 text-muted-foreground">
-              This page is now the public landing page. The app shell and all
-              app-specific routes live under <span className="font-medium text-foreground">/app</span>.
-            </p>
-          </Surface>
-        </PageSection>
+        <p className="pt-10 text-xs leading-5 text-muted-foreground">
+          {m.landing_surface()}{" "}
+          <span className="font-medium text-foreground">/app</span>.
+        </p>
       </div>
     </main>
   )

@@ -2,6 +2,9 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
+import { m } from "@/paraglide/messages"
+import { getLocale, getTextDirection } from "@/paraglide/runtime"
+
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -15,7 +18,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Zakat Companion",
+        title: m.app_name(),
       },
     ],
     links: [
@@ -27,8 +30,8 @@ export const Route = createRootRoute({
   }),
   notFoundComponent: () => (
     <main className="container mx-auto p-4 pt-16">
-      <h1>404</h1>
-      <p>The requested page could not be found.</p>
+      <h1>{m.not_found_title()}</h1>
+      <p>{m.not_found_description()}</p>
     </main>
   ),
   shellComponent: RootDocument,
@@ -36,7 +39,7 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={getLocale()} dir={getTextDirection()}>
       <head>
         <HeadContent />
       </head>

@@ -7,33 +7,34 @@ import {
 } from "@hugeicons/core-free-icons"
 import type { ReactNode } from "react"
 
+import { m } from "@/paraglide/messages"
+
 import { cn } from "@/shared/lib/cn"
 import { buttonVariants } from "@/shared/ui/button"
 import { Separator } from "@/shared/ui/separator"
 
-const navigationItems = [
-  {
-    label: "Home",
-    description: "Overview",
-    to: "/app" as const,
-    icon: Home01Icon,
-  },
-  {
-    label: "History",
-    description: "Cycles",
-    to: "/app/history" as const,
-    icon: TransactionHistoryIcon,
-  },
-  {
-    label: "Settings",
-    description: "Account",
-    to: "/app/settings" as const,
-    icon: AccountSetting01Icon,
-  },
-]
-
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation()
+  const navigationItems = [
+    {
+      label: m.nav_home_label(),
+      description: m.nav_home_description(),
+      to: "/app" as const,
+      icon: Home01Icon,
+    },
+    {
+      label: m.nav_history_label(),
+      description: m.nav_history_description(),
+      to: "/app/history" as const,
+      icon: TransactionHistoryIcon,
+    },
+    {
+      label: m.nav_settings_label(),
+      description: m.nav_settings_description(),
+      to: "/app/settings" as const,
+      icon: AccountSetting01Icon,
+    },
+  ]
 
   return (
     <div className="relative min-h-svh overflow-hidden bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.12),transparent_40%),linear-gradient(180deg,rgba(248,250,252,1),rgba(255,255,255,1))] text-foreground">
@@ -41,25 +42,24 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="relative mx-auto flex min-h-svh max-w-7xl">
         <aside className="hidden w-72 shrink-0 border-r border-border/70 bg-background/80 px-6 py-8 backdrop-blur lg:flex lg:flex-col">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                Zakat Companion
+                {m.app_name()}
               </p>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-                Calm, reliable account shell
+                {m.shell_title()}
               </h1>
             </div>
 
             <p className="text-sm leading-6 text-muted-foreground">
-              Navigate between the three primary areas without crowding the
-              interface.
+              {m.shell_description()}
             </p>
           </div>
 
           <Separator className="my-6 bg-border/70" />
 
-          <nav className="space-y-2">
+          <nav className="flex flex-col gap-2">
             {navigationItems.map((item) => {
               const active = isActive(location.pathname, item.to)
 
@@ -102,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="mt-auto pt-8">
             <Separator className="mb-4 bg-border/70" />
             <p className="text-xs leading-5 text-muted-foreground">
-              Account switching and reminders will live under Settings.
+              {m.shell_footer_note()}
             </p>
           </div>
         </aside>
@@ -153,9 +153,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function isActive(pathname: string, target: string) {
-  if (target === "/") {
-    return pathname === "/"
+  return normalizePath(pathname) === normalizePath(target)
+}
+
+function normalizePath(pathname: string) {
+  if (pathname === "/") {
+    return pathname
   }
 
-  return pathname === target || pathname.startsWith(`${target}/`)
+  return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname
 }

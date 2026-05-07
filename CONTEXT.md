@@ -38,7 +38,7 @@
 - `ci system`: GitHub Actions.
 - `design direction`: warm, disciplined, and faith-aware rather than purely utilitarian.
 - `layout priority`: mobile-first.
-- `ui approach`: headless-first with custom styling and a small opinionated component kit.
+- `ui approach`: headless-first with custom styling and a small opinionated component kit. Avoid Card-like containers unless they are clearly the best fit; prefer grouped sections, separators, and lightweight surfaces.
 - `component primitive library`: Base UI primitives via shadcn/ui.
 - `component distribution`: local-first, not a private registry initially.
 - `styling layer`: Tailwind CSS.

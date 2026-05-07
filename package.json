@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
+    "paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
+    "prebuild": "pnpm run paraglide:compile",
+    "pretypecheck": "pnpm run paraglide:compile",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -12,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "machine-translate": "inlang machine translate --project project.inlang"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -58,6 +62,8 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^3.2.4",
-    "web-vitals": "^5.1.0"
+    "web-vitals": "^5.1.0",
+    "@inlang/paraglide-js": "^2.18.0",
+    "@inlang/cli": "^3.0.0"
   }
 }

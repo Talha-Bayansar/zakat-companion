@@ -1,21 +1,40 @@
+import { m } from "@/paraglide/messages"
+
 import { PageHeader, PageSection } from "@/shared/ui/page"
-import { Surface } from "@/shared/ui/surface"
+import { Separator } from "@/shared/ui/separator"
+import { LocaleSwitcher } from "@/shared/ui/locale-switcher"
 
 export function SettingsPage() {
   return (
-    <PageSection>
+    <PageSection className="gap-6">
       <PageHeader
-        eyebrow="Settings"
-        title="Keep account setup in one place"
-        description="Profile creation, switching, delegated access, and reminder preferences will live here."
+        eyebrow={m.settings_eyebrow()}
+        title={m.settings_title()}
+        description={m.settings_description()}
       />
 
-      <Surface>
+      <section className="flex flex-col gap-4 rounded-[1.75rem] border border-border/70 bg-background/80 p-5 backdrop-blur-sm">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-foreground">
+            {m.locale_label()}
+          </p>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {m.settings_surface()}
+          </p>
+        </div>
+
+        <Separator />
+
+        <LocaleSwitcher className="max-w-none" />
+      </section>
+
+      <section className="flex flex-col gap-2 px-1">
+        <p className="text-sm font-medium text-foreground">App experience</p>
         <p className="text-sm leading-6 text-muted-foreground">
-          Account actions and preferences will use the same reusable patterns
-          as other screens.
+          Language stays here. Navigation stays in the shell. Other preferences
+          can join this page later without crowding the main screens.
         </p>
-      </Surface>
+      </section>
     </PageSection>
   )
 }
