@@ -24,8 +24,8 @@ export function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <main className="relative min-h-svh overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.08),transparent_30%),linear-gradient(180deg,rgba(248,250,252,1),rgba(255,255,255,1))] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[linear-gradient(135deg,rgba(16,185,129,0.08),transparent_60%)]" />
+    <main className="relative min-h-svh overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(1,72,48,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(245,158,11,0.08),transparent_30%),linear-gradient(180deg,rgba(248,250,245,1),rgba(255,255,255,1))] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[linear-gradient(135deg,rgba(1,72,48,0.08),transparent_60%)]" />
 
       <div className="relative mx-auto flex min-h-svh w-full max-w-md flex-col justify-center">
         <section className="flex flex-col gap-5">

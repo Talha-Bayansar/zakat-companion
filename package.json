@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
+    "pwa:assets": "node ./scripts/generate-pwa-assets.mjs",
     "prebuild": "pnpm run paraglide:compile",
     "pretypecheck": "pnpm run paraglide:compile",
     "build": "vite build",
@@ -67,6 +68,7 @@
     "jsdom": "^27.4.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "pwa-asset-generator": "^8.1.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",

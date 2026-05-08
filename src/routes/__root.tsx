@@ -11,6 +11,7 @@ import type { QueryClient } from "@tanstack/react-query"
 
 import { m } from "@/paraglide/messages"
 import { getLocale, getTextDirection } from "@/paraglide/runtime"
+import { pwaLinks, pwaMeta } from "@/shared/lib/pwa-assets"
 
 import appCss from "../styles.css?url"
 
@@ -27,14 +28,24 @@ export const Route = createRootRouteWithContext<{
         content: "width=device-width, initial-scale=1",
       },
       {
+        name: "theme-color",
+        content: "#014830",
+      },
+      {
         title: m.app_name(),
       },
+      ...pwaMeta,
     ],
     links: [
+      {
+        rel: "manifest",
+        href: "/manifest.json",
+      },
       {
         rel: "stylesheet",
         href: appCss,
       },
+      ...pwaLinks,
     ],
   }),
   notFoundComponent: () => (

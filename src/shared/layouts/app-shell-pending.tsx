@@ -3,8 +3,8 @@ import { Skeleton } from "@/shared/ui/skeleton"
 
 export function AppShellPending() {
   return (
-    <div className="relative min-h-svh overflow-hidden bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.12),transparent_40%),linear-gradient(180deg,rgba(248,250,252,1),rgba(255,255,255,1))] text-foreground">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[linear-gradient(135deg,rgba(16,185,129,0.1),transparent_50%)]" />
+    <div className="relative min-h-svh overflow-hidden bg-[radial-gradient(circle_at_top,rgba(1,72,48,0.12),transparent_40%),linear-gradient(180deg,rgba(248,250,245,1),rgba(255,255,255,1))] text-foreground">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[linear-gradient(135deg,rgba(1,72,48,0.1),transparent_50%)]" />
 
       <div className="relative mx-auto flex min-h-svh max-w-7xl">
         <aside className="hidden w-72 shrink-0 border-r border-border/70 bg-background/80 px-6 py-8 backdrop-blur lg:flex lg:flex-col">
