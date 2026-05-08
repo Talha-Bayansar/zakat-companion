@@ -12,7 +12,9 @@
 - `full fiqh handling`: the app should model madhab-specific zakat rules as fully as practical, rather than using a simplified universal rule set.
 - `wealth classes`: the app should support cash, gold and silver, trade inventory, receivables, and debts/liabilities in the initial model.
 - `profile`: a separate zakat tracking record for a person or household member that can be managed by an authenticated user.
+- `profile owner`: the authenticated user who owns a profile and controls delegated access to it.
 - `delegated manager`: an authenticated user who is allowed to maintain one or more profiles owned by someone else.
+- `profile access grant`: a custom app permission that allows a delegated manager to edit a profile without owning it.
 - `balance update reminder`: a notification that prompts the user to refresh the wealth snapshot.
 - `zakat due reminder`: a notification that alerts the user when zakat is due or approaching due.
 - `reminder cadence`: user-configurable intervals controlling how often balance update reminders are sent.
