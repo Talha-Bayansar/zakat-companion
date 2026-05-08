@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: planned
-- Current step: step 3
+- Current step: step 4
 
 ## Goal
 
@@ -24,8 +24,8 @@ Implement profile creation, profile switching, and delegated manager permissions
    - Ensure the schema can support multiple profiles per user and multiple managers per profile.
 
 3. Build server helpers for profile access.
-   - Status: pending
-   - Add server functions to list accessible profiles, create profiles, switch the active profile, grant access, and revoke access.
+   - Status: completed
+   - Add server functions to list accessible profiles, create profiles, resolve profile switching, grant access, and revoke access.
    - Enforce authorization on the server boundary.
    - Reject profile edits from unauthorized users.
 

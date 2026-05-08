@@ -28,6 +28,11 @@
 
 The UI should feel warm, disciplined, faith-aware, and mobile-first. It should not look like a generic finance dashboard.
 
+The implementation conventions for this area are defined in:
+
+- [ADR 0002: Feature-first folder structure with standardized server and page subfolders](./adr/0002-feature-first-folder-structure.md)
+- [ADR 0003: Standardize UI patterns for forms, loading, empty states, and destructive actions](./adr/0003-ui-patterns-for-forms-loading-empty-and-destructive-actions.md)
+
 ### Design Principles
 
 - Prioritize mobile interactions first.
@@ -49,12 +54,20 @@ The UI should feel warm, disciplined, faith-aware, and mobile-first. It should n
 - Keep the component setup local-first.
 - Prefer a small opinionated component kit over a heavy bespoke design system.
 - Build custom wrappers only where the product needs a distinct mobile feel or specialized workflow.
+- Follow ADR 0003 for form composition, loading states, empty states, destructive confirmations, and translation coverage.
+
+### Feature Structure
+
+- Follow ADR 0002 for feature folder structure.
+- Keep feature-specific server code inside `src/features/<feature>/server/` with `repositories/`, `services/`, `schemas/`, and `functions/` subfolders.
+- Keep route files thin and use feature public APIs from `index.ts` barrels when crossing feature boundaries.
 
 ### Localization
 
 - Use Paraglide JS for UI localization.
 - Start with English as the base locale and Turkish and Dutch as the first additional locales.
-- Keep user-facing strings in message files rather than inlining them throughout the UI.
+- Keep all client-facing strings in message files rather than inlining them throughout the UI, including validation, error, loading, empty-state, and fallback display text.
+- Treat server error messages as part of the localized UI whenever they can surface to the client.
 - Make locale switching available from the app shell early so later slices inherit the same pattern.
 
 ## High-Level Shape

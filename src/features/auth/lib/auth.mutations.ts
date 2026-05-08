@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { authClient } from "@/lib/auth-client"
+import { m } from "@/paraglide/messages"
 
 import { authSessionQueryKey } from "./auth-session.query"
 import { type SignInValues, type SignUpValues } from "./auth.schemas"
@@ -8,7 +9,7 @@ import { type SignInValues, type SignUpValues } from "./auth.schemas"
 function nameFromEmail(email: string) {
   const prefix = email.split("@")[0]?.trim() || email.trim()
   if (!prefix) {
-    return "User"
+    return m.auth_default_account_name()
   }
 
   return prefix
