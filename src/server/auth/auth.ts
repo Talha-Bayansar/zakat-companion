@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers"
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 
@@ -14,4 +15,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  secret: env.BETTER_AUTH_SECRET,
 })

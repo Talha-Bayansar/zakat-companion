@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers"
 import { neon } from "@neondatabase/serverless"
 import { drizzle } from "drizzle-orm/neon-http"
 
@@ -10,4 +11,4 @@ export function createDb(databaseUrl: string) {
 }
 
 export type Database = ReturnType<typeof createDb>
-export const db = createDb(process.env.DATABASE_URL!)
+export const db = createDb(env.DATABASE_URL)

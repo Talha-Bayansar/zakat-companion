@@ -68,20 +68,20 @@ export function AppShell({ children }: { children: ReactNode }) {
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    buttonVariants({
-                      variant: active ? "default" : "ghost",
-                      size: "lg",
-                    }),
-                    "h-auto w-full justify-start rounded-3xl px-4 py-3",
+                    "group flex h-auto w-full items-center justify-start rounded-3xl border px-4 py-3 text-left transition-all",
+                    active
+                      ? "border-primary/15 bg-primary text-primary-foreground shadow-sm shadow-primary/10 hover:bg-primary/90"
+                      : "border-transparent bg-transparent text-foreground/80 hover:border-border/80 hover:bg-muted/70 hover:text-foreground",
                   )}
+                  aria-current={active ? "page" : undefined}
                 >
                   <span className="flex min-w-0 flex-1 items-center gap-3 text-left">
                     <span
                       className={cn(
-                        "inline-flex size-10 items-center justify-center rounded-full border border-border/70 transition-colors",
+                        "inline-flex size-10 items-center justify-center rounded-full border transition-colors",
                         active
-                          ? "border-primary/30 bg-primary/10 text-primary"
-                          : "bg-background/70 text-muted-foreground",
+                          ? "border-primary-foreground/15 bg-primary-foreground/10 text-primary-foreground"
+                          : "border-border/70 bg-background/70 text-muted-foreground group-hover:border-border group-hover:bg-background group-hover:text-foreground",
                       )}
                     >
                       <HugeiconsIcon icon={item.icon} size={20} strokeWidth={1.8} />
@@ -89,7 +89,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="text-sm font-medium">{item.label}</span>
-                      <span className="text-xs text-current/70">
+                      <span
+                        className={cn(
+                          "text-xs transition-colors",
+                          active
+                            ? "text-primary-foreground/80"
+                            : "text-muted-foreground group-hover:text-foreground/70",
+                        )}
+                      >
                         {item.description}
                       </span>
                     </span>
