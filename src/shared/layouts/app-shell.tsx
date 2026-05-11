@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <aside className="hidden w-72 shrink-0 border-r border-border/70 bg-background/80 px-6 py-8 backdrop-blur lg:flex lg:flex-col">
           <div className="flex flex-col gap-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
+              <p className="text-xs font-medium tracking-[0.24em] text-muted-foreground uppercase">
                 {m.app_name()}
               </p>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight">
@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     "group flex h-auto w-full items-center justify-start rounded-3xl border px-4 py-3 text-left transition-all",
                     active
                       ? "border-primary/15 bg-primary text-primary-foreground shadow-sm shadow-primary/10 hover:bg-primary/90"
-                      : "border-transparent bg-transparent text-foreground/80 hover:border-border/80 hover:bg-muted/70 hover:text-foreground",
+                      : "border-transparent bg-transparent text-foreground/80 hover:border-border/80 hover:bg-muted/70 hover:text-foreground"
                   )}
                   aria-current={active ? "page" : undefined}
                 >
@@ -81,10 +81,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                         "inline-flex size-10 items-center justify-center rounded-full border transition-colors",
                         active
                           ? "border-primary-foreground/15 bg-primary-foreground/10 text-primary-foreground"
-                          : "border-border/70 bg-background/70 text-muted-foreground group-hover:border-border group-hover:bg-background group-hover:text-foreground",
+                          : "border-border/70 bg-background/70 text-muted-foreground group-hover:border-border group-hover:bg-background group-hover:text-foreground"
                       )}
                     >
-                      <HugeiconsIcon icon={item.icon} size={20} strokeWidth={1.8} />
+                      <HugeiconsIcon
+                        icon={item.icon}
+                        size={20}
+                        strokeWidth={1.8}
+                      />
                     </span>
 
                     <span className="flex min-w-0 flex-1 flex-col">
@@ -94,7 +98,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                           "text-xs transition-colors",
                           active
                             ? "text-primary-foreground/80"
-                            : "text-muted-foreground group-hover:text-foreground/70",
+                            : "text-muted-foreground group-hover:text-foreground/70"
                         )}
                       >
                         {item.description}
@@ -115,13 +119,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <main className="flex-1 px-4 pb-20 pt-5 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
+          <main className="flex-1 px-4 pt-5 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pt-8 lg:pb-10">
             <div className="mx-auto w-full max-w-5xl">{children}</div>
           </main>
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/70 bg-background/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/70 bg-background/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         <div className="mx-auto grid max-w-sm grid-cols-3 gap-1.5">
           {navigationItems.map((item) => {
             const active = isActive(location.pathname, item.to)
@@ -135,14 +139,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                     variant: active ? "default" : "ghost",
                     size: "xs",
                   }),
-                  "h-11 w-full rounded-2xl px-2.5 py-2 text-[0.72rem] font-medium",
+                  "h-11 w-full rounded-2xl px-2.5 py-2 text-[0.72rem] font-medium"
                 )}
               >
                 <span className="flex min-w-0 items-center gap-2 leading-none">
                   <span
                     className={cn(
                       "inline-flex shrink-0 items-center justify-center transition-colors",
-                      active ? "text-primary-foreground" : "text-current/70",
+                      active ? "text-primary-foreground" : "text-current/70"
                     )}
                   >
                     <HugeiconsIcon icon={item.icon} size={18} strokeWidth={2} />

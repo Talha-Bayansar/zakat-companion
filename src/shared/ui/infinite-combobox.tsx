@@ -2,7 +2,10 @@ import { useRef, useState } from "react"
 import type { Key, ReactNode } from "react"
 
 import { Combobox } from "@base-ui/react/combobox"
+import { Tick02Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 
+import { cn } from "@/shared/lib/cn"
 import { InfiniteList } from "@/shared/ui/infinite-list"
 
 type InfiniteComboboxCommonProps<TItem> = {
@@ -17,7 +20,7 @@ type InfiniteComboboxCommonProps<TItem> = {
   itemToStringLabel: (item: TItem) => string
   itemToStringValue: (item: TItem) => string
   isItemEqualToValue: (item: TItem, value: TItem) => boolean
-  renderItem: (item: TItem, index: number) => ReactNode
+  renderItemContent: (item: TItem, index: number) => ReactNode
   getItemKey: (item: TItem, index: number) => Key
   loadingState?: ReactNode
   refreshState?: ReactNode
@@ -69,7 +72,7 @@ function InfiniteComboboxBase<TItem>({
   itemToStringLabel,
   itemToStringValue,
   isItemEqualToValue,
-  renderItem,
+  renderItemContent,
   getItemKey,
   loadingState,
   refreshState,
@@ -90,6 +93,7 @@ function InfiniteComboboxBase<TItem>({
   disabled,
 }: InfiniteComboboxProps<TItem>) {
   const [popupElement, setPopupElement] = useState<HTMLDivElement | null>(null)
+  const [listElement, setListElement] = useState<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
@@ -128,9 +132,9 @@ function InfiniteComboboxBase<TItem>({
             <Combobox.Popup
               ref={setPopupElement}
               initialFocus={inputRef}
-              className={popupClassName}
+              className={cn("flex flex-col", popupClassName)}
             >
-              <div className="flex flex-col gap-2 p-2">
+              <div className="flex min-h-0 flex-col gap-2 p-2">
                 <Combobox.Input
                   ref={inputRef}
                   placeholder={searchPlaceholder}
@@ -138,7 +142,10 @@ function InfiniteComboboxBase<TItem>({
                   className={inputClassName}
                 />
 
-                <Combobox.List className="flex flex-col gap-2">
+                <Combobox.List
+                  ref={setListElement}
+                  className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain pr-1"
+                >
                   <InfiniteList
                     items={items}
                     hasMore={hasMore}
@@ -147,7 +154,11 @@ function InfiniteComboboxBase<TItem>({
                     isRefreshing={isRefreshing}
                     onLoadMore={onLoadMore}
                     getItemKey={getItemKey}
-                    renderItem={renderItem}
+                    renderItem={(item, index) => (
+                      <InfiniteComboboxItem value={item}>
+                        {renderItemContent(item, index)}
+                      </InfiniteComboboxItem>
+                    )}
                     loadingLabel={loadingLabel}
                     loadMoreLabel={loadMoreLabel}
                     loadingState={loadingState}
@@ -157,7 +168,7 @@ function InfiniteComboboxBase<TItem>({
                     className="gap-2"
                     listClassName={listClassName}
                     footerClassName={footerClassName}
-                    observeRoot={popupElement ?? observeRoot}
+                    observeRoot={listElement ?? popupElement ?? observeRoot}
                   />
                 </Combobox.List>
               </div>
@@ -196,6 +207,30 @@ function InfiniteMultiSelect<TItem>(props: InfiniteMultiSelectProps<TItem>) {
 
   return (
     <InfiniteComboboxBase<TItem> {...baseProps} />
+  )
+}
+
+function InfiniteComboboxItem<TItem>({
+  value,
+  children,
+}: {
+  value: TItem
+  children: ReactNode
+}) {
+  return (
+    <Combobox.Item
+      value={value}
+      className="relative flex w-full cursor-default items-center gap-2.5 rounded-xl py-2 pr-8 pl-3 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50"
+    >
+      <span className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">{children}</span>
+      <Combobox.ItemIndicator
+        render={
+          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
+        }
+      >
+        <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="pointer-events-none" />
+      </Combobox.ItemIndicator>
+    </Combobox.Item>
   )
 }
 

@@ -27,7 +27,7 @@ export function AppShellPending() {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <main className="flex-1 px-4 pb-20 pt-5 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
+          <main className="flex-1 px-4 pt-5 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pt-8 lg:pb-10">
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
               <Skeleton className="h-10 w-40" />
               <Skeleton className="h-6 w-3/4 max-w-2xl" />
@@ -40,7 +40,7 @@ export function AppShellPending() {
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/70 bg-background/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/70 bg-background/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         <div className="mx-auto grid max-w-sm grid-cols-3 gap-1.5">
           <Skeleton className="h-11 rounded-2xl" />
           <Skeleton className="h-11 rounded-2xl" />

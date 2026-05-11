@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react"
-import type { ReactNode } from "react"
 
-import { Combobox } from "@base-ui/react/combobox"
 import { Link } from "@tanstack/react-router"
 
 import { m } from "@/paraglide/messages"
@@ -107,9 +105,7 @@ export function ActiveProfileSelectorSection() {
           itemToStringLabel={(profile) => profile.name}
           itemToStringValue={(profile) => profile.id}
           isItemEqualToValue={(item, value) => item.id === value.id}
-          renderItem={(profile) => (
-            <ComboboxItem value={profile}>{profile.name}</ComboboxItem>
-          )}
+          renderItemContent={(profile) => profile.name}
           getItemKey={(profile) => profile.id}
           loadingLabel={m.settings_active_profile_loading_more()}
           loadMoreLabel={m.settings_active_profile_load_more()}
@@ -179,22 +175,5 @@ export function ActiveProfileSelectorSection() {
         </div>
       ) : null}
     </Surface>
-  )
-}
-
-function ComboboxItem({
-  value,
-  children,
-}: {
-  value: AccessibleProfile
-  children: ReactNode
-}) {
-  return (
-    <Combobox.Item
-      value={value}
-      className="relative flex w-full cursor-default items-center gap-2.5 rounded-xl py-2 pr-8 pl-3 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50"
-    >
-      {children}
-    </Combobox.Item>
   )
 }
