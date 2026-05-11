@@ -58,6 +58,7 @@ The implementation conventions for this area are defined in:
 - Follow ADR 0003 for form composition, loading states, empty states, destructive confirmations, and translation coverage.
 - Treat user-growable async collections as infinite-scrolling lists by default, including overview pages and searchable picker components.
 - Prefer a shared infinite-list primitive plus thin feature wrappers so page views and pickers reuse the same fetch and scroll behavior.
+- Prefer reusable infinite-select and infinite-multi-select wrappers for searchable dynamic pickers instead of rebuilding a combobox pattern per feature.
 - Use page-based pagination under the hood for those lists, with `page`, `pageSize`, and `hasMore` as the shared data contract.
 - Keep React components small and focused.
 - If a React component grows beyond roughly 150 to 180 lines, split it into smaller components, hooks, or helpers instead of letting it become overcrowded.
