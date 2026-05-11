@@ -18,4 +18,6 @@ This repository uses a single-context documentation layout.
 - Keep persistence in repositories, orchestration in services, validation in schemas, and TanStack Start entrypoints in functions.
 - Treat any new client-facing text as a translation task: add or reuse a Paraglide message before shipping the UI change.
 - Treat server error strings as client-facing whenever they can propagate to the UI; translate them before shipping.
+- Keep React components small and focused.
+- If a React component grows beyond roughly 150 to 180 lines, split it into smaller components, hooks, or helpers.
 - If the repository later splits into distinct subdomains, migrate to a multi-context layout and add `CONTEXT-MAP.md` at the root.

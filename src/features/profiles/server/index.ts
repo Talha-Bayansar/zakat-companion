@@ -1,8 +1,11 @@
 export {
   createProfileFn,
+  deleteProfileFn,
   grantProfileAccessFn,
   listAccessibleProfilesFn,
+  listManagedProfileAccessFn,
   revokeProfileAccessFn,
+  updateProfileFn,
   switchActiveProfileFn,
 } from "./functions/profile-access.function"
 export type {
@@ -13,9 +16,12 @@ export type {
 export {
   ProfileAccessError,
   createProfile,
+  deleteProfile,
   grantProfileAccess,
   hasProfileEditAccess,
   listAccessibleProfiles,
+  listManagedProfileAccess,
   revokeProfileAccess,
+  updateProfile,
   switchActiveProfile,
 } from "./services/profile-access.service"

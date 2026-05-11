@@ -4,6 +4,8 @@
   "compatibility_date": "2026-05-07",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server.ts",
+  // Put non-secret runtime values in `vars`.
+  // Put secrets in `.dev.vars` locally or with `wrangler secret put` in Cloudflare.
   "secrets": {
     "required": ["BETTER_AUTH_SECRET", "DATABASE_URL"],
   },

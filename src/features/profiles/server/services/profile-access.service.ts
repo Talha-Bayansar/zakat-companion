@@ -3,19 +3,26 @@ import {
 } from "@/paraglide/messages"
 import {
   createProfileRecord,
+  deleteProfileRecord,
   deleteProfileAccessGrantRecord,
   findUserRecordByEmail,
   getProfileAccessGrantRecord,
   getProfileRecordById,
+  listProfileAccessGrantRecords,
   listDelegatedProfileRecords,
   listOwnedProfileRecords,
+  type ManagedProfileAccessRecord,
   type ProfileAccessGrantRecord,
   type ProfileRecord,
+  updateProfileRecord,
   upsertProfileAccessGrantRecord,
 } from "../repositories/profile-access.repository"
 import type {
   CreateProfileInput,
+  DeleteProfileInput,
+  ListProfileAccessInput,
   ManageProfileAccessInput,
+  UpdateProfileInput,
   SwitchActiveProfileInput,
 } from "../schemas/profile-access.schema"
 
@@ -28,7 +35,7 @@ export type AccessibleProfile = ProfileRecord & {
   grantedByUserId: string | null
 }
 
-export type ManagedProfileAccess = ProfileAccessGrantRecord
+export type ManagedProfileAccess = ManagedProfileAccessRecord
 
 export class ProfileAccessError extends Error {
   readonly code:
@@ -179,6 +186,31 @@ export async function createProfile(actor: Actor, input: CreateProfileInput) {
   return toOwnerAccessibleProfile(record)
 }
 
+export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
+  const record = await requireAccessibleProfileRecord(actor, input.profileId)
+
+  const updated = await updateProfileRecord(record.id, input.name.trim())
+
+  if (!updated) {
+    throw new ProfileAccessError(
+      "NOT_FOUND",
+      m.profile_access_not_found(),
+    )
+  }
+
+  return {
+    id: updated.id,
+    name: updated.name,
+    ownerId: updated.ownerId,
+    role: record.role,
+    canManageAccess: record.canManageAccess,
+    accessGrantedAt: record.accessGrantedAt,
+    grantedByUserId: record.grantedByUserId,
+    createdAt: updated.createdAt,
+    updatedAt: updated.updatedAt,
+  }
+}
+
 export async function switchActiveProfile(
   actor: Actor,
   input: SwitchActiveProfileInput,
@@ -216,6 +248,15 @@ export async function grantProfileAccess(
   return grant
 }
 
+export async function listManagedProfileAccess(
+  actor: Actor,
+  input: ListProfileAccessInput,
+) {
+  const profileRecord = await requireOwnerAccess(actor, input.profileId)
+
+  return listProfileAccessGrantRecords(profileRecord.id)
+}
+
 export async function revokeProfileAccess(
   actor: Actor,
   input: ManageProfileAccessInput,
@@ -237,6 +278,15 @@ export async function revokeProfileAccess(
 
   return {
     revoked: deleted.length > 0,
+  }
+}
+
+export async function deleteProfile(actor: Actor, input: DeleteProfileInput) {
+  const profileRecord = await requireOwnerAccess(actor, input.profileId)
+  const deleted = await deleteProfileRecord(profileRecord.id)
+
+  return {
+    deleted: deleted !== null,
   }
 }
 

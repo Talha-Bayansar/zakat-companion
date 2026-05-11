@@ -22,3 +22,6 @@ Treat these as required context, not background reading.
 Any new client-facing text must be added to the Paraglide message catalog first. That includes labels, helper text, validation copy, errors, loading states, empty states, fallback names, and any other UI-visible wording.
 
 Server errors that can reach the client are part of client-facing text. Translate those messages too, instead of hardcoding English strings in server functions or service layers.
+
+Keep React components small and focused.
+If a React component grows beyond roughly 150 to 180 lines, split it into smaller components, hooks, or helpers.

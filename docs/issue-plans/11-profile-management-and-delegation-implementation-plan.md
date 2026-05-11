@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: planned
-- Current step: step 4
+- Current step: step 5
 
 ## Goal
 
@@ -30,7 +30,7 @@ Implement profile creation, profile switching, and delegated manager permissions
    - Reject profile edits from unauthorized users.
 
 4. Extend the `Settings` UI.
-   - Status: pending
+   - Status: completed
    - Show the current active profile.
    - Add a profile creation form.
    - Add a profile switcher.

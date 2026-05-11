@@ -9,6 +9,7 @@ import { Separator } from "@/shared/ui/separator"
 import { LocaleSwitcher } from "@/shared/ui/locale-switcher"
 
 import { useSignOutMutation } from "@/features/auth/lib/auth.mutations"
+import { ActiveProfileSelectorSection } from "../components/active-profile-selector-section"
 
 export function SettingsPage() {
   const navigate = useNavigate()
@@ -21,6 +22,8 @@ export function SettingsPage() {
         title={m.settings_title()}
         description={m.settings_description()}
       />
+
+      <ActiveProfileSelectorSection />
 
       <section className="flex flex-col gap-4 rounded-[1.75rem] border border-border/70 bg-background/80 p-5 backdrop-blur-sm">
         <div className="flex flex-col gap-1">

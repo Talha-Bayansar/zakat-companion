@@ -24,6 +24,10 @@ export type ProfileAccessGrantRecord = {
   createdAt: Date
 }
 
+export type ManagedProfileAccessRecord = ProfileAccessGrantRecord & {
+  userEmail: string
+}
+
 export type UserRecord = {
   id: string
   email: string
@@ -101,6 +105,23 @@ export async function getProfileAccessGrantRecord(
   return record ?? null
 }
 
+export async function listProfileAccessGrantRecords(profileId: string) {
+  return db
+    .select({
+      id: profilePermission.id,
+      profileId: profilePermission.profileId,
+      userId: profilePermission.userId,
+      userEmail: user.email,
+      grantedByUserId: profilePermission.grantedByUserId,
+      permission: profilePermission.permission,
+      createdAt: profilePermission.createdAt,
+    })
+    .from(profilePermission)
+    .innerJoin(user, eq(profilePermission.userId, user.id))
+    .where(eq(profilePermission.profileId, profileId))
+    .orderBy(desc(profilePermission.createdAt))
+}
+
 export async function createProfileRecord(ownerId: string, name: string) {
   const [record] = await db
     .insert(profile)
@@ -118,6 +139,36 @@ export async function createProfileRecord(ownerId: string, name: string) {
     })
 
   return record
+}
+
+export async function updateProfileRecord(profileId: string, name: string) {
+  const [record] = await db
+    .update(profile)
+    .set({
+      name,
+      updatedAt: new Date(),
+    })
+    .where(eq(profile.id, profileId))
+    .returning({
+      id: profile.id,
+      name: profile.name,
+      ownerId: profile.ownerId,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    })
+
+  return record ?? null
+}
+
+export async function deleteProfileRecord(profileId: string) {
+  const [record] = await db
+    .delete(profile)
+    .where(eq(profile.id, profileId))
+    .returning({
+      id: profile.id,
+    })
+
+  return record ?? null
 }
 
 export async function findUserRecordByEmail(email: string) {

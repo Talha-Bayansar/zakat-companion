@@ -17,6 +17,7 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 import { Route as AppHistoryIndexRouteImport } from './routes/app/history/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppSettingsProfilesIndexRouteImport } from './routes/app/settings/profiles/index'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
@@ -58,6 +59,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSettingsProfilesIndexRoute =
+  AppSettingsProfilesIndexRouteImport.update({
+    id: '/settings/profiles/',
+    path: '/settings/profiles/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/history/': typeof AppHistoryIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
+  '/app/settings/profiles/': typeof AppSettingsProfilesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,6 +85,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/history': typeof AppHistoryIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
+  '/app/settings/profiles': typeof AppSettingsProfilesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,6 +97,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/history/': typeof AppHistoryIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
+  '/app/settings/profiles/': typeof AppSettingsProfilesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/history/'
     | '/app/settings/'
+    | '/app/settings/profiles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/history'
     | '/app/settings'
+    | '/app/settings/profiles'
   id:
     | '__root__'
     | '/'
@@ -119,6 +131,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/history/'
     | '/app/settings/'
+    | '/app/settings/profiles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/settings/profiles/': {
+      id: '/app/settings/profiles/'
+      path: '/settings/profiles'
+      fullPath: '/app/settings/profiles/'
+      preLoaderRoute: typeof AppSettingsProfilesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
@@ -194,12 +214,14 @@ interface AppRouteRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppHistoryIndexRoute: typeof AppHistoryIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppSettingsProfilesIndexRoute: typeof AppSettingsProfilesIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppHistoryIndexRoute: AppHistoryIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppSettingsProfilesIndexRoute: AppSettingsProfilesIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

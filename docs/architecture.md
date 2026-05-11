@@ -55,6 +55,8 @@ The implementation conventions for this area are defined in:
 - Prefer a small opinionated component kit over a heavy bespoke design system.
 - Build custom wrappers only where the product needs a distinct mobile feel or specialized workflow.
 - Follow ADR 0003 for form composition, loading states, empty states, destructive confirmations, and translation coverage.
+- Keep React components small and focused.
+- If a React component grows beyond roughly 150 to 180 lines, split it into smaller components, hooks, or helpers instead of letting it become overcrowded.
 
 ### Feature Structure
 
