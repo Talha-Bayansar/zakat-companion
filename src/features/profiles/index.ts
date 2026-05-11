@@ -1,4 +1,7 @@
 export { ProfilesPage } from "./pages/profiles.page"
+export { ProfilesListPage } from "./pages/profiles-list.page"
+export { ProfileCreatePage } from "./pages/profile-create.page"
+export { ProfileEditPage } from "./pages/profile-edit.page"
 export type {
   AccessibleProfile,
   ManagedProfileAccess,

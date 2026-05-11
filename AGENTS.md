@@ -23,5 +23,7 @@ Any new client-facing text must be added to the Paraglide message catalog first.
 
 Server errors that can reach the client are part of client-facing text. Translate those messages too, instead of hardcoding English strings in server functions or service layers.
 
+If a UI component does not already exist, check shadcn/ui first and install the matching component before creating a custom shared wrapper.
+
 Keep React components small and focused.
 If a React component grows beyond roughly 150 to 180 lines, split it into smaller components, hooks, or helpers.

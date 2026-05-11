@@ -53,6 +53,7 @@ The implementation conventions for this area are defined in:
 - Use Base UI primitives through shadcn/ui.
 - Keep the component setup local-first.
 - Prefer a small opinionated component kit over a heavy bespoke design system.
+- If a UI primitive is missing, check shadcn/ui first and install the matching component before inventing a new shared wrapper.
 - Build custom wrappers only where the product needs a distinct mobile feel or specialized workflow.
 - Follow ADR 0003 for form composition, loading states, empty states, destructive confirmations, and translation coverage.
 - Keep React components small and focused.

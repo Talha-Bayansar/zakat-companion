@@ -1,5 +1,5 @@
-import { ProfilesPageContent } from "../components/profiles-page-content"
+import { ProfilesListPage } from "./profiles-list.page"
 
 export function ProfilesPage() {
-  return <ProfilesPageContent />
+  return <ProfilesListPage />
 }

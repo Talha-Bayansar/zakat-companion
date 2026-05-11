@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons"
 
 import { m } from "@/paraglide/messages"
 
@@ -33,6 +35,13 @@ function LandingPage() {
               className={cn(buttonVariants({ variant: "default", size: "lg" }))}
             >
               {m.landing_enter_app()}
+            </Link>
+            <Link
+              to="/app"
+              className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
+            >
+              {m.landing_open_app()}
+              <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} className="size-4" />
             </Link>
             <Link
               to="/sign-up"

@@ -18,6 +18,8 @@ import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/inde
 import { Route as AppHistoryIndexRouteImport } from './routes/app/history/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AppSettingsProfilesIndexRouteImport } from './routes/app/settings/profiles/index'
+import { Route as AppSettingsProfilesNewIndexRouteImport } from './routes/app/settings/profiles/new/index'
+import { Route as AppSettingsProfilesProfileIdIndexRouteImport } from './routes/app/settings/profiles/$profileId/index'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
@@ -65,6 +67,18 @@ const AppSettingsProfilesIndexRoute =
     path: '/settings/profiles/',
     getParentRoute: () => AppRouteRoute,
   } as any)
+const AppSettingsProfilesNewIndexRoute =
+  AppSettingsProfilesNewIndexRouteImport.update({
+    id: '/settings/profiles/new/',
+    path: '/settings/profiles/new/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppSettingsProfilesProfileIdIndexRoute =
+  AppSettingsProfilesProfileIdIndexRouteImport.update({
+    id: '/settings/profiles/$profileId/',
+    path: '/settings/profiles/$profileId/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -76,6 +90,8 @@ export interface FileRoutesByFullPath {
   '/app/history/': typeof AppHistoryIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/app/settings/profiles/': typeof AppSettingsProfilesIndexRoute
+  '/app/settings/profiles/$profileId/': typeof AppSettingsProfilesProfileIdIndexRoute
+  '/app/settings/profiles/new/': typeof AppSettingsProfilesNewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +102,8 @@ export interface FileRoutesByTo {
   '/app/history': typeof AppHistoryIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
   '/app/settings/profiles': typeof AppSettingsProfilesIndexRoute
+  '/app/settings/profiles/$profileId': typeof AppSettingsProfilesProfileIdIndexRoute
+  '/app/settings/profiles/new': typeof AppSettingsProfilesNewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +116,8 @@ export interface FileRoutesById {
   '/app/history/': typeof AppHistoryIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/app/settings/profiles/': typeof AppSettingsProfilesIndexRoute
+  '/app/settings/profiles/$profileId/': typeof AppSettingsProfilesProfileIdIndexRoute
+  '/app/settings/profiles/new/': typeof AppSettingsProfilesNewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +131,8 @@ export interface FileRouteTypes {
     | '/app/history/'
     | '/app/settings/'
     | '/app/settings/profiles/'
+    | '/app/settings/profiles/$profileId/'
+    | '/app/settings/profiles/new/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,6 +143,8 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/settings'
     | '/app/settings/profiles'
+    | '/app/settings/profiles/$profileId'
+    | '/app/settings/profiles/new'
   id:
     | '__root__'
     | '/'
@@ -132,6 +156,8 @@ export interface FileRouteTypes {
     | '/app/history/'
     | '/app/settings/'
     | '/app/settings/profiles/'
+    | '/app/settings/profiles/$profileId/'
+    | '/app/settings/profiles/new/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,6 +233,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsProfilesIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/settings/profiles/new/': {
+      id: '/app/settings/profiles/new/'
+      path: '/settings/profiles/new'
+      fullPath: '/app/settings/profiles/new/'
+      preLoaderRoute: typeof AppSettingsProfilesNewIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/settings/profiles/$profileId/': {
+      id: '/app/settings/profiles/$profileId/'
+      path: '/settings/profiles/$profileId'
+      fullPath: '/app/settings/profiles/$profileId/'
+      preLoaderRoute: typeof AppSettingsProfilesProfileIdIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
@@ -215,6 +255,8 @@ interface AppRouteRouteChildren {
   AppHistoryIndexRoute: typeof AppHistoryIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSettingsProfilesIndexRoute: typeof AppSettingsProfilesIndexRoute
+  AppSettingsProfilesProfileIdIndexRoute: typeof AppSettingsProfilesProfileIdIndexRoute
+  AppSettingsProfilesNewIndexRoute: typeof AppSettingsProfilesNewIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -222,6 +264,9 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppHistoryIndexRoute: AppHistoryIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSettingsProfilesIndexRoute: AppSettingsProfilesIndexRoute,
+  AppSettingsProfilesProfileIdIndexRoute:
+    AppSettingsProfilesProfileIdIndexRoute,
+  AppSettingsProfilesNewIndexRoute: AppSettingsProfilesNewIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

@@ -14,13 +14,15 @@ import {
 } from "@/shared/ui/alert-dialog"
 
 type DestructiveConfirmDialogProps = {
-  trigger: ReactElement
+  trigger?: ReactElement
   title: string
   description: string
   confirmLabel: string
   cancelLabel: string
   pendingLabel: string
   onConfirm: () => Promise<void> | void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export function DestructiveConfirmDialog({
@@ -31,13 +33,18 @@ export function DestructiveConfirmDialog({
   cancelLabel,
   pendingLabel,
   onConfirm,
+  open: controlledOpen,
+  onOpenChange,
 }: DestructiveConfirmDialogProps) {
-  const [open, setOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
   const [pending, setPending] = useState(false)
+  const isControlled = typeof controlledOpen === "boolean"
+  const open = isControlled ? controlledOpen : uncontrolledOpen
+  const handleOpenChange = onOpenChange ?? setUncontrolledOpen
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger render={trigger} />
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
+      {trigger ? <AlertDialogTrigger render={trigger} /> : null}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -55,7 +62,7 @@ export function DestructiveConfirmDialog({
               try {
                 setPending(true)
                 await onConfirm()
-                setOpen(false)
+                handleOpenChange(false)
               } finally {
                 setPending(false)
               }

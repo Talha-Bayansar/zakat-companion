@@ -1,0 +1,101 @@
+import { m } from "@/paraglide/messages"
+
+import { useAccessibleProfilesQuery, useUpdateProfileMutation } from "@/features/profiles"
+import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from "@/shared/ui/empty"
+import { PageHeaderWithBack, PageSection } from "@/shared/ui/page"
+import { Spinner } from "@/shared/ui/spinner"
+import { Surface } from "@/shared/ui/surface"
+
+import { ProfileAccessCard } from "../components/profile-access-card"
+import { ProfileNameForm } from "../components/profile-name-form"
+
+type ProfileEditPageProps = {
+  profileId: string
+}
+
+export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
+  const profilesQuery = useAccessibleProfilesQuery()
+  const updateProfileMutation = useUpdateProfileMutation()
+  const profile = profilesQuery.data?.find((item) => item.id === profileId) ?? null
+
+  if (profilesQuery.isLoading) {
+    return (
+      <PageSection className="gap-6">
+        <PageHeaderWithBack
+          backTo="/app/settings/profiles"
+          backLabel={m.profiles_edit_back()}
+          eyebrow={m.profiles_eyebrow()}
+          title={m.profiles_edit_title()}
+          description={m.profiles_edit_description()}
+        />
+
+        <Surface rounded="xl" padding="lg">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner label={m.profiles_edit_loading()} className="size-4" />
+            <span>{m.profiles_edit_loading()}</span>
+          </div>
+        </Surface>
+      </PageSection>
+    )
+  }
+
+  if (profilesQuery.isError) {
+    return (
+      <PageSection className="gap-6">
+        <PageHeaderWithBack
+          backTo="/app/settings/profiles"
+          backLabel={m.profiles_edit_back()}
+          eyebrow={m.profiles_eyebrow()}
+          title={m.profiles_edit_title()}
+          description={m.profiles_edit_description()}
+        />
+
+        <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+          {profilesQuery.error instanceof Error && profilesQuery.error.message
+            ? profilesQuery.error.message
+            : m.profiles_edit_load_error()}
+        </p>
+      </PageSection>
+    )
+  }
+
+  return (
+    <PageSection className="gap-6">
+      <PageHeaderWithBack
+        backTo="/app/settings/profiles"
+        backLabel={m.profiles_edit_back()}
+        eyebrow={m.profiles_eyebrow()}
+        title={m.profiles_edit_title()}
+        description={m.profiles_edit_description()}
+      />
+
+      {!profile ? (
+        <Empty className="border-border/70 bg-background/80">
+          <EmptyContent>
+            <EmptyTitle>{m.profiles_edit_not_found_title()}</EmptyTitle>
+            <EmptyDescription>{m.profiles_edit_not_found_description()}</EmptyDescription>
+          </EmptyContent>
+        </Empty>
+      ) : (
+        <>
+          <Surface rounded="xl" padding="lg">
+            <ProfileNameForm
+              initialName={profile.name}
+              submitLabel={m.profiles_edit_submit_cta()}
+              pendingLabel={m.profiles_edit_updating()}
+              errorLabel={m.profiles_edit_error()}
+              onSubmit={async (name) => {
+                await updateProfileMutation.mutateAsync({
+                  profileId: profile.id,
+                  name,
+                })
+              }}
+            />
+          </Surface>
+
+          <ProfileAccessCard profile={profile} />
+        </>
+      )}
+    </PageSection>
+  )
+}

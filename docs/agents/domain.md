@@ -16,6 +16,7 @@ This repository uses a single-context documentation layout.
 - Keep these docs synchronized with major domain or architecture changes.
 - Feature server code should use the `repositories/`, `services/`, `schemas/`, and `functions/` subfolder split inside `src/features/<feature>/server/`.
 - Keep persistence in repositories, orchestration in services, validation in schemas, and TanStack Start entrypoints in functions.
+- If a UI component does not already exist, check shadcn/ui first and install the matching component before creating a custom shared wrapper.
 - Treat any new client-facing text as a translation task: add or reuse a Paraglide message before shipping the UI change.
 - Treat server error strings as client-facing whenever they can propagate to the UI; translate them before shipping.
 - Keep React components small and focused.
