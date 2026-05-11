@@ -4,18 +4,18 @@ import { Add02Icon } from "@hugeicons/core-free-icons"
 
 import { m } from "@/paraglide/messages"
 
-import { useAccessibleProfilesQuery } from "@/features/profiles"
+import { useAccessibleProfilesInfiniteQuery } from "@/features/profiles"
 import { buttonVariants } from "@/shared/ui/button"
 import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from "@/shared/ui/empty"
-import { ItemGroup } from "@/shared/ui/item"
+import { InfiniteList } from "@/shared/ui/infinite-list"
 import { PageHeader, PageSection } from "@/shared/ui/page"
 import { Skeleton } from "@/shared/ui/skeleton"
 
 import { ProfileListItem } from "../components/profile-list-item"
 
 export function ProfilesListPage() {
-  const profilesQuery = useAccessibleProfilesQuery()
-  const profiles = profilesQuery.data ?? []
+  const profilesQuery = useAccessibleProfilesInfiniteQuery()
+  const profiles = profilesQuery.data?.pages.flatMap((page) => page.items) ?? []
 
   return (
     <PageSection className="gap-6">
@@ -35,38 +35,46 @@ export function ProfilesListPage() {
         </Link>
       </div>
 
-      {profilesQuery.isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-20 w-full rounded-[1.5rem]" />
-          <Skeleton className="h-20 w-full rounded-[1.5rem]" />
-          <Skeleton className="h-20 w-full rounded-[1.5rem]" />
-        </div>
-      ) : profilesQuery.isError ? (
+      {profilesQuery.isError ? (
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
           {profilesQuery.error instanceof Error && profilesQuery.error.message
             ? profilesQuery.error.message
             : m.profiles_list_load_error()}
         </p>
-      ) : profiles.length > 0 ? (
-        <ItemGroup className="gap-3">
-          {profiles.map((profile) => (
-            <ProfileListItem key={profile.id} profile={profile} />
-          ))}
-        </ItemGroup>
       ) : (
-        <Empty className="border-border/70 bg-background/80">
-          <EmptyContent>
-            <EmptyTitle>{m.profiles_empty_title()}</EmptyTitle>
-            <EmptyDescription>{m.profiles_empty_description()}</EmptyDescription>
-            <Link
-              to="/app/settings/profiles/new"
-              aria-label={m.profiles_create_button_label()}
-              className={buttonVariants({ variant: "default", size: "icon-sm" })}
-            >
-              <HugeiconsIcon icon={Add02Icon} strokeWidth={2} className="size-4" />
-            </Link>
-          </EmptyContent>
-        </Empty>
+        <InfiniteList
+          items={profiles}
+          hasMore={profilesQuery.hasNextPage}
+          isLoading={profilesQuery.isLoading}
+          isFetchingNextPage={profilesQuery.isFetchingNextPage}
+          onLoadMore={() => void profilesQuery.fetchNextPage()}
+          getItemKey={(profile) => profile.id}
+          renderItem={(profile) => <ProfileListItem profile={profile} />}
+          loadingLabel={m.profiles_list_loading_more()}
+          loadMoreLabel={m.profiles_list_load_more()}
+          loadingState={
+            <div className="space-y-3">
+              <Skeleton className="h-20 w-full rounded-[1.5rem]" />
+              <Skeleton className="h-20 w-full rounded-[1.5rem]" />
+              <Skeleton className="h-20 w-full rounded-[1.5rem]" />
+            </div>
+          }
+          emptyState={
+            <Empty className="border-border/70 bg-background/80">
+              <EmptyContent>
+                <EmptyTitle>{m.profiles_empty_title()}</EmptyTitle>
+                <EmptyDescription>{m.profiles_empty_description()}</EmptyDescription>
+                <Link
+                  to="/app/settings/profiles/new"
+                  aria-label={m.profiles_create_button_label()}
+                  className={buttonVariants({ variant: "default", size: "icon-sm" })}
+                >
+                  <HugeiconsIcon icon={Add02Icon} strokeWidth={2} className="size-4" />
+                </Link>
+              </EmptyContent>
+            </Empty>
+          }
+        />
       )}
     </PageSection>
   )

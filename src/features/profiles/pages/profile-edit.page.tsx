@@ -1,6 +1,9 @@
 import { m } from "@/paraglide/messages"
 
-import { useAccessibleProfilesQuery, useUpdateProfileMutation } from "@/features/profiles"
+import {
+  useAccessibleProfileQuery,
+  useUpdateProfileMutation,
+} from "@/features/profiles"
 import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from "@/shared/ui/empty"
 import { PageHeaderWithBack, PageSection } from "@/shared/ui/page"
 import { Spinner } from "@/shared/ui/spinner"
@@ -14,11 +17,10 @@ type ProfileEditPageProps = {
 }
 
 export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
-  const profilesQuery = useAccessibleProfilesQuery()
+  const profileQuery = useAccessibleProfileQuery(profileId)
   const updateProfileMutation = useUpdateProfileMutation()
-  const profile = profilesQuery.data?.find((item) => item.id === profileId) ?? null
 
-  if (profilesQuery.isLoading) {
+  if (profileQuery.isLoading) {
     return (
       <PageSection className="gap-6">
         <PageHeaderWithBack
@@ -39,7 +41,7 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
     )
   }
 
-  if (profilesQuery.isError) {
+  if (profileQuery.isError) {
     return (
       <PageSection className="gap-6">
         <PageHeaderWithBack
@@ -51,8 +53,8 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
         />
 
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {profilesQuery.error instanceof Error && profilesQuery.error.message
-            ? profilesQuery.error.message
+          {profileQuery.error instanceof Error && profileQuery.error.message
+            ? profileQuery.error.message
             : m.profiles_edit_load_error()}
         </p>
       </PageSection>
@@ -69,7 +71,7 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
         description={m.profiles_edit_description()}
       />
 
-      {!profile ? (
+      {!profileQuery.data ? (
         <Empty className="border-border/70 bg-background/80">
           <EmptyContent>
             <EmptyTitle>{m.profiles_edit_not_found_title()}</EmptyTitle>
@@ -80,20 +82,20 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
         <>
           <Surface rounded="xl" padding="lg">
             <ProfileNameForm
-              initialName={profile.name}
+              initialName={profileQuery.data.name}
               submitLabel={m.profiles_edit_submit_cta()}
               pendingLabel={m.profiles_edit_updating()}
               errorLabel={m.profiles_edit_error()}
               onSubmit={async (name) => {
                 await updateProfileMutation.mutateAsync({
-                  profileId: profile.id,
+                  profileId: profileQuery.data.id,
                   name,
                 })
               }}
             />
           </Surface>
 
-          <ProfileAccessCard profile={profile} />
+          <ProfileAccessCard profile={profileQuery.data} />
         </>
       )}
     </PageSection>

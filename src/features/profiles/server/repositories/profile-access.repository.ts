@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike } from "drizzle-orm"
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm"
 
 import { db } from "@/server/db/client"
 import {
@@ -33,7 +33,30 @@ export type UserRecord = {
   email: string
 }
 
-export async function listOwnedProfileRecords(ownerId: string) {
+export type ProfileAccessRole = "owner" | "manager"
+
+export type AccessibleProfilePageRecord = ProfileRecord & {
+  role: ProfileAccessRole
+  canManageAccess: boolean
+  accessGrantedAt: Date | null
+  grantedByUserId: string | null
+  sortRole: number
+}
+
+export async function listOwnedProfileRecords(
+  ownerId: string,
+  input: {
+    page: number
+    pageSize: number
+    search?: string
+  },
+) {
+  const conditions = [eq(profile.ownerId, ownerId)]
+
+  if (input.search) {
+    conditions.push(ilike(profile.name, `%${input.search}%`))
+  }
+
   return db
     .select({
       id: profile.id,
@@ -43,11 +66,26 @@ export async function listOwnedProfileRecords(ownerId: string) {
       updatedAt: profile.updatedAt,
     })
     .from(profile)
-    .where(eq(profile.ownerId, ownerId))
-    .orderBy(desc(profile.updatedAt), desc(profile.createdAt))
+    .where(and(...conditions))
+    .orderBy(asc(profile.name), asc(profile.id))
+    .limit(input.pageSize)
+    .offset((input.page - 1) * input.pageSize)
 }
 
-export async function listDelegatedProfileRecords(userId: string) {
+export async function listDelegatedProfileRecords(
+  userId: string,
+  input: {
+    page: number
+    pageSize: number
+    search?: string
+  },
+) {
+  const conditions = [eq(profilePermission.userId, userId)]
+
+  if (input.search) {
+    conditions.push(ilike(profile.name, `%${input.search}%`))
+  }
+
   return db
     .select({
       id: profile.id,
@@ -60,8 +98,91 @@ export async function listDelegatedProfileRecords(userId: string) {
     })
     .from(profilePermission)
     .innerJoin(profile, eq(profilePermission.profileId, profile.id))
-    .where(eq(profilePermission.userId, userId))
-    .orderBy(desc(profilePermission.createdAt))
+    .where(and(...conditions))
+    .orderBy(asc(profile.name), asc(profile.id))
+    .limit(input.pageSize)
+    .offset((input.page - 1) * input.pageSize)
+}
+
+export async function listAccessibleProfilePageRecords(
+  ownerId: string,
+  input: {
+    page: number
+    pageSize: number
+    search: string
+  },
+) {
+  const search = input.search.trim()
+  const ownedConditions = [eq(profile.ownerId, ownerId)]
+  if (search) {
+    ownedConditions.push(ilike(profile.name, `%${search}%`))
+  }
+
+  const delegatedConditions = [eq(profilePermission.userId, ownerId)]
+  if (search) {
+    delegatedConditions.push(ilike(profile.name, `%${search}%`))
+  }
+
+  const ownedProfiles = db
+    .select({
+      id: profile.id,
+      name: profile.name,
+      ownerId: profile.ownerId,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      role: sql<ProfileAccessRole>`'owner'`.as("role"),
+      canManageAccess: sql<boolean>`true`.as("can_manage_access"),
+      accessGrantedAt: sql<Date | null>`null`.as("access_granted_at"),
+      grantedByUserId: sql<string | null>`null`.as("granted_by_user_id"),
+      sortRole: sql<number>`0`.as("sort_role"),
+    })
+    .from(profile)
+    .where(and(...ownedConditions))
+
+  const delegatedProfiles = db
+    .select({
+      id: profile.id,
+      name: profile.name,
+      ownerId: profile.ownerId,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      role: sql<ProfileAccessRole>`'manager'`.as("role"),
+      canManageAccess: sql<boolean>`false`.as("can_manage_access"),
+      accessGrantedAt: profilePermission.createdAt,
+      grantedByUserId: profilePermission.grantedByUserId,
+      sortRole: sql<number>`1`.as("sort_role"),
+    })
+    .from(profilePermission)
+    .innerJoin(profile, eq(profilePermission.profileId, profile.id))
+    .where(and(...delegatedConditions))
+
+  const accessibleProfiles = ownedProfiles.unionAll(delegatedProfiles).as(
+    "accessible_profiles",
+  )
+
+  const rows = await db
+    .select({
+      id: accessibleProfiles.id,
+      name: accessibleProfiles.name,
+      ownerId: accessibleProfiles.ownerId,
+      createdAt: accessibleProfiles.createdAt,
+      updatedAt: accessibleProfiles.updatedAt,
+      role: accessibleProfiles.role,
+      canManageAccess: accessibleProfiles.canManageAccess,
+      accessGrantedAt: accessibleProfiles.accessGrantedAt,
+      grantedByUserId: accessibleProfiles.grantedByUserId,
+      sortRole: accessibleProfiles.sortRole,
+    })
+    .from(accessibleProfiles)
+    .orderBy(
+      asc(accessibleProfiles.sortRole),
+      asc(accessibleProfiles.name),
+      asc(accessibleProfiles.id),
+    )
+    .limit(input.pageSize + 1)
+    .offset((input.page - 1) * input.pageSize)
+
+  return rows
 }
 
 export async function getProfileRecordById(profileId: string) {
@@ -105,7 +226,13 @@ export async function getProfileAccessGrantRecord(
   return record ?? null
 }
 
-export async function listProfileAccessGrantRecords(profileId: string) {
+export async function listProfileAccessGrantPageRecords(
+  profileId: string,
+  input: {
+    page: number
+    pageSize: number
+  },
+) {
   return db
     .select({
       id: profilePermission.id,
@@ -120,6 +247,8 @@ export async function listProfileAccessGrantRecords(profileId: string) {
     .innerJoin(user, eq(profilePermission.userId, user.id))
     .where(eq(profilePermission.profileId, profileId))
     .orderBy(desc(profilePermission.createdAt))
+    .limit(input.pageSize)
+    .offset((input.page - 1) * input.pageSize)
 }
 
 export async function createProfileRecord(ownerId: string, name: string) {

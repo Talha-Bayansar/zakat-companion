@@ -6,11 +6,15 @@ import { m } from "@/paraglide/messages"
 import {
   createProfileInputSchema,
   deleteProfileInputSchema,
+  getAccessibleProfileInputSchema,
+  listAccessibleProfilesPageInputSchema,
   listProfileAccessInputSchema,
   manageProfileAccessInputSchema,
   switchActiveProfileInputSchema,
   type CreateProfileInput,
   type DeleteProfileInput,
+  type GetAccessibleProfileInput,
+  type ListAccessibleProfilesPageInput,
   type ListProfileAccessInput,
   type ManageProfileAccessInput,
   type SwitchActiveProfileInput,
@@ -52,6 +56,41 @@ export const listAccessibleProfilesFn = createServerFn({ method: "GET" }).handle
     return listAccessibleProfiles(actor)
   },
 )
+
+const getAccessibleProfileFnInternal = createServerFn({ method: "GET" }).handler(
+  async ({ data }: { data: unknown }) => {
+    const actor = await requireActor()
+    const values = getAccessibleProfileInputSchema.parse(data ?? {})
+    const { getAccessibleProfile } = await import(
+      "../services/profile-access.service"
+    )
+
+    return getAccessibleProfile(actor, values)
+  },
+)
+export const getAccessibleProfileFn = getAccessibleProfileFnInternal as unknown as (
+  options: { data: GetAccessibleProfileInput },
+) => Promise<import("../services/profile-access.service").AccessibleProfile>
+
+const listAccessibleProfilesPageFnInternal = createServerFn({ method: "GET" }).handler(
+  async ({ data }: { data: unknown }) => {
+    const actor = await requireActor()
+    const values = listAccessibleProfilesPageInputSchema.parse(data ?? {})
+    const { listAccessibleProfilesPage } = await import(
+      "../services/profile-access.service"
+    )
+
+    return listAccessibleProfilesPage(actor, values)
+  },
+)
+export const listAccessibleProfilesPageFn = listAccessibleProfilesPageFnInternal as unknown as (
+  options: { data: ListAccessibleProfilesPageInput },
+) => Promise<{
+  items: import("../services/profile-access.service").AccessibleProfile[]
+  page: number
+  pageSize: number
+  hasMore: boolean
+}>
 
 const createProfileFnInternal = createServerFn({ method: "POST" }).handler(
   async ({ data }: { data: unknown }) => {

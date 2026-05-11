@@ -23,3 +23,7 @@
 - `paid state`: the user’s confirmation that a zakat obligation has been settled for the current cycle.
 - `permission model`: delegated access should be implemented as custom app permissions in the product domain.
 - `reminder job`: an explicit unit of reminder work that can be processed by cron today and a queue later.
+- `unbounded collection`: any user-growable data set fetched asynchronously that should default to infinite scrolling because it may not stay small.
+- `infinite scrolling list`: the default presentation for unbounded collections, including page-style overviews and searchable pickers backed by async data.
+- `drizzle-friendly pagination`: page-based pagination built around Drizzle `orderBy`, `limit`, and `offset` queries, with the page size capped by the repository.
+- `infinite-list contract`: async list endpoints should return `items`, `page`, `pageSize`, and `hasMore`, accept a caller-provided page size with a server cap, and reset on server-side search changes.

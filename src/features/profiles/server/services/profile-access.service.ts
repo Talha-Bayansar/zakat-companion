@@ -8,7 +8,8 @@ import {
   findUserRecordByEmail,
   getProfileAccessGrantRecord,
   getProfileRecordById,
-  listProfileAccessGrantRecords,
+  listAccessibleProfilePageRecords,
+  listProfileAccessGrantPageRecords,
   listDelegatedProfileRecords,
   listOwnedProfileRecords,
   type ManagedProfileAccessRecord,
@@ -20,11 +21,14 @@ import {
 import type {
   CreateProfileInput,
   DeleteProfileInput,
+  GetAccessibleProfileInput,
+  ListAccessibleProfilesPageInput,
   ListProfileAccessInput,
   ManageProfileAccessInput,
   UpdateProfileInput,
   SwitchActiveProfileInput,
 } from "../schemas/profile-access.schema"
+import type { InfiniteListPage } from "@/shared/lib/infinite-list"
 
 export type ProfileAccessRole = "owner" | "manager"
 
@@ -36,6 +40,8 @@ export type AccessibleProfile = ProfileRecord & {
 }
 
 export type ManagedProfileAccess = ManagedProfileAccessRecord
+
+export type AccessibleProfilesPage = InfiniteListPage<AccessibleProfile>
 
 export class ProfileAccessError extends Error {
   readonly code:
@@ -173,11 +179,48 @@ function combineAccessibleProfiles(
 
 export async function listAccessibleProfiles(actor: Actor) {
   const [ownedProfiles, delegatedProfiles] = await Promise.all([
-    listOwnedProfileRecords(actor.userId),
-    listDelegatedProfileRecords(actor.userId),
+    listOwnedProfileRecords(actor.userId, {
+      page: 1,
+      pageSize: 1000,
+    }),
+    listDelegatedProfileRecords(actor.userId, {
+      page: 1,
+      pageSize: 1000,
+    }),
   ])
 
   return combineAccessibleProfiles(ownedProfiles, delegatedProfiles)
+}
+
+export async function listAccessibleProfilesPage(
+  actor: Actor,
+  input: ListAccessibleProfilesPageInput,
+): Promise<AccessibleProfilesPage> {
+  const pageSize = input.pageSize ?? 20
+  const rows = await listAccessibleProfilePageRecords(actor.userId, {
+    page: input.page,
+    pageSize,
+    search: input.search,
+  })
+  const hasMore = rows.length > pageSize
+  const items = rows.slice(0, pageSize).map((row) => {
+    const { sortRole: _sortRole, ...profileRecord } = row
+    return profileRecord
+  })
+
+  return {
+    items,
+    page: input.page,
+    pageSize,
+    hasMore,
+  }
+}
+
+export async function getAccessibleProfile(
+  actor: Actor,
+  input: GetAccessibleProfileInput,
+) {
+  return requireAccessibleProfileRecord(actor, input.profileId)
 }
 
 export async function createProfile(actor: Actor, input: CreateProfileInput) {
@@ -254,7 +297,10 @@ export async function listManagedProfileAccess(
 ) {
   const profileRecord = await requireOwnerAccess(actor, input.profileId)
 
-  return listProfileAccessGrantRecords(profileRecord.id)
+  return listProfileAccessGrantPageRecords(profileRecord.id, {
+    page: 1,
+    pageSize: 1000,
+  })
 }
 
 export async function revokeProfileAccess(

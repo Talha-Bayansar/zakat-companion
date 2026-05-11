@@ -17,7 +17,7 @@ function LandingPage() {
       <div className="relative mx-auto flex min-h-svh w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6 lg:px-8">
         <section className="flex flex-col gap-8">
           <div className="flex flex-col gap-3">
-            <p className="text-[0.72rem] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+            <p className="text-[0.72rem] font-medium tracking-[0.24em] text-muted-foreground uppercase">
               {m.landing_eyebrow()}
             </p>
             <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
@@ -37,18 +37,22 @@ function LandingPage() {
               {m.landing_enter_app()}
             </Link>
             <Link
-              to="/app"
-              className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
-            >
-              {m.landing_open_app()}
-              <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} className="size-4" />
-            </Link>
-            <Link
               to="/sign-up"
               search={{ redirect: undefined }}
               className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
             >
               {m.landing_view_settings()}
+            </Link>
+            <Link
+              to="/app"
+              className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
+            >
+              {m.landing_open_app()}
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                strokeWidth={2}
+                className="size-4"
+              />
             </Link>
           </div>
         </section>
