@@ -2,6 +2,7 @@ export {
   createProfileFn,
   deleteProfileFn,
   getAccessibleProfileFn,
+  getCurrentActiveProfileFn,
   grantProfileAccessFn,
   listAccessibleProfilesFn,
   listAccessibleProfilesPageFn,
@@ -26,6 +27,7 @@ export {
   listAccessibleProfilesPage,
   listManagedProfileAccess,
   revokeProfileAccess,
+  resolveCurrentActiveProfile,
   updateProfile,
   switchActiveProfile,
 } from "./services/profile-access.service"

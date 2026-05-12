@@ -12,6 +12,7 @@ import {
   listProfileAccessGrantPageRecords,
   listDelegatedProfileRecords,
   listOwnedProfileRecords,
+  updateUserActiveProfileRecord,
   type ManagedProfileAccessRecord,
   type ProfileAccessGrantRecord,
   type ProfileRecord,
@@ -62,6 +63,7 @@ export class ProfileAccessError extends Error {
 
 type Actor = {
   userId: string
+  activeProfileId: string | null
 }
 
 function toOwnerAccessibleProfile(record: ProfileRecord): AccessibleProfile {
@@ -177,6 +179,30 @@ function combineAccessibleProfiles(
   })
 }
 
+export function resolveAccessibleProfileSelection(
+  activeProfileId: string | null,
+  profiles: AccessibleProfile[],
+) {
+  if (activeProfileId) {
+    const selectedProfile = profiles.find(
+      (profile) => profile.id === activeProfileId,
+    )
+
+    if (selectedProfile) {
+      return selectedProfile
+    }
+  }
+
+  return profiles[0] ?? null
+}
+
+async function persistActiveProfileSelection(
+  actor: Actor,
+  profileId: string | null,
+) {
+  await updateUserActiveProfileRecord(actor.userId, profileId)
+}
+
 export async function listAccessibleProfiles(actor: Actor) {
   const [ownedProfiles, delegatedProfiles] = await Promise.all([
     listOwnedProfileRecords(actor.userId, {
@@ -223,8 +249,35 @@ export async function getAccessibleProfile(
   return requireAccessibleProfileRecord(actor, input.profileId)
 }
 
+export async function resolveCurrentActiveProfile(actor: Actor) {
+  const profiles = await listAccessibleProfiles(actor)
+  const selectedProfile = resolveAccessibleProfileSelection(
+    actor.activeProfileId,
+    profiles,
+  )
+
+  if (!selectedProfile) {
+    if (actor.activeProfileId !== null) {
+      await persistActiveProfileSelection(actor, null)
+    }
+
+    return null
+  }
+
+  if (selectedProfile.id !== actor.activeProfileId) {
+    await persistActiveProfileSelection(actor, selectedProfile.id)
+  }
+
+  return selectedProfile
+}
+
 export async function createProfile(actor: Actor, input: CreateProfileInput) {
+  const currentActiveProfile = await resolveCurrentActiveProfile(actor)
   const record = await createProfileRecord(actor.userId, input.name.trim())
+
+  if (!currentActiveProfile) {
+    await persistActiveProfileSelection(actor, record.id)
+  }
 
   return toOwnerAccessibleProfile(record)
 }
@@ -258,7 +311,11 @@ export async function switchActiveProfile(
   actor: Actor,
   input: SwitchActiveProfileInput,
 ) {
-  return requireAccessibleProfileRecord(actor, input.profileId)
+  const record = await requireAccessibleProfileRecord(actor, input.profileId)
+
+  await persistActiveProfileSelection(actor, record.id)
+
+  return record
 }
 
 export async function grantProfileAccess(
@@ -328,8 +385,16 @@ export async function revokeProfileAccess(
 }
 
 export async function deleteProfile(actor: Actor, input: DeleteProfileInput) {
+  const currentActiveProfile = await resolveCurrentActiveProfile(actor)
   const profileRecord = await requireOwnerAccess(actor, input.profileId)
   const deleted = await deleteProfileRecord(profileRecord.id)
+
+  if (deleted !== null && currentActiveProfile?.id === profileRecord.id) {
+    await resolveCurrentActiveProfile({
+      ...actor,
+      activeProfileId: null,
+    })
+  }
 
   return {
     deleted: deleted !== null,

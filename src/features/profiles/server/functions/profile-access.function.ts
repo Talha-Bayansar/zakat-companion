@@ -43,7 +43,15 @@ async function requireActor() {
     )
   }
 
-  return { userId }
+  const { getUserRecordById } = await import(
+    "../repositories/profile-access.repository"
+  )
+  const userRecord = await getUserRecordById(userId)
+
+  return {
+    userId,
+    activeProfileId: userRecord?.activeProfileId ?? null,
+  }
 }
 
 export const listAccessibleProfilesFn = createServerFn({ method: "GET" }).handler(
@@ -71,6 +79,20 @@ const getAccessibleProfileFnInternal = createServerFn({ method: "GET" }).handler
 export const getAccessibleProfileFn = getAccessibleProfileFnInternal as unknown as (
   options: { data: GetAccessibleProfileInput },
 ) => Promise<import("../services/profile-access.service").AccessibleProfile>
+
+const getCurrentActiveProfileFnInternal = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const actor = await requireActor()
+    const { resolveCurrentActiveProfile } = await import(
+      "../services/profile-access.service"
+    )
+
+    return resolveCurrentActiveProfile(actor)
+  },
+)
+export const getCurrentActiveProfileFn = getCurrentActiveProfileFnInternal as unknown as (
+  options?: { data?: unknown },
+) => Promise<import("../services/profile-access.service").AccessibleProfile | null>
 
 const listAccessibleProfilesPageFnInternal = createServerFn({ method: "GET" }).handler(
   async ({ data }: { data: unknown }) => {

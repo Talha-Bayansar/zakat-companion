@@ -37,10 +37,10 @@ Implement profile creation, profile switching, and delegated manager permissions
    - Add delegated access management actions.
 
 5. Wire the active profile into app state.
-   - Status: pending
+   - Status: completed
    - Make the selected profile available across the app.
    - Ensure the shell and later profile-aware screens read the same active profile.
-   - Define whether active profile state is persisted server-side, client-side, or both.
+   - Persist active profile selection on the authenticated user record so it survives reloads and new sessions.
 
 6. Add guards and fallback behavior.
    - Status: pending

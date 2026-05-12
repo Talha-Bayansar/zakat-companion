@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { Link } from "@tanstack/react-router"
 
@@ -6,6 +6,7 @@ import { m } from "@/paraglide/messages"
 
 import {
   useAccessibleProfilesInfiniteQuery,
+  useCurrentActiveProfileQuery,
   useSwitchActiveProfileMutation,
   type AccessibleProfile,
 } from "@/features/profiles"
@@ -24,18 +25,11 @@ export function ActiveProfileSelectorSection() {
   const [search, setSearch] = useState("")
   const hasSearch = search.trim().length > 0
   const profilesQuery = useAccessibleProfilesInfiniteQuery(search)
+  const currentActiveProfileQuery = useCurrentActiveProfileQuery()
   const switchProfileMutation = useSwitchActiveProfileMutation()
-  const [activeProfile, setActiveProfile] = useState<AccessibleProfile | null>(
-    null,
-  )
+  const activeProfile = currentActiveProfileQuery.data ?? null
 
   const profiles = profilesQuery.data?.pages.flatMap((page) => page.items) ?? []
-
-  useEffect(() => {
-    if (!activeProfile && profiles.length > 0) {
-      setActiveProfile(profiles[0])
-    }
-  }, [activeProfile, profiles])
 
   async function handleChange(profile: AccessibleProfile | null) {
     if (!profile) {
@@ -43,11 +37,10 @@ export function ActiveProfileSelectorSection() {
     }
 
     await switchProfileMutation.mutateAsync(profile.id)
-    setActiveProfile(profile)
     setSearch("")
   }
 
-  if (profilesQuery.isError) {
+  if (profilesQuery.isError || currentActiveProfileQuery.isError) {
     return (
       <Surface rounded="xl" padding="lg" className="space-y-4">
         <div className="flex flex-col gap-1">
@@ -60,9 +53,12 @@ export function ActiveProfileSelectorSection() {
         </div>
 
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {profilesQuery.error instanceof Error && profilesQuery.error.message
-            ? profilesQuery.error.message
-            : m.settings_active_profile_load_error()}
+          {currentActiveProfileQuery.error instanceof Error &&
+          currentActiveProfileQuery.error.message
+            ? currentActiveProfileQuery.error.message
+            : profilesQuery.error instanceof Error && profilesQuery.error.message
+              ? profilesQuery.error.message
+              : m.settings_active_profile_load_error()}
         </p>
       </Surface>
     )

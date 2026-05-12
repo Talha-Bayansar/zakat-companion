@@ -4,12 +4,18 @@ import { useInfiniteListQuery } from "@/shared/lib/infinite-list-query"
 
 import {
   getAccessibleProfileFn,
+  getCurrentActiveProfileFn,
   listAccessibleProfilesFn,
   listAccessibleProfilesPageFn,
   listManagedProfileAccessFn,
 } from "../server/functions/profile-access.function"
 
 export const profileAccessQueryKey = ["profiles"] as const
+
+export const profileCurrentActiveQueryKey = [
+  ...profileAccessQueryKey,
+  "current-active",
+] as const
 
 export function profileAccessQueryOptions() {
   return queryOptions({
@@ -20,6 +26,17 @@ export function profileAccessQueryOptions() {
 
 export function useAccessibleProfilesQuery() {
   return useQuery(profileAccessQueryOptions())
+}
+
+export function currentActiveProfileQueryOptions() {
+  return queryOptions({
+    queryKey: profileCurrentActiveQueryKey,
+    queryFn: async () => getCurrentActiveProfileFn(),
+  })
+}
+
+export function useCurrentActiveProfileQuery() {
+  return useQuery(currentActiveProfileQueryOptions())
 }
 
 export function profileAccessibleProfileQueryKey(profileId: string) {

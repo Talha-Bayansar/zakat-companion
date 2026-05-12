@@ -14,9 +14,12 @@ export {
   profileAccessQueryOptions,
   profileAccessibleProfileQueryKey,
   profileAccessibleProfileQueryOptions,
+  currentActiveProfileQueryOptions,
+  profileCurrentActiveQueryKey,
   useAccessibleProfilesInfiniteQuery,
   useAccessibleProfileQuery,
   useAccessibleProfilesQuery,
+  useCurrentActiveProfileQuery,
   useManagedProfileAccessQuery,
 } from "./lib/profile-access.query"
 export {

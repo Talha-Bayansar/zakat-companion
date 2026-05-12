@@ -7,12 +7,13 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  activeProfileId: text("active_profile_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
-})
+}, (table) => [index("user_activeProfileId_idx").on(table.activeProfileId)])
 
 export const session = pgTable(
   "session",

@@ -9,12 +9,30 @@ import {
   switchActiveProfileFn,
 } from "../server/functions/profile-access.function"
 import type { CreateProfileValues } from "./profile-access.schemas"
-import { profileAccessQueryKey } from "./profile-access.query"
+import {
+  profileAccessQueryKey,
+  profileCurrentActiveQueryKey,
+} from "./profile-access.query"
+import { authSessionQueryKey } from "@/features/auth/lib/auth-session.query"
 
 function invalidateProfileQueries(queryClient: ReturnType<typeof useQueryClient>) {
-  return queryClient.invalidateQueries({
+  const invalidateProfileSelectionQueries = queryClient.invalidateQueries({
     queryKey: profileAccessQueryKey,
   })
+
+  const invalidateCurrentActiveProfileQuery = queryClient.invalidateQueries({
+    queryKey: profileCurrentActiveQueryKey,
+  })
+
+  const invalidateAuthSessionQuery = queryClient.invalidateQueries({
+    queryKey: authSessionQueryKey,
+  })
+
+  return Promise.all([
+    invalidateProfileSelectionQueries,
+    invalidateCurrentActiveProfileQuery,
+    invalidateAuthSessionQuery,
+  ])
 }
 
 export function useCreateProfileMutation() {

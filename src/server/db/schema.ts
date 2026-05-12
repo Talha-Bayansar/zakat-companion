@@ -1,5 +1,11 @@
 import { relations } from "drizzle-orm"
-import { index, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core"
+import {
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core"
 
 import { user } from "../auth/schema"
 
@@ -19,7 +25,7 @@ export const profile = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index("profile_ownerId_idx").on(table.ownerId)],
+  (table) => [index("profile_ownerId_idx").on(table.ownerId)]
 )
 
 export const profilePermission = pgTable(
@@ -42,8 +48,11 @@ export const profilePermission = pgTable(
     index("profile_permission_profileId_idx").on(table.profileId),
     index("profile_permission_userId_idx").on(table.userId),
     index("profile_permission_grantedByUserId_idx").on(table.grantedByUserId),
-    uniqueIndex("profile_permission_profileId_userId_unique").on(table.profileId, table.userId),
-  ],
+    uniqueIndex("profile_permission_profileId_userId_unique").on(
+      table.profileId,
+      table.userId
+    ),
+  ]
 )
 
 export const profileRelations = relations(profile, ({ one, many }) => ({
@@ -54,17 +63,20 @@ export const profileRelations = relations(profile, ({ one, many }) => ({
   permissions: many(profilePermission),
 }))
 
-export const profilePermissionRelations = relations(profilePermission, ({ one }) => ({
-  profile: one(profile, {
-    fields: [profilePermission.profileId],
-    references: [profile.id],
-  }),
-  user: one(user, {
-    fields: [profilePermission.userId],
-    references: [user.id],
-  }),
-  grantedBy: one(user, {
-    fields: [profilePermission.grantedByUserId],
-    references: [user.id],
-  }),
-}))
+export const profilePermissionRelations = relations(
+  profilePermission,
+  ({ one }) => ({
+    profile: one(profile, {
+      fields: [profilePermission.profileId],
+      references: [profile.id],
+    }),
+    user: one(user, {
+      fields: [profilePermission.userId],
+      references: [user.id],
+    }),
+    grantedBy: one(user, {
+      fields: [profilePermission.grantedByUserId],
+      references: [user.id],
+    }),
+  })
+)
