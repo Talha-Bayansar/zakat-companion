@@ -24,6 +24,9 @@
 - `paid state`: the user’s confirmation that a zakat obligation has been settled for the current cycle.
 - `permission model`: delegated access should be implemented as custom app permissions in the product domain.
 - `reminder job`: an explicit unit of reminder work that can be processed by cron today and a queue later.
+- `zakat cycle`: the obligation instance created from a wealth snapshot, tracked separately from the snapshot so payment and reminder state can change without rewriting history.
+- `cycle state`: the mutable status of a zakat cycle, such as open, due, paid, or followed up.
+- `calculation version`: the rule-set version used when a snapshot is captured, so historical calculations remain reproducible.
 - `unbounded collection`: any user-growable data set fetched asynchronously that should default to infinite scrolling because it may not stay small.
 - `infinite scrolling list`: the default presentation for unbounded collections, including page-style overviews and searchable pickers backed by async data.
 - `drizzle-friendly pagination`: page-based pagination built around Drizzle `orderBy`, `limit`, and `offset` queries, with the page size capped by the repository.

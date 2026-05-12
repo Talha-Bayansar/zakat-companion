@@ -1,16 +1,15 @@
-export { WealthSnapshotPage } from "./pages/wealth-snapshot.page"
 export {
   getWealthSnapshotRecordByProfileId,
   getWealthSnapshotWithEntriesRecordByProfileId,
   replaceWealthSnapshotRecord,
-} from "./server"
+} from "./repositories/wealth-snapshot.repository"
 export type {
-  WealthCategory,
   WealthSnapshotEntryRecord,
   WealthSnapshotRecord,
   WealthSnapshotWithEntriesRecord,
-} from "./server"
+} from "./repositories/wealth-snapshot.repository"
+export type { WealthCategory } from "./schemas/wealth-snapshot.schema"
 export {
   replaceWealthSnapshotInputSchema,
   wealthSnapshotEntryInputSchema,
-} from "./server"
+} from "./schemas/wealth-snapshot.schema"

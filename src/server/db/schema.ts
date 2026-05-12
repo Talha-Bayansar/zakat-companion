@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm"
 import {
   index,
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -55,12 +56,69 @@ export const profilePermission = pgTable(
   ]
 )
 
+export const wealthCategoryValues = [
+  "cash",
+  "gold",
+  "silver",
+  "trade_inventory",
+  "receivables",
+  "debts_liabilities",
+] as const
+
+export const wealthCategory = pgEnum("wealth_category", wealthCategoryValues)
+
+export const wealthSnapshot = pgTable(
+  "wealth_snapshot",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profile.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("wealth_snapshot_profileId_unique").on(table.profileId),
+  ]
+)
+
+export const wealthSnapshotEntry = pgTable(
+  "wealth_snapshot_entry",
+  {
+    id: text("id").primaryKey(),
+    snapshotId: text("snapshot_id")
+      .notNull()
+      .references(() => wealthSnapshot.id, { onDelete: "cascade" }),
+    category: wealthCategory("category").notNull(),
+    amount: text("amount").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("wealth_snapshot_entry_snapshotId_idx").on(table.snapshotId),
+    uniqueIndex("wealth_snapshot_entry_snapshotId_category_unique").on(
+      table.snapshotId,
+      table.category,
+    ),
+  ]
+)
+
 export const profileRelations = relations(profile, ({ one, many }) => ({
   owner: one(user, {
     fields: [profile.ownerId],
     references: [user.id],
   }),
   permissions: many(profilePermission),
+  wealthSnapshot: one(wealthSnapshot, {
+    fields: [profile.id],
+    references: [wealthSnapshot.profileId],
+  }),
 }))
 
 export const profilePermissionRelations = relations(
@@ -79,4 +137,25 @@ export const profilePermissionRelations = relations(
       references: [user.id],
     }),
   })
+)
+
+export const wealthSnapshotRelations = relations(
+  wealthSnapshot,
+  ({ one, many }) => ({
+    profile: one(profile, {
+      fields: [wealthSnapshot.profileId],
+      references: [profile.id],
+    }),
+    entries: many(wealthSnapshotEntry),
+  }),
+)
+
+export const wealthSnapshotEntryRelations = relations(
+  wealthSnapshotEntry,
+  ({ one }) => ({
+    snapshot: one(wealthSnapshot, {
+      fields: [wealthSnapshotEntry.snapshotId],
+      references: [wealthSnapshot.id],
+    }),
+  }),
 )
