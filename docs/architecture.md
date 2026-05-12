@@ -12,7 +12,7 @@
 
 - Frontend and server runtime: TanStack Start + React + TypeScript
 - Hosting/runtime: Cloudflare Workers
-- Authentication: Better Auth with email and password only
+- Authentication: Better Auth with Google social sign-in
 - Database: Neon PostgreSQL
 - ORM: Drizzle ORM
 - Validation: Zod
@@ -186,7 +186,7 @@ This design can later be swapped to a queue without changing the job model or th
 
 ## Auth Flow
 
-- Better Auth handles email and password authentication.
+- Better Auth handles Google social sign-in.
 - TanStack Start server routes mount the Better Auth handler.
 - Protected routes check session state on the server.
 - Delegated access is enforced in the app domain after authentication.
