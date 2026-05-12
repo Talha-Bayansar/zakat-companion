@@ -8,10 +8,7 @@ import { AppShellPending } from "@/shared/layouts/app-shell-pending"
 export const Route = createFileRoute("/app")({
   loader: async ({ context, location }) => {
     const session = await context.queryClient.ensureQueryData(
-      authSessionQueryOptions(),
-    )
-    const activeProfile = await context.queryClient.ensureQueryData(
-      currentActiveProfileQueryOptions(),
+      authSessionQueryOptions()
     )
 
     if (!session) {
@@ -22,6 +19,10 @@ export const Route = createFileRoute("/app")({
         },
       })
     }
+
+    const activeProfile = await context.queryClient.ensureQueryData(
+      currentActiveProfileQueryOptions()
+    )
 
     return { session, activeProfile }
   },
