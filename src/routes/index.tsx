@@ -37,13 +37,6 @@ function LandingPage() {
               {m.landing_enter_app()}
             </Link>
             <Link
-              to="/sign-up"
-              search={{ redirect: undefined }}
-              className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
-            >
-              {m.landing_view_settings()}
-            </Link>
-            <Link
               to="/app"
               className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}
             >

@@ -67,6 +67,23 @@ describe("profile access active selection", () => {
     expect(repoMocks.updateUserActiveProfileRecord).not.toHaveBeenCalled()
   })
 
+  it("clears a stale active profile when no profiles are accessible", async () => {
+    repoMocks.listOwnedProfileRecords.mockResolvedValue([])
+    repoMocks.listDelegatedProfileRecords.mockResolvedValue([])
+    repoMocks.updateUserActiveProfileRecord.mockResolvedValue(null)
+
+    const result = await resolveCurrentActiveProfile({
+      userId: "user-1",
+      activeProfileId: ownedProfile.id,
+    })
+
+    expect(result).toBeNull()
+    expect(repoMocks.updateUserActiveProfileRecord).toHaveBeenCalledWith(
+      "user-1",
+      null,
+    )
+  })
+
   it("writes a newly created first profile into the persistent selection", async () => {
     repoMocks.listOwnedProfileRecords.mockResolvedValue([])
     repoMocks.listDelegatedProfileRecords.mockResolvedValue([])

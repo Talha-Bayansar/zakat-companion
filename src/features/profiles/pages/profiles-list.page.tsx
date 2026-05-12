@@ -28,6 +28,7 @@ export function ProfilesListPage() {
 
         <Link
           to="/app/settings/profiles/new"
+          search={{ redirect: undefined }}
           aria-label={m.profiles_create_button_label()}
           className={buttonVariants({ variant: "default", size: "icon-sm" })}
         >
@@ -66,6 +67,7 @@ export function ProfilesListPage() {
                 <EmptyDescription>{m.profiles_empty_description()}</EmptyDescription>
                 <Link
                   to="/app/settings/profiles/new"
+                  search={{ redirect: undefined }}
                   aria-label={m.profiles_create_button_label()}
                   className={buttonVariants({ variant: "default", size: "icon-sm" })}
                 >

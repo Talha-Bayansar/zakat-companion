@@ -9,7 +9,11 @@ import { useCreateProfileMutation } from "@/features/profiles"
 
 import { ProfileNameForm } from "../components/profile-name-form"
 
-export function ProfileCreatePage() {
+type ProfileCreatePageProps = {
+  redirectTo?: string
+}
+
+export function ProfileCreatePage({ redirectTo }: ProfileCreatePageProps) {
   const navigate = useNavigate()
   const createProfileMutation = useCreateProfileMutation()
 
@@ -31,6 +35,13 @@ export function ProfileCreatePage() {
           errorLabel={m.profiles_create_error()}
           onSubmit={async (name) => {
             const profile = await createProfileMutation.mutateAsync({ name })
+            if (redirectTo) {
+              await navigate({
+                to: redirectTo,
+              })
+              return
+            }
+
             await navigate({
               to: "/app/settings/profiles/$profileId",
               params: { profileId: profile.id },

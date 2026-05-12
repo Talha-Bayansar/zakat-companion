@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Delete02Icon } from "@hugeicons/core-free-icons"
 
 import { m } from "@/paraglide/messages"
 
@@ -89,20 +91,22 @@ export function ProfileAccessDelegatesList({
                   <Button
                     type="button"
                     variant="destructive"
-                    size="sm"
+                    size="icon-sm"
                     className="rounded-2xl"
+                    aria-label={m.settings_profile_access_revoke_button_label()}
                     disabled={revokeProfileAccessMutation.isPending}
                   >
                     {revokeProfileAccessMutation.isPending ? (
-                      <>
-                        <Spinner
-                          label={m.settings_profile_access_revoking()}
-                          className="size-4"
-                        />
-                        <span>{m.settings_profile_access_revoking()}</span>
-                      </>
+                      <Spinner
+                        label={m.settings_profile_access_revoking()}
+                        className="size-4"
+                      />
                     ) : (
-                      m.settings_profile_access_revoke_cta()
+                      <HugeiconsIcon
+                        icon={Delete02Icon}
+                        strokeWidth={2}
+                        className="size-4"
+                      />
                     )}
                   </Button>
                 }

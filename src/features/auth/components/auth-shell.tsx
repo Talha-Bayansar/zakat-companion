@@ -10,8 +10,8 @@ type AuthShellProps = {
   title: string
   description: string
   eyebrow: string
-  alternateHref: string
-  alternateLabel: string
+  alternateHref?: string
+  alternateLabel?: string
   children: ReactNode
 }
 
@@ -44,22 +44,26 @@ export function AuthShell({
           <div className="flex flex-col gap-5 py-1">
             {children}
 
-            <Separator />
+            {alternateHref && alternateLabel ? (
+              <>
+                <Separator />
 
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-xs leading-5 text-muted-foreground">
-                {m.app_name()}
-              </p>
-              <Link
-                to={alternateHref}
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "sm" }),
-                  "h-9 rounded-full px-4 text-xs",
-                )}
-              >
-                {alternateLabel}
-              </Link>
-            </div>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    {m.app_name()}
+                  </p>
+                  <Link
+                    to={alternateHref}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "sm" }),
+                      "h-9 rounded-full px-4 text-xs",
+                    )}
+                  >
+                    {alternateLabel}
+                  </Link>
+                </div>
+              </>
+            ) : null}
           </div>
         </section>
       </div>

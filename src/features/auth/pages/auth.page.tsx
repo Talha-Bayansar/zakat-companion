@@ -1,24 +1,20 @@
 import { m } from "@/paraglide/messages"
 
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyTitle,
-} from "@/shared/ui/empty"
-import { PageSection } from "@/shared/ui/page"
+import { AuthShell } from "../components/auth-shell"
+import { GoogleAuthAction } from "../components/google-auth-action"
 
-export function AuthPage() {
+type AuthPageProps = {
+  redirectTo?: string
+}
+
+export function AuthPage({ redirectTo }: AuthPageProps) {
   return (
-    <main className="flex min-h-svh items-center justify-center p-6">
-      <PageSection className="w-full max-w-md">
-        <Empty>
-          <EmptyContent>
-            <EmptyTitle>{m.auth_sign_in_title()}</EmptyTitle>
-            <EmptyDescription>{m.auth_surface()}</EmptyDescription>
-          </EmptyContent>
-        </Empty>
-      </PageSection>
-    </main>
+    <AuthShell
+      eyebrow={m.auth_eyebrow()}
+      title={m.auth_title()}
+      description={m.auth_description()}
+    >
+      <GoogleAuthAction redirectTo={redirectTo} />
+    </AuthShell>
   )
 }
