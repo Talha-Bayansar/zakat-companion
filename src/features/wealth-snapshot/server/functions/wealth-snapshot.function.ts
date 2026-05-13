@@ -38,73 +38,39 @@ async function requireActor() {
   }
 }
 
-async function requireActiveProfileId() {
-  const actor = await requireActor()
-  const { resolveCurrentActiveProfile } = await import(
-    "@/features/profiles/server/services/profile-access.service"
-  )
-
-  const activeProfile = await resolveCurrentActiveProfile(actor)
-
-  return activeProfile?.id ?? null
-}
-
 const saveWealthSnapshotInputSchema = replaceWealthSnapshotInputSchema.omit({
   profileId: true,
 })
 
 export const getCurrentWealthSnapshotFn = createServerFn({ method: "GET" }).handler(
   async () => {
-    const profileId = await requireActiveProfileId()
-
-    if (!profileId) {
-      return null
-    }
-
-    const { getWealthSnapshotWithEntriesRecordByProfileId } = await import(
-      "../repositories/wealth-snapshot.repository"
+    const actor = await requireActor()
+    const { getCurrentWealthSnapshot } = await import(
+      "../services/wealth-snapshot.service"
     )
 
-    return getWealthSnapshotWithEntriesRecordByProfileId(profileId)
+    return getCurrentWealthSnapshot(actor)
   },
 )
 
 export const listWealthSnapshotHistoryFn = createServerFn({ method: "GET" })
   .inputValidator(listWealthSnapshotHistoryInputSchema)
   .handler(async ({ data }) => {
-    const profileId = await requireActiveProfileId()
-
-    if (!profileId) {
-      return {
-        items: [],
-        page: data.page,
-        pageSize: data.pageSize,
-        hasMore: false,
-      }
-    }
-
-    const { listWealthSnapshotHistoryRecordsByProfileId } = await import(
-      "../repositories/wealth-snapshot.repository"
+    const actor = await requireActor()
+    const { listWealthSnapshotHistory } = await import(
+      "../services/wealth-snapshot.service"
     )
 
-    return listWealthSnapshotHistoryRecordsByProfileId(profileId, data)
+    return listWealthSnapshotHistory(actor, data)
   })
 
 export const replaceWealthSnapshotFn = createServerFn({ method: "POST" })
   .inputValidator(saveWealthSnapshotInputSchema)
   .handler(async ({ data }) => {
-    const profileId = await requireActiveProfileId()
-
-    if (!profileId) {
-      throw new Error(m.wealth_snapshot_no_active_profile())
-    }
-
-    const { replaceWealthSnapshotRecord } = await import(
-      "../repositories/wealth-snapshot.repository"
+    const actor = await requireActor()
+    const { replaceWealthSnapshot } = await import(
+      "../services/wealth-snapshot.service"
     )
 
-    return replaceWealthSnapshotRecord({
-      profileId,
-      entries: data.entries,
-    })
+    return replaceWealthSnapshot(actor, data)
   })

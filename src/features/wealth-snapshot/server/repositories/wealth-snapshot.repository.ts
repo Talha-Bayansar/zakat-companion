@@ -6,8 +6,8 @@ import type { InfiniteListPage } from "@/shared/lib/infinite-list"
 
 import type {
   ListWealthSnapshotHistoryInput,
-  ReplaceWealthSnapshotInput,
   WealthCategory,
+  WealthSnapshotEntryInput,
 } from "../schemas/wealth-snapshot.schema"
 
 export type WealthSnapshotRecord = {
@@ -39,7 +39,24 @@ export type WealthSnapshotWithEntriesRecord = WealthSnapshotRecord & {
 
 export type WealthSnapshotHistoryPage = InfiniteListPage<WealthSnapshotWithEntriesRecord>
 
-export async function getWealthSnapshotRecordByProfileId(profileId: string) {
+export type WealthSnapshotWriteContext = {
+  madhab: string | null
+  nisabBenchmark: string | null
+  calculationVersion: string | null
+  netZakatableBase: string | null
+  isAboveNisab: boolean | null
+  isZakatDue: boolean | null
+}
+
+export type ReplaceWealthSnapshotInput = {
+  profileId: string
+  entries: WealthSnapshotEntryInput[]
+  snapshot: WealthSnapshotWriteContext
+}
+
+export async function getWealthSnapshotRecordByProfileId(
+  profileId: string,
+) {
   const [record] = await db
     .select({
       id: wealthSnapshot.id,
@@ -200,6 +217,12 @@ export async function replaceWealthSnapshotRecord(
       id: crypto.randomUUID(),
       profileId: input.profileId,
       capturedAt: new Date(),
+      madhab: input.snapshot.madhab,
+      nisabBenchmark: input.snapshot.nisabBenchmark,
+      calculationVersion: input.snapshot.calculationVersion,
+      netZakatableBase: input.snapshot.netZakatableBase,
+      isAboveNisab: input.snapshot.isAboveNisab,
+      isZakatDue: input.snapshot.isZakatDue,
     })
     .returning({
       id: wealthSnapshot.id,
@@ -249,9 +272,7 @@ export async function replaceWealthSnapshotRecord(
       entries,
     }
   } catch (error) {
-    await db
-      .delete(wealthSnapshot)
-      .where(eq(wealthSnapshot.id, snapshotRecord.id))
+    await db.delete(wealthSnapshot).where(eq(wealthSnapshot.id, snapshotRecord.id))
 
     throw error
   }

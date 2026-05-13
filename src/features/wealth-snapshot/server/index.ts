@@ -5,6 +5,14 @@ export {
   replaceWealthSnapshotRecord,
 } from "./repositories/wealth-snapshot.repository"
 export {
+  calculateWealthSnapshotWriteContext,
+  getCurrentWealthSnapshot,
+  listWealthSnapshotHistory,
+  normalizeWealthSnapshotEntries,
+  replaceWealthSnapshot,
+  WEALTH_SNAPSHOT_CALCULATION_VERSION,
+} from "./services/wealth-snapshot.service"
+export {
   getCurrentWealthSnapshotFn,
   listWealthSnapshotHistoryFn,
   replaceWealthSnapshotFn,

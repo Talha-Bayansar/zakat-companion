@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: in progress
-- Current step: step 3
+- Current step: step 5
 
 ## Goal
 
@@ -25,7 +25,7 @@ Implement an append-only wealth snapshot flow where each save creates a frozen f
    - Ensure the schema supports multiple snapshots per profile and one entry row per category per snapshot.
 
 3. Build server persistence and calculation helpers.
-   - Status: partial
+   - Status: done
    - Add feature-local repositories under `src/features/wealth-snapshot/server/repositories/`.
    - Add a service layer under `src/features/wealth-snapshot/server/services/` to validate input, resolve the active profile, compute derived values, and write the snapshot plus entries in a transaction.
    - Add server functions under `src/features/wealth-snapshot/server/functions/` for snapshot creation and history retrieval.
