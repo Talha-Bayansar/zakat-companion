@@ -53,7 +53,7 @@ export function WealthSnapshotPage() {
         </Link>
       </div>
 
-      <section className="flex flex-col gap-4 border-b border-border/60 pb-5">
+      <section className="flex flex-col gap-4 border-t border-b border-border/60 py-4">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-foreground">
             {m.wealth_snapshot_current_title()}
@@ -134,7 +134,9 @@ export function WealthSnapshotPage() {
             emptyState={
               <Empty className="border-border/70 bg-background/80">
                 <EmptyContent>
-                  <EmptyTitle>{m.wealth_snapshot_history_empty_title()}</EmptyTitle>
+                  <EmptyTitle>
+                    {m.wealth_snapshot_history_empty_title()}
+                  </EmptyTitle>
                   <EmptyDescription>
                     {m.wealth_snapshot_history_empty_description()}
                   </EmptyDescription>
@@ -148,19 +150,15 @@ export function WealthSnapshotPage() {
   )
 }
 
-function SummaryStat({
-  label,
-  value,
-}: {
-  label: string
-  value: string
-}) {
+function SummaryStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+      <dt className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
         {label}
       </dt>
-      <dd className="text-sm font-medium text-foreground sm:text-base">{value}</dd>
+      <dd className="text-sm font-medium text-foreground sm:text-base">
+        {value}
+      </dd>
     </div>
   )
 }
