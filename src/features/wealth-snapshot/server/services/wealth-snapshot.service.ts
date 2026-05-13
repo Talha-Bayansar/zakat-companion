@@ -25,6 +25,7 @@ type ReplaceWealthSnapshotInput = {
 }
 
 export const WEALTH_SNAPSHOT_CALCULATION_VERSION = "wealth-snapshot-v1"
+const SNAPSHOT_NISAB_THRESHOLD_CENTS = 0
 
 const ASSET_CATEGORIES: WealthCategory[] = wealthCategoryValues.filter(
   (category) => category !== "debts_liabilities",
@@ -79,13 +80,14 @@ export function calculateWealthSnapshotWriteContext(
     .filter((entry) => entry.category === "debts_liabilities")
     .reduce((total, entry) => total + parseAmountToCents(entry.amount), 0)
   const netZakatableBase = assetTotal - liabilityTotal
+  const isAboveNisab = netZakatableBase > SNAPSHOT_NISAB_THRESHOLD_CENTS
 
   return {
     madhab: null,
     nisabBenchmark: null,
     calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
     netZakatableBase: formatCents(netZakatableBase),
-    isAboveNisab: null,
+    isAboveNisab,
     isZakatDue: null,
   }
 }

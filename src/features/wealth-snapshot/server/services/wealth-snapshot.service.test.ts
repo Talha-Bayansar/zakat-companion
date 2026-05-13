@@ -67,7 +67,23 @@ describe("wealth snapshot service", () => {
       nisabBenchmark: null,
       calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
       netZakatableBase: "87.50",
-      isAboveNisab: null,
+      isAboveNisab: true,
+      isZakatDue: null,
+    })
+  })
+
+  it("marks non-positive net bases as under nisab", () => {
+    expect(
+      calculateWealthSnapshotWriteContext([
+        { category: "cash", amount: "10.00" },
+        { category: "debts_liabilities", amount: "10.00" },
+      ]),
+    ).toEqual({
+      madhab: null,
+      nisabBenchmark: null,
+      calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+      netZakatableBase: "0.00",
+      isAboveNisab: false,
       isZakatDue: null,
     })
   })
@@ -114,7 +130,7 @@ describe("wealth snapshot service", () => {
         nisabBenchmark: null,
         calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
         netZakatableBase: "87.50",
-        isAboveNisab: null,
+        isAboveNisab: true,
         isZakatDue: null,
       },
     })
@@ -149,7 +165,7 @@ describe("wealth snapshot service", () => {
       nisabBenchmark: null,
       calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
       netZakatableBase: "87.50",
-      isAboveNisab: null,
+      isAboveNisab: true,
       isZakatDue: null,
       createdAt: new Date("2026-05-13T00:00:00Z"),
       updatedAt: new Date("2026-05-13T00:00:00Z"),
