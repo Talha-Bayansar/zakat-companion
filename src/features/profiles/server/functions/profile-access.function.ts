@@ -11,21 +11,8 @@ import {
   listProfileAccessInputSchema,
   manageProfileAccessInputSchema,
   switchActiveProfileInputSchema,
-  type CreateProfileInput,
-  type DeleteProfileInput,
-  type GetAccessibleProfileInput,
-  type ListAccessibleProfilesPageInput,
-  type ListProfileAccessInput,
-  type ManageProfileAccessInput,
-  type SwitchActiveProfileInput,
-  type UpdateProfileInput,
   updateProfileInputSchema,
 } from "../schemas/profile-access.schema"
-import type {
-  AccessibleProfile,
-  ManagedProfileAccess,
-} from "../services/profile-access.service"
-
 async function requireActor() {
   const { auth } = await import("@/server/auth")
   const session = await auth.api.getSession({
@@ -65,22 +52,18 @@ export const listAccessibleProfilesFn = createServerFn({ method: "GET" }).handle
   },
 )
 
-const getAccessibleProfileFnInternal = createServerFn({ method: "GET" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const getAccessibleProfileFn = createServerFn({ method: "GET" })
+  .inputValidator(getAccessibleProfileInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = getAccessibleProfileInputSchema.parse(data ?? {})
     const { getAccessibleProfile } = await import(
       "../services/profile-access.service"
     )
 
-    return getAccessibleProfile(actor, values)
-  },
-)
-export const getAccessibleProfileFn = getAccessibleProfileFnInternal as unknown as (
-  options: { data: GetAccessibleProfileInput },
-) => Promise<import("../services/profile-access.service").AccessibleProfile>
+    return getAccessibleProfile(actor, data)
+  })
 
-const getCurrentActiveProfileFnInternal = createServerFn({ method: "GET" }).handler(
+export const getCurrentActiveProfileFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const actor = await requireActor()
     const { resolveCurrentActiveProfile } = await import(
@@ -90,125 +73,85 @@ const getCurrentActiveProfileFnInternal = createServerFn({ method: "GET" }).hand
     return resolveCurrentActiveProfile(actor)
   },
 )
-export const getCurrentActiveProfileFn = getCurrentActiveProfileFnInternal as unknown as (
-  options?: { data?: unknown },
-) => Promise<import("../services/profile-access.service").AccessibleProfile | null>
 
-const listAccessibleProfilesPageFnInternal = createServerFn({ method: "GET" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const listAccessibleProfilesPageFn = createServerFn({ method: "GET" })
+  .inputValidator(listAccessibleProfilesPageInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = listAccessibleProfilesPageInputSchema.parse(data ?? {})
     const { listAccessibleProfilesPage } = await import(
       "../services/profile-access.service"
     )
 
-    return listAccessibleProfilesPage(actor, values)
-  },
-)
-export const listAccessibleProfilesPageFn = listAccessibleProfilesPageFnInternal as unknown as (
-  options: { data: ListAccessibleProfilesPageInput },
-) => Promise<{
-  items: import("../services/profile-access.service").AccessibleProfile[]
-  page: number
-  pageSize: number
-  hasMore: boolean
-}>
+    return listAccessibleProfilesPage(actor, data)
+  })
 
-const createProfileFnInternal = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const createProfileFn = createServerFn({ method: "POST" })
+  .inputValidator(createProfileInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = createProfileInputSchema.parse(data)
     const { createProfile } = await import("../services/profile-access.service")
 
-    return createProfile(actor, values)
-  },
-)
-export const createProfileFn = createProfileFnInternal as unknown as (
-  options: { data: CreateProfileInput },
-) => Promise<AccessibleProfile>
+    return createProfile(actor, data)
+  })
 
-const updateProfileFnInternal = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const updateProfileFn = createServerFn({ method: "POST" })
+  .inputValidator(updateProfileInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = updateProfileInputSchema.parse(data)
     const { updateProfile } = await import("../services/profile-access.service")
 
-    return updateProfile(actor, values)
-  },
-)
-export const updateProfileFn = updateProfileFnInternal as unknown as (
-  options: { data: UpdateProfileInput },
-) => Promise<AccessibleProfile>
+    return updateProfile(actor, data)
+  })
 
-const switchActiveProfileFnInternal = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const switchActiveProfileFn = createServerFn({ method: "POST" })
+  .inputValidator(switchActiveProfileInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = switchActiveProfileInputSchema.parse(data)
     const { switchActiveProfile } = await import(
       "../services/profile-access.service"
     )
 
-    return switchActiveProfile(actor, values)
-  },
-)
-export const switchActiveProfileFn = switchActiveProfileFnInternal as unknown as (
-  options: { data: SwitchActiveProfileInput },
-) => Promise<AccessibleProfile>
+    return switchActiveProfile(actor, data)
+  })
 
-const listManagedProfileAccessFnInternal = createServerFn({ method: "GET" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const listManagedProfileAccessFn = createServerFn({ method: "GET" })
+  .inputValidator(listProfileAccessInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = listProfileAccessInputSchema.parse(data)
     const { listManagedProfileAccess } = await import(
       "../services/profile-access.service"
     )
 
-    return listManagedProfileAccess(actor, values)
-  },
-)
-export const listManagedProfileAccessFn = listManagedProfileAccessFnInternal as unknown as (
-  options: { data: ListProfileAccessInput },
-) => Promise<ManagedProfileAccess[]>
+    return listManagedProfileAccess(actor, data)
+  })
 
-const grantProfileAccessFnInternal = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const grantProfileAccessFn = createServerFn({ method: "POST" })
+  .inputValidator(manageProfileAccessInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = manageProfileAccessInputSchema.parse(data)
     const { grantProfileAccess } = await import(
       "../services/profile-access.service"
     )
 
-    return grantProfileAccess(actor, values)
-  },
-)
-export const grantProfileAccessFn = grantProfileAccessFnInternal as unknown as (
-  options: { data: ManageProfileAccessInput },
-) => Promise<unknown>
+    return grantProfileAccess(actor, data)
+  })
 
-const revokeProfileAccessFnInternal = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const revokeProfileAccessFn = createServerFn({ method: "POST" })
+  .inputValidator(manageProfileAccessInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = manageProfileAccessInputSchema.parse(data)
     const { revokeProfileAccess } = await import(
       "../services/profile-access.service"
     )
 
-    return revokeProfileAccess(actor, values)
-  },
-)
-export const revokeProfileAccessFn = revokeProfileAccessFnInternal as unknown as (
-  options: { data: ManageProfileAccessInput },
-) => Promise<{ revoked: boolean }>
+    return revokeProfileAccess(actor, data)
+  })
 
-const deleteProfileFnInternal = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: unknown }) => {
+export const deleteProfileFn = createServerFn({ method: "POST" })
+  .inputValidator(deleteProfileInputSchema)
+  .handler(async ({ data }) => {
     const actor = await requireActor()
-    const values = deleteProfileInputSchema.parse(data)
     const { deleteProfile } = await import("../services/profile-access.service")
 
-    return deleteProfile(actor, values)
-  },
-)
-export const deleteProfileFn = deleteProfileFnInternal as unknown as (
-  options: { data: DeleteProfileInput },
-) => Promise<{ deleted: boolean }>
+    return deleteProfile(actor, data)
+  })

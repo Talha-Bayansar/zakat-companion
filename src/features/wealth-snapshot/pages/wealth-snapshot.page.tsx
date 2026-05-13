@@ -1,3 +1,7 @@
+import { Link } from "@tanstack/react-router"
+import { Add02Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+
 import { m } from "@/paraglide/messages"
 
 import {
@@ -6,19 +10,173 @@ import {
   EmptyDescription,
   EmptyTitle,
 } from "@/shared/ui/empty"
-import { PageSection } from "@/shared/ui/page"
+import { buttonVariants } from "@/shared/ui/button"
+import { InfiniteList } from "@/shared/ui/infinite-list"
+import { PageHeader, PageSection } from "@/shared/ui/page"
+import { Skeleton } from "@/shared/ui/skeleton"
+
+import { useCurrentActiveProfileQuery } from "@/features/profiles"
+
+import { WealthSnapshotHistoryItem } from "../components/wealth-snapshot-history-item"
+import {
+  useWealthSnapshotHistoryInfiniteQuery,
+  useWealthSnapshotQuery,
+} from "../lib/wealth-snapshot.query"
+import type { WealthSnapshotRecord } from "../lib/wealth-snapshot.types"
 
 export function WealthSnapshotPage() {
+  const activeProfileQuery = useCurrentActiveProfileQuery()
+  const activeProfileId = activeProfileQuery.data?.id ?? null
+  const currentSnapshotQuery = useWealthSnapshotQuery(activeProfileId)
+  const historyQuery = useWealthSnapshotHistoryInfiniteQuery(activeProfileId)
+
+  const currentSnapshot = currentSnapshotQuery.data
+  const history = historyQuery.data?.pages.flatMap((page) => page.items) ?? []
+  const isActiveProfileLoading =
+    activeProfileQuery.isLoading && activeProfileId === null
+
   return (
-    <main className="flex min-h-svh items-center justify-center p-6">
-      <PageSection className="w-full max-w-md">
-        <Empty className="border-border/70 bg-background/80">
-          <EmptyContent>
-            <EmptyTitle>{m.wealth_empty_title()}</EmptyTitle>
-            <EmptyDescription>{m.wealth_empty_description()}</EmptyDescription>
-          </EmptyContent>
-        </Empty>
-      </PageSection>
-    </main>
+    <PageSection className="gap-6">
+      <div className="flex items-start justify-between gap-4">
+        <PageHeader
+          eyebrow={m.wealth_eyebrow()}
+          title={m.wealth_title()}
+          description={m.wealth_description()}
+        />
+
+        <Link
+          to="/app/wealth-snapshot/new"
+          aria-label={m.wealth_snapshot_create_button_label()}
+          className={buttonVariants({ variant: "default", size: "icon-sm" })}
+        >
+          <HugeiconsIcon icon={Add02Icon} strokeWidth={2} className="size-4" />
+        </Link>
+      </div>
+
+      <section className="flex flex-col gap-4 border-b border-border/60 pb-5">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-foreground">
+            {m.wealth_snapshot_current_title()}
+          </p>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {m.wealth_snapshot_current_description()}
+          </p>
+        </div>
+
+        {isActiveProfileLoading || currentSnapshotQuery.isLoading ? (
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Skeleton className="size-4 rounded-full" />
+            <span>{m.wealth_snapshot_current_title()}</span>
+          </div>
+        ) : currentSnapshot ? (
+          <dl className="grid gap-4 sm:grid-cols-3">
+            <SummaryStat
+              label={m.wealth_snapshot_current_net_label()}
+              value={formatSnapshotAmount(currentSnapshot.entries)}
+            />
+            <SummaryStat
+              label={m.wealth_snapshot_current_saved_label()}
+              value={new Date(currentSnapshot.createdAt).toLocaleString()}
+            />
+            <SummaryStat
+              label={m.wealth_snapshot_current_categories_label()}
+              value={String(currentSnapshot.entries.length)}
+            />
+          </dl>
+        ) : (
+          <Empty className="border-border/70 bg-background/80">
+            <EmptyContent>
+              <EmptyTitle>{m.wealth_snapshot_current_empty_title()}</EmptyTitle>
+              <EmptyDescription>
+                {m.wealth_snapshot_current_empty_description()}
+              </EmptyDescription>
+            </EmptyContent>
+          </Empty>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-foreground">
+            {m.wealth_snapshot_history_title()}
+          </p>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {m.wealth_snapshot_history_description()}
+          </p>
+        </div>
+
+        {historyQuery.isError ? (
+          <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+            {historyQuery.error instanceof Error && historyQuery.error.message
+              ? historyQuery.error.message
+              : m.wealth_snapshot_history_load_error()}
+          </p>
+        ) : (
+          <InfiniteList
+            items={history}
+            hasMore={historyQuery.hasNextPage}
+            isLoading={isActiveProfileLoading || historyQuery.isLoading}
+            isFetchingNextPage={historyQuery.isFetchingNextPage}
+            onLoadMore={() => void historyQuery.fetchNextPage()}
+            getItemKey={(snapshot) => snapshot.id}
+            renderItem={(snapshot) => (
+              <WealthSnapshotHistoryItem snapshot={snapshot} />
+            )}
+            loadingLabel={m.wealth_snapshot_history_title()}
+            loadMoreLabel={m.wealth_snapshot_history_load_more()}
+            loadingState={
+              <div className="space-y-3">
+                <Skeleton className="h-16 w-full rounded-[1.5rem]" />
+                <Skeleton className="h-16 w-full rounded-[1.5rem]" />
+                <Skeleton className="h-16 w-full rounded-[1.5rem]" />
+              </div>
+            }
+            emptyState={
+              <Empty className="border-border/70 bg-background/80">
+                <EmptyContent>
+                  <EmptyTitle>{m.wealth_snapshot_history_empty_title()}</EmptyTitle>
+                  <EmptyDescription>
+                    {m.wealth_snapshot_history_empty_description()}
+                  </EmptyDescription>
+                </EmptyContent>
+              </Empty>
+            }
+          />
+        )}
+      </section>
+    </PageSection>
   )
+}
+
+function SummaryStat({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="text-sm font-medium text-foreground sm:text-base">{value}</dd>
+    </div>
+  )
+}
+
+function formatSnapshotAmount(entries: WealthSnapshotRecord["entries"]) {
+  const amount = entries.reduce((total, entry) => {
+    const parsed = Number(entry.amount)
+    const normalized = Number.isFinite(parsed) ? parsed : 0
+
+    return entry.category === "debts_liabilities"
+      ? total - normalized
+      : total + normalized
+  }, 0)
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount)
 }

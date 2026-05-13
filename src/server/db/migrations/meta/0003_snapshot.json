@@ -1,5 +1,5 @@
 {
-  "id": "4a893a00-0d6f-4ac8-a50f-0f31c121f449",
+  "id": "2e163846-e22b-4e4a-9a04-59f7b5c11594",
   "prevId": "e2db1412-c1ca-4249-9a9f-e9acb5ef3ad7",
   "version": "7",
   "dialect": "postgresql",
@@ -269,8 +269,8 @@
         }
       },
       "indexes": {
-        "wealth_snapshot_profileId_unique": {
-          "name": "wealth_snapshot_profileId_unique",
+        "wealth_snapshot_profileId_idx": {
+          "name": "wealth_snapshot_profileId_idx",
           "columns": [
             {
               "expression": "profile_id",
@@ -279,7 +279,7 @@
               "nulls": "last"
             }
           ],
-          "isUnique": true,
+          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}

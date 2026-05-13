@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core"
 
 import { user } from "../auth/schema"
+import { wealthCategoryValues } from "@/features/wealth-snapshot/lib/wealth-snapshot.constants"
 
 export * from "../auth/schema"
 
@@ -56,15 +57,6 @@ export const profilePermission = pgTable(
   ]
 )
 
-export const wealthCategoryValues = [
-  "cash",
-  "gold",
-  "silver",
-  "trade_inventory",
-  "receivables",
-  "debts_liabilities",
-] as const
-
 export const wealthCategory = pgEnum("wealth_category", wealthCategoryValues)
 
 export const wealthSnapshot = pgTable(
@@ -81,7 +73,7 @@ export const wealthSnapshot = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("wealth_snapshot_profileId_unique").on(table.profileId),
+    index("wealth_snapshot_profileId_idx").on(table.profileId),
   ]
 )
 
@@ -115,10 +107,7 @@ export const profileRelations = relations(profile, ({ one, many }) => ({
     references: [user.id],
   }),
   permissions: many(profilePermission),
-  wealthSnapshot: one(wealthSnapshot, {
-    fields: [profile.id],
-    references: [wealthSnapshot.profileId],
-  }),
+  wealthSnapshots: many(wealthSnapshot),
 }))
 
 export const profilePermissionRelations = relations(

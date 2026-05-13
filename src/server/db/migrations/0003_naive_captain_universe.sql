@@ -17,6 +17,6 @@ CREATE TABLE "wealth_snapshot_entry" (
 --> statement-breakpoint
 ALTER TABLE "wealth_snapshot" ADD CONSTRAINT "wealth_snapshot_profile_id_profile_id_fk" FOREIGN KEY ("profile_id") REFERENCES "public"."profile"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wealth_snapshot_entry" ADD CONSTRAINT "wealth_snapshot_entry_snapshot_id_wealth_snapshot_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "public"."wealth_snapshot"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "wealth_snapshot_profileId_unique" ON "wealth_snapshot" USING btree ("profile_id");--> statement-breakpoint
+CREATE INDEX "wealth_snapshot_profileId_idx" ON "wealth_snapshot" USING btree ("profile_id");--> statement-breakpoint
 CREATE INDEX "wealth_snapshot_entry_snapshotId_idx" ON "wealth_snapshot_entry" USING btree ("snapshot_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "wealth_snapshot_entry_snapshotId_category_unique" ON "wealth_snapshot_entry" USING btree ("snapshot_id","category");

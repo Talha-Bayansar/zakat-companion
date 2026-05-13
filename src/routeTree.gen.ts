@@ -16,6 +16,7 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 import { Route as AppHistoryIndexRouteImport } from './routes/app/history/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppWealthSnapshotNewIndexRouteImport } from './routes/app/wealth-snapshot/new/index'
 import { Route as AppSettingsProfilesIndexRouteImport } from './routes/app/settings/profiles/index'
 import { Route as AppSettingsProfilesNewIndexRouteImport } from './routes/app/settings/profiles/new/index'
 import { Route as AppSettingsProfilesProfileIdIndexRouteImport } from './routes/app/settings/profiles/$profileId/index'
@@ -55,6 +56,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWealthSnapshotNewIndexRoute =
+  AppWealthSnapshotNewIndexRouteImport.update({
+    id: '/wealth-snapshot/new/',
+    path: '/wealth-snapshot/new/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AppSettingsProfilesIndexRoute =
   AppSettingsProfilesIndexRouteImport.update({
     id: '/settings/profiles/',
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/app/history/': typeof AppHistoryIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/app/settings/profiles/': typeof AppSettingsProfilesIndexRoute
+  '/app/wealth-snapshot/new/': typeof AppWealthSnapshotNewIndexRoute
   '/app/settings/profiles/$profileId/': typeof AppSettingsProfilesProfileIdIndexRoute
   '/app/settings/profiles/new/': typeof AppSettingsProfilesNewIndexRoute
 }
@@ -94,6 +102,7 @@ export interface FileRoutesByTo {
   '/app/history': typeof AppHistoryIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
   '/app/settings/profiles': typeof AppSettingsProfilesIndexRoute
+  '/app/wealth-snapshot/new': typeof AppWealthSnapshotNewIndexRoute
   '/app/settings/profiles/$profileId': typeof AppSettingsProfilesProfileIdIndexRoute
   '/app/settings/profiles/new': typeof AppSettingsProfilesNewIndexRoute
 }
@@ -107,6 +116,7 @@ export interface FileRoutesById {
   '/app/history/': typeof AppHistoryIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/app/settings/profiles/': typeof AppSettingsProfilesIndexRoute
+  '/app/wealth-snapshot/new/': typeof AppWealthSnapshotNewIndexRoute
   '/app/settings/profiles/$profileId/': typeof AppSettingsProfilesProfileIdIndexRoute
   '/app/settings/profiles/new/': typeof AppSettingsProfilesNewIndexRoute
 }
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/app/history/'
     | '/app/settings/'
     | '/app/settings/profiles/'
+    | '/app/wealth-snapshot/new/'
     | '/app/settings/profiles/$profileId/'
     | '/app/settings/profiles/new/'
   fileRoutesByTo: FileRoutesByTo
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/settings'
     | '/app/settings/profiles'
+    | '/app/wealth-snapshot/new'
     | '/app/settings/profiles/$profileId'
     | '/app/settings/profiles/new'
   id:
@@ -144,6 +156,7 @@ export interface FileRouteTypes {
     | '/app/history/'
     | '/app/settings/'
     | '/app/settings/profiles/'
+    | '/app/wealth-snapshot/new/'
     | '/app/settings/profiles/$profileId/'
     | '/app/settings/profiles/new/'
   fileRoutesById: FileRoutesById
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/wealth-snapshot/new/': {
+      id: '/app/wealth-snapshot/new/'
+      path: '/wealth-snapshot/new'
+      fullPath: '/app/wealth-snapshot/new/'
+      preLoaderRoute: typeof AppWealthSnapshotNewIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/settings/profiles/': {
       id: '/app/settings/profiles/'
       path: '/settings/profiles'
@@ -235,6 +255,7 @@ interface AppRouteRouteChildren {
   AppHistoryIndexRoute: typeof AppHistoryIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSettingsProfilesIndexRoute: typeof AppSettingsProfilesIndexRoute
+  AppWealthSnapshotNewIndexRoute: typeof AppWealthSnapshotNewIndexRoute
   AppSettingsProfilesProfileIdIndexRoute: typeof AppSettingsProfilesProfileIdIndexRoute
   AppSettingsProfilesNewIndexRoute: typeof AppSettingsProfilesNewIndexRoute
 }
@@ -244,6 +265,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppHistoryIndexRoute: AppHistoryIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSettingsProfilesIndexRoute: AppSettingsProfilesIndexRoute,
+  AppWealthSnapshotNewIndexRoute: AppWealthSnapshotNewIndexRoute,
   AppSettingsProfilesProfileIdIndexRoute:
     AppSettingsProfilesProfileIdIndexRoute,
   AppSettingsProfilesNewIndexRoute: AppSettingsProfilesNewIndexRoute,

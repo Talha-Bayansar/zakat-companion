@@ -31,3 +31,11 @@
 - `infinite scrolling list`: the default presentation for unbounded collections, including page-style overviews and searchable pickers backed by async data.
 - `drizzle-friendly pagination`: page-based pagination built around Drizzle `orderBy`, `limit`, and `offset` queries, with the page size capped by the repository.
 - `infinite-list contract`: async list endpoints should return `items`, `page`, `pageSize`, and `hasMore`, accept a caller-provided page size with a server cap, and reset on server-side search changes.
+
+## Code Boundaries
+
+- client files must never import server files or server code directly.
+- the only exception is `server functions`, which client files may import only from the specific `.function.ts` module that defines them.
+- client files must never import a `server` barrel file.
+- server code inside a feature's `server/` folder stays inside that folder unless it is exposed by a direct `.function.ts` import.
+- feature `server/index.ts` barrels are for server-internal organization only and must not be used as client-facing import surfaces.
