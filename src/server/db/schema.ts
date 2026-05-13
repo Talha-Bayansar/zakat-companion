@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm"
 import {
   index,
+  boolean,
   pgEnum,
   pgTable,
   text,
@@ -66,6 +67,13 @@ export const wealthSnapshot = pgTable(
     profileId: text("profile_id")
       .notNull()
       .references(() => profile.id, { onDelete: "cascade" }),
+    capturedAt: timestamp("captured_at").defaultNow().notNull(),
+    madhab: text("madhab"),
+    nisabBenchmark: text("nisab_benchmark"),
+    calculationVersion: text("calculation_version"),
+    netZakatableBase: text("net_zakatable_base"),
+    isAboveNisab: boolean("is_above_nisab"),
+    isZakatDue: boolean("is_zakat_due"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -74,6 +82,10 @@ export const wealthSnapshot = pgTable(
   },
   (table) => [
     index("wealth_snapshot_profileId_idx").on(table.profileId),
+    index("wealth_snapshot_profileId_capturedAt_idx").on(
+      table.profileId,
+      table.capturedAt,
+    ),
   ]
 )
 

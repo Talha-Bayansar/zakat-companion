@@ -20,7 +20,7 @@ export function WealthSnapshotHistoryItem({
   return (
     <Item variant="outline">
       <ItemContent>
-        <ItemTitle>{new Date(snapshot.createdAt).toLocaleString()}</ItemTitle>
+        <ItemTitle>{new Date(snapshot.capturedAt).toLocaleString()}</ItemTitle>
         <ItemDescription>
           {m.wealth_snapshot_history_row_description()}
         </ItemDescription>

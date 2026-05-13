@@ -13,6 +13,13 @@ import type {
 export type WealthSnapshotRecord = {
   id: string
   profileId: string
+  capturedAt: Date
+  madhab: string | null
+  nisabBenchmark: string | null
+  calculationVersion: string | null
+  netZakatableBase: string | null
+  isAboveNisab: boolean | null
+  isZakatDue: boolean | null
   createdAt: Date
   updatedAt: Date
 }
@@ -37,12 +44,19 @@ export async function getWealthSnapshotRecordByProfileId(profileId: string) {
     .select({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
+      capturedAt: wealthSnapshot.capturedAt,
+      madhab: wealthSnapshot.madhab,
+      nisabBenchmark: wealthSnapshot.nisabBenchmark,
+      calculationVersion: wealthSnapshot.calculationVersion,
+      netZakatableBase: wealthSnapshot.netZakatableBase,
+      isAboveNisab: wealthSnapshot.isAboveNisab,
+      isZakatDue: wealthSnapshot.isZakatDue,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })
     .from(wealthSnapshot)
     .where(eq(wealthSnapshot.profileId, profileId))
-    .orderBy(desc(wealthSnapshot.createdAt), desc(wealthSnapshot.id))
+    .orderBy(desc(wealthSnapshot.capturedAt), desc(wealthSnapshot.id))
     .limit(1)
 
   return record ?? null
@@ -84,12 +98,19 @@ export async function listWealthSnapshotRecordsByProfileId(
     .select({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
+      capturedAt: wealthSnapshot.capturedAt,
+      madhab: wealthSnapshot.madhab,
+      nisabBenchmark: wealthSnapshot.nisabBenchmark,
+      calculationVersion: wealthSnapshot.calculationVersion,
+      netZakatableBase: wealthSnapshot.netZakatableBase,
+      isAboveNisab: wealthSnapshot.isAboveNisab,
+      isZakatDue: wealthSnapshot.isZakatDue,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })
     .from(wealthSnapshot)
     .where(eq(wealthSnapshot.profileId, profileId))
-    .orderBy(desc(wealthSnapshot.createdAt), desc(wealthSnapshot.id))
+    .orderBy(desc(wealthSnapshot.capturedAt), desc(wealthSnapshot.id))
     .limit(limit)
 }
 
@@ -101,12 +122,19 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
     .select({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
+      capturedAt: wealthSnapshot.capturedAt,
+      madhab: wealthSnapshot.madhab,
+      nisabBenchmark: wealthSnapshot.nisabBenchmark,
+      calculationVersion: wealthSnapshot.calculationVersion,
+      netZakatableBase: wealthSnapshot.netZakatableBase,
+      isAboveNisab: wealthSnapshot.isAboveNisab,
+      isZakatDue: wealthSnapshot.isZakatDue,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })
     .from(wealthSnapshot)
     .where(eq(wealthSnapshot.profileId, profileId))
-    .orderBy(desc(wealthSnapshot.createdAt), desc(wealthSnapshot.id))
+    .orderBy(desc(wealthSnapshot.capturedAt), desc(wealthSnapshot.id))
     .limit(input.pageSize + 1)
     .offset((input.page - 1) * input.pageSize)
 
@@ -171,10 +199,18 @@ export async function replaceWealthSnapshotRecord(
     .values({
       id: crypto.randomUUID(),
       profileId: input.profileId,
+      capturedAt: new Date(),
     })
     .returning({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
+      capturedAt: wealthSnapshot.capturedAt,
+      madhab: wealthSnapshot.madhab,
+      nisabBenchmark: wealthSnapshot.nisabBenchmark,
+      calculationVersion: wealthSnapshot.calculationVersion,
+      netZakatableBase: wealthSnapshot.netZakatableBase,
+      isAboveNisab: wealthSnapshot.isAboveNisab,
+      isZakatDue: wealthSnapshot.isZakatDue,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })

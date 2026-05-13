@@ -76,7 +76,7 @@ export function WealthSnapshotPage() {
             />
             <SummaryStat
               label={m.wealth_snapshot_current_saved_label()}
-              value={new Date(currentSnapshot.createdAt).toLocaleString()}
+              value={new Date(currentSnapshot.capturedAt).toLocaleString()}
             />
             <SummaryStat
               label={m.wealth_snapshot_current_categories_label()}

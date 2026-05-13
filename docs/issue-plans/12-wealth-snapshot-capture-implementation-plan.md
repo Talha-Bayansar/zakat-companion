@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: planned
-- Current step: step 1
+- Overall: in progress
+- Current step: step 3
 
 ## Goal
 
@@ -12,26 +12,26 @@ Implement an append-only wealth snapshot flow where each save creates a frozen f
 ## Plan
 
 1. Define the snapshot and entry data model.
-   - Status: pending
+   - Status: done
    - Add a `wealth_snapshot` table for the immutable snapshot header.
    - Add a `wealth_snapshot_entry` table for one row per v1 wealth class.
    - Store the frozen calculation context on the snapshot, including `profileId`, `capturedAt`, `madhab`, `nisab benchmark`, and `calculation version`.
    - Store derived outputs on the snapshot so history remains stable even if rules or profile preferences change later.
 
 2. Add schema and migration support.
-   - Status: pending
+   - Status: done
    - Update `src/server/db/schema.ts` with the snapshot tables and relations.
    - Generate and apply the database migration.
    - Ensure the schema supports multiple snapshots per profile and one entry row per category per snapshot.
 
 3. Build server persistence and calculation helpers.
-   - Status: pending
+   - Status: partial
    - Add feature-local repositories under `src/features/wealth-snapshot/server/repositories/`.
    - Add a service layer under `src/features/wealth-snapshot/server/services/` to validate input, resolve the active profile, compute derived values, and write the snapshot plus entries in a transaction.
    - Add server functions under `src/features/wealth-snapshot/server/functions/` for snapshot creation and history retrieval.
 
 4. Define the snapshot input schema and v1 category set.
-   - Status: pending
+   - Status: done
    - Add Zod schemas for the fixed v1 wealth classes: cash, gold, silver, trade inventory, receivables, and debts/liabilities.
    - Validate numeric entry values and required fields consistently on the server boundary.
    - Keep client-facing validation copy in Paraglide messages.
@@ -44,14 +44,14 @@ Implement an append-only wealth snapshot flow where each save creates a frozen f
    - Keep the calculation version explicit so historical snapshots remain reproducible.
 
 6. Replace the placeholder wealth snapshot screen.
-   - Status: pending
+   - Status: done
    - Replace the empty state in `src/features/wealth-snapshot/pages/wealth-snapshot.page.tsx`.
    - Add a mobile-first form for the fixed v1 wealth classes.
    - Show the current saved snapshot and recent snapshot history for the active profile.
    - Use the repo’s standard loading, empty-state, and form patterns.
 
 7. Wire routing, profile context, and tests.
-   - Status: pending
+   - Status: partial
    - Keep the route file thin and connect it to the feature public API.
    - Require or resolve the active profile before allowing snapshot capture.
    - Prevent snapshot capture when the user has no accessible profile.
@@ -64,4 +64,3 @@ Implement an append-only wealth snapshot flow where each save creates a frozen f
 - A snapshot stores the frozen calculation context used at the time it was captured.
 - Historical snapshots remain stable even if profile preferences or rules change later.
 - The wealth snapshot screen is usable in the app instead of showing only an empty state.
-
