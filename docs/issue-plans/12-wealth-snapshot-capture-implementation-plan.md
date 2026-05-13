@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: in progress
-- Current step: step 5
+- Overall: done
+- Current step: complete
 
 ## Goal
 
@@ -37,11 +37,12 @@ Implement an append-only wealth snapshot flow where each save creates a frozen f
    - Keep client-facing validation copy in Paraglide messages.
 
 5. Implement the current snapshot calculation workflow.
-   - Status: pending
+   - Status: done
    - Calculate the net zakatable base from the raw category entries.
-   - Determine whether the snapshot is above nisab and whether zakat is due.
+   - Determine whether the snapshot is above nisab using the PRD 03 snapshot-level rule.
    - Persist the derived result on the snapshot record at write time.
    - Keep the calculation version explicit so historical snapshots remain reproducible.
+   - Leave full fiqh-specific zakat due logic for the next issue.
 
 6. Replace the placeholder wealth snapshot screen.
    - Status: done
@@ -51,11 +52,12 @@ Implement an append-only wealth snapshot flow where each save creates a frozen f
    - Use the repo’s standard loading, empty-state, and form patterns.
 
 7. Wire routing, profile context, and tests.
-   - Status: partial
+   - Status: done
    - Keep the route file thin and connect it to the feature public API.
    - Require or resolve the active profile before allowing snapshot capture.
    - Prevent snapshot capture when the user has no accessible profile.
    - Add tests for snapshot creation, normalized entry persistence, stable derived output, append-only history behavior, and authorization checks.
+   - Confirm the current app flow and test coverage match the completed calculation behavior.
 
 ## Acceptance Criteria
 

@@ -1,5 +1,10 @@
 import type { InfiniteListPage } from "@/shared/lib/infinite-list"
 
+import type {
+  FiqhCalculationSnapshot,
+  FiqhMadhabCode,
+  FiqhNisabBenchmarkCode,
+} from "@/features/fiqh-calculation"
 import type { WealthCategory } from "./wealth-snapshot.constants"
 
 export type WealthSnapshotEntryRecord = {
@@ -15,12 +20,12 @@ export type WealthSnapshotRecord = {
   id: string
   profileId: string
   capturedAt: string | Date
-  madhab: string | null
-  nisabBenchmark: string | null
-  calculationVersion: string | null
-  netZakatableBase: string | null
-  isAboveNisab: boolean | null
-  isZakatDue: boolean | null
+  madhab: FiqhMadhabCode | null
+  nisabBenchmark: FiqhNisabBenchmarkCode | null
+  calculationVersion: FiqhCalculationSnapshot["calculationVersion"] | null
+  netZakatableBase: FiqhCalculationSnapshot["netZakatableBase"] | null
+  isAboveNisab: FiqhCalculationSnapshot["isAboveNisab"] | null
+  isZakatDue: FiqhCalculationSnapshot["isZakatDue"] | null
   createdAt: string | Date
   updatedAt: string | Date
   entries: WealthSnapshotEntryRecord[]

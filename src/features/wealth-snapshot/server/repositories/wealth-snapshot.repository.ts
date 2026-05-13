@@ -3,6 +3,11 @@ import { asc, desc, eq, inArray } from "drizzle-orm"
 import { db } from "@/server/db/client"
 import { wealthSnapshot, wealthSnapshotEntry } from "@/server/db/schema"
 import type { InfiniteListPage } from "@/shared/lib/infinite-list"
+import type {
+  FiqhMadhabCode,
+  FiqhNisabBenchmarkCode,
+  FiqhCalculationSnapshot,
+} from "@/features/fiqh-calculation"
 
 import type {
   ListWealthSnapshotHistoryInput,
@@ -14,12 +19,12 @@ export type WealthSnapshotRecord = {
   id: string
   profileId: string
   capturedAt: Date
-  madhab: string | null
-  nisabBenchmark: string | null
-  calculationVersion: string | null
-  netZakatableBase: string | null
-  isAboveNisab: boolean | null
-  isZakatDue: boolean | null
+  madhab: FiqhMadhabCode | null
+  nisabBenchmark: FiqhNisabBenchmarkCode | null
+  calculationVersion: FiqhCalculationSnapshot["calculationVersion"] | null
+  netZakatableBase: FiqhCalculationSnapshot["netZakatableBase"] | null
+  isAboveNisab: FiqhCalculationSnapshot["isAboveNisab"] | null
+  isZakatDue: FiqhCalculationSnapshot["isZakatDue"] | null
   createdAt: Date
   updatedAt: Date
 }
@@ -40,12 +45,12 @@ export type WealthSnapshotWithEntriesRecord = WealthSnapshotRecord & {
 export type WealthSnapshotHistoryPage = InfiniteListPage<WealthSnapshotWithEntriesRecord>
 
 export type WealthSnapshotWriteContext = {
-  madhab: string | null
-  nisabBenchmark: string | null
-  calculationVersion: string | null
-  netZakatableBase: string | null
-  isAboveNisab: boolean | null
-  isZakatDue: boolean | null
+  madhab: FiqhMadhabCode | null
+  nisabBenchmark: FiqhNisabBenchmarkCode | null
+  calculationVersion: FiqhCalculationSnapshot["calculationVersion"] | null
+  netZakatableBase: FiqhCalculationSnapshot["netZakatableBase"] | null
+  isAboveNisab: FiqhCalculationSnapshot["isAboveNisab"] | null
+  isZakatDue: FiqhCalculationSnapshot["isZakatDue"] | null
 }
 
 export type ReplaceWealthSnapshotInput = {
@@ -54,10 +59,34 @@ export type ReplaceWealthSnapshotInput = {
   snapshot: WealthSnapshotWriteContext
 }
 
+type WealthSnapshotDbRecord = {
+  id: string
+  profileId: string
+  capturedAt: Date
+  madhab: string | null
+  nisabBenchmark: string | null
+  calculationVersion: string | null
+  netZakatableBase: string | null
+  isAboveNisab: boolean | null
+  isZakatDue: boolean | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+function toWealthSnapshotRecord(
+  record: WealthSnapshotDbRecord,
+): WealthSnapshotRecord {
+  return {
+    ...record,
+    madhab: record.madhab as FiqhMadhabCode | null,
+    nisabBenchmark: record.nisabBenchmark as FiqhNisabBenchmarkCode | null,
+  }
+}
+
 export async function getWealthSnapshotRecordByProfileId(
   profileId: string,
 ) {
-  const [record] = await db
+  const [record] = (await db
     .select({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
@@ -74,9 +103,9 @@ export async function getWealthSnapshotRecordByProfileId(
     .from(wealthSnapshot)
     .where(eq(wealthSnapshot.profileId, profileId))
     .orderBy(desc(wealthSnapshot.capturedAt), desc(wealthSnapshot.id))
-    .limit(1)
+    .limit(1)) as WealthSnapshotDbRecord[]
 
-  return record ?? null
+  return record ? toWealthSnapshotRecord(record) : null
 }
 
 export async function getWealthSnapshotWithEntriesRecordByProfileId(
@@ -111,7 +140,7 @@ export async function listWealthSnapshotRecordsByProfileId(
   profileId: string,
   limit = 10,
 ) {
-  return db
+  const rows = (await db
     .select({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
@@ -128,14 +157,16 @@ export async function listWealthSnapshotRecordsByProfileId(
     .from(wealthSnapshot)
     .where(eq(wealthSnapshot.profileId, profileId))
     .orderBy(desc(wealthSnapshot.capturedAt), desc(wealthSnapshot.id))
-    .limit(limit)
+    .limit(limit)) as WealthSnapshotDbRecord[]
+
+  return rows.map(toWealthSnapshotRecord)
 }
 
 export async function listWealthSnapshotHistoryRecordsByProfileId(
   profileId: string,
   input: ListWealthSnapshotHistoryInput,
 ): Promise<WealthSnapshotHistoryPage> {
-  const snapshots = await db
+  const snapshots = (await db
     .select({
       id: wealthSnapshot.id,
       profileId: wealthSnapshot.profileId,
@@ -153,7 +184,7 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
     .where(eq(wealthSnapshot.profileId, profileId))
     .orderBy(desc(wealthSnapshot.capturedAt), desc(wealthSnapshot.id))
     .limit(input.pageSize + 1)
-    .offset((input.page - 1) * input.pageSize)
+    .offset((input.page - 1) * input.pageSize)) as WealthSnapshotDbRecord[]
 
   const hasMore = snapshots.length > input.pageSize
   const pageSnapshots = hasMore ? snapshots.slice(0, input.pageSize) : snapshots
@@ -199,7 +230,7 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
 
   return {
     items: pageSnapshots.map((snapshot) => ({
-      ...snapshot,
+      ...toWealthSnapshotRecord(snapshot),
       entries: entriesBySnapshotId.get(snapshot.id) ?? [],
     })),
     page: input.page,
@@ -211,7 +242,7 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
 export async function replaceWealthSnapshotRecord(
   input: ReplaceWealthSnapshotInput,
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
-  const [snapshotRecord] = await db
+  const [snapshotRecord] = (await db
     .insert(wealthSnapshot)
     .values({
       id: crypto.randomUUID(),
@@ -236,7 +267,7 @@ export async function replaceWealthSnapshotRecord(
       isZakatDue: wealthSnapshot.isZakatDue,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
-    })
+    })) as WealthSnapshotDbRecord[]
 
   if (!snapshotRecord) {
     return null
@@ -268,7 +299,7 @@ export async function replaceWealthSnapshotRecord(
       .orderBy(asc(wealthSnapshotEntry.category))
 
     return {
-      ...snapshotRecord,
+      ...toWealthSnapshotRecord(snapshotRecord),
       entries,
     }
   } catch (error) {

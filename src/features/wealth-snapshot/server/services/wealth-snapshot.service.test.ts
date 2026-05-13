@@ -153,6 +153,107 @@ describe("wealth snapshot service", () => {
     expect(repositoryMocks.listWealthSnapshotHistoryRecordsByProfileId).not.toHaveBeenCalled()
   })
 
+  it("returns append-only history for the active profile", async () => {
+    profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
+      id: "profile-1",
+    })
+    repositoryMocks.listWealthSnapshotHistoryRecordsByProfileId.mockResolvedValue({
+      items: [
+        {
+          id: "snapshot-1",
+          profileId: "profile-1",
+          capturedAt: new Date("2026-05-13T00:00:00Z"),
+          madhab: null,
+          nisabBenchmark: null,
+          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          netZakatableBase: "87.50",
+          isAboveNisab: true,
+          isZakatDue: null,
+          createdAt: new Date("2026-05-13T00:00:00Z"),
+          updatedAt: new Date("2026-05-13T00:00:00Z"),
+          entries: [],
+        },
+        {
+          id: "snapshot-2",
+          profileId: "profile-1",
+          capturedAt: new Date("2026-05-14T00:00:00Z"),
+          madhab: null,
+          nisabBenchmark: null,
+          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          netZakatableBase: "120.00",
+          isAboveNisab: true,
+          isZakatDue: null,
+          createdAt: new Date("2026-05-14T00:00:00Z"),
+          updatedAt: new Date("2026-05-14T00:00:00Z"),
+          entries: [],
+        },
+      ],
+      page: 2,
+      pageSize: 10,
+      hasMore: false,
+    })
+
+    await expect(
+      listWealthSnapshotHistory(actor, {
+        page: 2,
+        pageSize: 10,
+      }),
+    ).resolves.toEqual({
+      items: [
+        {
+          id: "snapshot-1",
+          profileId: "profile-1",
+          capturedAt: new Date("2026-05-13T00:00:00Z"),
+          madhab: null,
+          nisabBenchmark: null,
+          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          netZakatableBase: "87.50",
+          isAboveNisab: true,
+          isZakatDue: null,
+          createdAt: new Date("2026-05-13T00:00:00Z"),
+          updatedAt: new Date("2026-05-13T00:00:00Z"),
+          entries: [],
+        },
+        {
+          id: "snapshot-2",
+          profileId: "profile-1",
+          capturedAt: new Date("2026-05-14T00:00:00Z"),
+          madhab: null,
+          nisabBenchmark: null,
+          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          netZakatableBase: "120.00",
+          isAboveNisab: true,
+          isZakatDue: null,
+          createdAt: new Date("2026-05-14T00:00:00Z"),
+          updatedAt: new Date("2026-05-14T00:00:00Z"),
+          entries: [],
+        },
+      ],
+      page: 2,
+      pageSize: 10,
+      hasMore: false,
+    })
+    expect(repositoryMocks.listWealthSnapshotHistoryRecordsByProfileId).toHaveBeenCalledWith(
+      "profile-1",
+      {
+        page: 2,
+        pageSize: 10,
+      },
+    )
+  })
+
+  it("rejects snapshot capture when no profile is active", async () => {
+    profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue(null)
+
+    await expect(
+      replaceWealthSnapshot(actor, {
+        entries: [{ category: "cash", amount: "100.50" }],
+      }),
+    ).rejects.toThrow("No active profile")
+
+    expect(repositoryMocks.replaceWealthSnapshotRecord).not.toHaveBeenCalled()
+  })
+
   it("returns the current snapshot for the active profile", async () => {
     profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
       id: "profile-1",
@@ -176,5 +277,17 @@ describe("wealth snapshot service", () => {
       id: "snapshot-1",
       profileId: "profile-1",
     })
+    expect(repositoryMocks.getWealthSnapshotWithEntriesRecordByProfileId).toHaveBeenCalledWith(
+      "profile-1",
+    )
+  })
+
+  it("returns no current snapshot when no profile is active", async () => {
+    profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue(null)
+
+    await expect(getCurrentWealthSnapshot(actor)).resolves.toBeNull()
+    expect(
+      repositoryMocks.getWealthSnapshotWithEntriesRecordByProfileId,
+    ).not.toHaveBeenCalled()
   })
 })

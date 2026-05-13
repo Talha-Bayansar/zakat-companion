@@ -10,6 +10,8 @@
 - `zakat date rule`: the app's hawl and reset behavior must follow the user's selected madhab.
 - `calculation scope`: the first release may use a standard zakat percentage baseline, with room to expand into category-specific rules later.
 - `full fiqh handling`: the app should model madhab-specific zakat rules as fully as practical, rather than using a simplified universal rule set.
+- `fiqh calculation context`: the frozen madhab and nisab benchmark codes captured with a snapshot so historical calculations can be reproduced later.
+- `fiqh calculation result`: the derived snapshot summary stored at capture time so history does not change when profile preferences change later.
 - `wealth classes`: the app should support cash, gold and silver, trade inventory, receivables, and debts/liabilities in the initial model.
 - `profile`: a separate zakat tracking record for a person or household member that can be managed by an authenticated user.
 - `profile owner`: the authenticated user who owns a profile and controls delegated access to it.
