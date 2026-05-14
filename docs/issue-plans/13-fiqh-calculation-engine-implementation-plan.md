@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: in progress
-- Current step: step 4
+- Current step: step 5
 
 ## Goal
 
@@ -33,14 +33,14 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
    - Return enough derived metadata for later history and explanation surfaces.
 
 4. Wire the engine into snapshot capture and cycle state.
-   - Status: pending
+   - Status: done
    - Have snapshot capture read the active profile's fiqh preferences and persist the frozen calculation context.
    - Write the derived fiqh outputs at capture time so history stays stable even if preferences change later.
-   - Introduce or refresh cycle state records if the app needs a mutable current obligation separate from the immutable snapshot.
    - Keep the snapshot/cycle boundary explicit so later payment and reminder changes do not rewrite calculation history.
+   - The current app does not yet persist a separate mutable cycle record, so the next slice can add that if the history/payment flow needs it.
 
 5. Surface the fiqh outputs in the app.
-   - Status: pending
+   - Status: in progress
    - Show the selected madhab and nisab benchmark in the profile settings experience.
    - Show nisab status, due amount, and date-rule summary in the wealth snapshot experience.
    - Keep all client-facing copy in Paraglide messages.
