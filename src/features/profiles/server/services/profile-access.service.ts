@@ -13,12 +13,14 @@ import {
   listDelegatedProfileRecords,
   listOwnedProfileRecords,
   updateUserActiveProfileRecord,
-  type ManagedProfileAccessRecord,
   type ProfileAccessGrantRecord,
   type ProfileRecord,
   updateProfileRecord,
   upsertProfileAccessGrantRecord,
 } from "../repositories/profile-access.repository"
+import type {
+  AccessibleProfile,
+} from "../../lib/profile-access.types"
 import type {
   CreateProfileInput,
   DeleteProfileInput,
@@ -30,17 +32,6 @@ import type {
   SwitchActiveProfileInput,
 } from "../schemas/profile-access.schema"
 import type { InfiniteListPage } from "@/shared/lib/infinite-list"
-
-export type ProfileAccessRole = "owner" | "manager"
-
-export type AccessibleProfile = ProfileRecord & {
-  role: ProfileAccessRole
-  canManageAccess: boolean
-  accessGrantedAt: Date | null
-  grantedByUserId: string | null
-}
-
-export type ManagedProfileAccess = ManagedProfileAccessRecord
 
 export type AccessibleProfilesPage = InfiniteListPage<AccessibleProfile>
 
@@ -157,6 +148,8 @@ function combineAccessibleProfiles(
       id: record.id,
       name: record.name,
       ownerId: record.ownerId,
+      madhab: record.madhab,
+      nisabBenchmark: record.nisabBenchmark,
       role: "manager",
       canManageAccess: false,
       accessGrantedAt: record.grantedAt,
@@ -231,7 +224,9 @@ export async function listAccessibleProfilesPage(
   const hasMore = rows.length > pageSize
   const items = rows.slice(0, pageSize).map((row) => {
     const { sortRole: _sortRole, ...profileRecord } = row
-    return profileRecord
+    return {
+      ...profileRecord,
+    }
   })
 
   return {
@@ -273,7 +268,12 @@ export async function resolveCurrentActiveProfile(actor: Actor) {
 
 export async function createProfile(actor: Actor, input: CreateProfileInput) {
   const currentActiveProfile = await resolveCurrentActiveProfile(actor)
-  const record = await createProfileRecord(actor.userId, input.name.trim())
+  const record = await createProfileRecord(
+    actor.userId,
+    input.name.trim(),
+    input.madhab,
+    input.nisabBenchmark,
+  )
 
   if (!currentActiveProfile) {
     await persistActiveProfileSelection(actor, record.id)
@@ -285,7 +285,12 @@ export async function createProfile(actor: Actor, input: CreateProfileInput) {
 export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
   const record = await requireAccessibleProfileRecord(actor, input.profileId)
 
-  const updated = await updateProfileRecord(record.id, input.name.trim())
+  const updated = await updateProfileRecord(
+    record.id,
+    input.name.trim(),
+    input.madhab,
+    input.nisabBenchmark,
+  )
 
   if (!updated) {
     throw new ProfileAccessError(

@@ -8,7 +8,10 @@ import {
   updateProfileFn,
   switchActiveProfileFn,
 } from "../server/functions/profile-access.function"
-import type { CreateProfileValues } from "./profile-access.schemas"
+import type {
+  CreateProfileValues,
+  UpdateProfileValues,
+} from "./profile-access.schemas"
 import {
   profileAccessQueryKey,
   profileCurrentActiveQueryKey,
@@ -51,10 +54,8 @@ export function useUpdateProfileMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: {
-      profileId: string
-      name: string
-    }) => updateProfileFn({ data: values }),
+    mutationFn: async (values: UpdateProfileValues) =>
+      updateProfileFn({ data: values }),
     onSuccess: async () => {
       await invalidateProfileQueries(queryClient)
     },

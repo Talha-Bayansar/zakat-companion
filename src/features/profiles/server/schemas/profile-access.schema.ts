@@ -1,13 +1,17 @@
 import { z } from "zod"
 
+import {
+  fiqhPreferenceSchema,
+} from "@/features/fiqh-calculation"
+
 export const createProfileInputSchema = z.object({
   name: z.string().trim().min(1).max(120),
-})
+}).merge(fiqhPreferenceSchema)
 
 export const updateProfileInputSchema = z.object({
   profileId: z.string().trim().min(1),
   name: z.string().trim().min(1).max(120),
-})
+}).merge(fiqhPreferenceSchema)
 
 export const deleteProfileInputSchema = z.object({
   profileId: z.string().trim().min(1),

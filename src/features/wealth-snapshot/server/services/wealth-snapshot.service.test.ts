@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { fiqhCalculationVersion } from "@/features/fiqh-calculation"
+
 const profileServiceMocks = vi.hoisted(() => ({
   resolveCurrentActiveProfile: vi.fn(),
 }))
@@ -91,17 +93,19 @@ describe("wealth snapshot service", () => {
   it("wraps snapshot persistence in a transaction with normalized data", async () => {
     profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
       id: "profile-1",
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
     })
     repositoryMocks.replaceWealthSnapshotRecord.mockResolvedValue({
       id: "snapshot-1",
       profileId: "profile-1",
       capturedAt: new Date("2026-05-13T00:00:00Z"),
-      madhab: null,
-      nisabBenchmark: null,
-      calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
+      calculationVersion: fiqhCalculationVersion,
       netZakatableBase: "87.50",
-      isAboveNisab: null,
-      isZakatDue: null,
+      isAboveNisab: true,
+      isZakatDue: false,
       createdAt: new Date("2026-05-13T00:00:00Z"),
       updatedAt: new Date("2026-05-13T00:00:00Z"),
       entries: [],
@@ -126,14 +130,112 @@ describe("wealth snapshot service", () => {
         { category: "debts_liabilities", amount: "15.00" },
       ],
       snapshot: {
-        madhab: null,
-        nisabBenchmark: null,
-        calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+        madhab: "hanafi",
+        nisabBenchmark: "gold",
+        calculationVersion: fiqhCalculationVersion,
         netZakatableBase: "87.50",
         isAboveNisab: true,
-        isZakatDue: null,
+        isZakatDue: false,
       },
     })
+  })
+
+  it("freezes the captured fiqh output even if profile preferences change later", async () => {
+    profileServiceMocks.resolveCurrentActiveProfile
+      .mockResolvedValueOnce({
+        id: "profile-1",
+        madhab: "hanafi",
+        nisabBenchmark: "gold",
+      })
+      .mockResolvedValueOnce({
+        id: "profile-1",
+        madhab: "maliki",
+        nisabBenchmark: "silver",
+      })
+    repositoryMocks.replaceWealthSnapshotRecord
+      .mockResolvedValueOnce({
+        id: "snapshot-1",
+        profileId: "profile-1",
+        capturedAt: new Date("2026-05-13T00:00:00Z"),
+        madhab: "hanafi",
+        nisabBenchmark: "gold",
+        calculationVersion: fiqhCalculationVersion,
+        netZakatableBase: "87.50",
+        isAboveNisab: true,
+        isZakatDue: false,
+        createdAt: new Date("2026-05-13T00:00:00Z"),
+        updatedAt: new Date("2026-05-13T00:00:00Z"),
+        entries: [],
+      })
+      .mockResolvedValueOnce({
+        id: "snapshot-2",
+        profileId: "profile-1",
+        capturedAt: new Date("2026-05-14T00:00:00Z"),
+        madhab: "maliki",
+        nisabBenchmark: "silver",
+        calculationVersion: fiqhCalculationVersion,
+        netZakatableBase: "87.50",
+        isAboveNisab: true,
+        isZakatDue: false,
+        createdAt: new Date("2026-05-14T00:00:00Z"),
+        updatedAt: new Date("2026-05-14T00:00:00Z"),
+        entries: [],
+      })
+
+    const firstCapture = await replaceWealthSnapshot(actor, {
+      entries: [
+        { category: "cash", amount: "100.50" },
+        { category: "receivables", amount: "2.00" },
+        { category: "debts_liabilities", amount: "15.00" },
+      ],
+    })
+    const secondCapture = await replaceWealthSnapshot(actor, {
+      entries: [
+        { category: "cash", amount: "100.50" },
+        { category: "receivables", amount: "2.00" },
+        { category: "debts_liabilities", amount: "15.00" },
+      ],
+    })
+
+    expect(firstCapture).toMatchObject({
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
+      calculationVersion: fiqhCalculationVersion,
+      netZakatableBase: "87.50",
+      isAboveNisab: true,
+      isZakatDue: false,
+    })
+    expect(secondCapture).toMatchObject({
+      madhab: "maliki",
+      nisabBenchmark: "silver",
+      calculationVersion: fiqhCalculationVersion,
+      netZakatableBase: "87.50",
+      isAboveNisab: true,
+      isZakatDue: false,
+    })
+    expect(firstCapture).not.toBe(secondCapture)
+    expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        profileId: "profile-1",
+        snapshot: expect.objectContaining({
+          madhab: "hanafi",
+          nisabBenchmark: "gold",
+          calculationVersion: fiqhCalculationVersion,
+        }),
+      }),
+    )
+    expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        profileId: "profile-1",
+        snapshot: expect.objectContaining({
+          madhab: "maliki",
+          nisabBenchmark: "silver",
+          calculationVersion: fiqhCalculationVersion,
+        }),
+      }),
+    )
   })
 
   it("returns an empty history page when no profile is active", async () => {
@@ -156,6 +258,8 @@ describe("wealth snapshot service", () => {
   it("returns append-only history for the active profile", async () => {
     profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
       id: "profile-1",
+      madhab: "maliki",
+      nisabBenchmark: "silver",
     })
     repositoryMocks.listWealthSnapshotHistoryRecordsByProfileId.mockResolvedValue({
       items: [
@@ -163,12 +267,12 @@ describe("wealth snapshot service", () => {
           id: "snapshot-1",
           profileId: "profile-1",
           capturedAt: new Date("2026-05-13T00:00:00Z"),
-          madhab: null,
-          nisabBenchmark: null,
-          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          madhab: "maliki",
+          nisabBenchmark: "silver",
+          calculationVersion: fiqhCalculationVersion,
           netZakatableBase: "87.50",
           isAboveNisab: true,
-          isZakatDue: null,
+          isZakatDue: false,
           createdAt: new Date("2026-05-13T00:00:00Z"),
           updatedAt: new Date("2026-05-13T00:00:00Z"),
           entries: [],
@@ -177,12 +281,12 @@ describe("wealth snapshot service", () => {
           id: "snapshot-2",
           profileId: "profile-1",
           capturedAt: new Date("2026-05-14T00:00:00Z"),
-          madhab: null,
-          nisabBenchmark: null,
-          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          madhab: "maliki",
+          nisabBenchmark: "silver",
+          calculationVersion: fiqhCalculationVersion,
           netZakatableBase: "120.00",
           isAboveNisab: true,
-          isZakatDue: null,
+          isZakatDue: false,
           createdAt: new Date("2026-05-14T00:00:00Z"),
           updatedAt: new Date("2026-05-14T00:00:00Z"),
           entries: [],
@@ -204,12 +308,12 @@ describe("wealth snapshot service", () => {
           id: "snapshot-1",
           profileId: "profile-1",
           capturedAt: new Date("2026-05-13T00:00:00Z"),
-          madhab: null,
-          nisabBenchmark: null,
-          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          madhab: "maliki",
+          nisabBenchmark: "silver",
+          calculationVersion: fiqhCalculationVersion,
           netZakatableBase: "87.50",
           isAboveNisab: true,
-          isZakatDue: null,
+          isZakatDue: false,
           createdAt: new Date("2026-05-13T00:00:00Z"),
           updatedAt: new Date("2026-05-13T00:00:00Z"),
           entries: [],
@@ -218,12 +322,12 @@ describe("wealth snapshot service", () => {
           id: "snapshot-2",
           profileId: "profile-1",
           capturedAt: new Date("2026-05-14T00:00:00Z"),
-          madhab: null,
-          nisabBenchmark: null,
-          calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+          madhab: "maliki",
+          nisabBenchmark: "silver",
+          calculationVersion: fiqhCalculationVersion,
           netZakatableBase: "120.00",
           isAboveNisab: true,
-          isZakatDue: null,
+          isZakatDue: false,
           createdAt: new Date("2026-05-14T00:00:00Z"),
           updatedAt: new Date("2026-05-14T00:00:00Z"),
           entries: [],
@@ -257,17 +361,19 @@ describe("wealth snapshot service", () => {
   it("returns the current snapshot for the active profile", async () => {
     profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
       id: "profile-1",
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
     })
     repositoryMocks.getWealthSnapshotWithEntriesRecordByProfileId.mockResolvedValue({
       id: "snapshot-1",
       profileId: "profile-1",
       capturedAt: new Date("2026-05-13T00:00:00Z"),
-      madhab: null,
-      nisabBenchmark: null,
-      calculationVersion: WEALTH_SNAPSHOT_CALCULATION_VERSION,
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
+      calculationVersion: fiqhCalculationVersion,
       netZakatableBase: "87.50",
       isAboveNisab: true,
-      isZakatDue: null,
+      isZakatDue: false,
       createdAt: new Date("2026-05-13T00:00:00Z"),
       updatedAt: new Date("2026-05-13T00:00:00Z"),
       entries: [],

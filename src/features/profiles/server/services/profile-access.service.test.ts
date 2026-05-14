@@ -21,6 +21,7 @@ vi.mock("../repositories/profile-access.repository", () => repoMocks)
 import {
   createProfile,
   resolveCurrentActiveProfile,
+  updateProfile,
   switchActiveProfile,
 } from "./profile-access.service"
 
@@ -28,6 +29,8 @@ const ownedProfile = {
   id: "profile-1",
   name: "Family",
   ownerId: "user-1",
+  madhab: "hanafi",
+  nisabBenchmark: "gold",
   createdAt: new Date("2026-05-01T00:00:00Z"),
   updatedAt: new Date("2026-05-01T00:00:00Z"),
 }
@@ -97,6 +100,8 @@ describe("profile access active selection", () => {
       },
       {
         name: "Family",
+        madhab: "hanafi",
+        nisabBenchmark: "gold",
       },
     )
 
@@ -104,6 +109,33 @@ describe("profile access active selection", () => {
     expect(repoMocks.updateUserActiveProfileRecord).toHaveBeenCalledWith(
       "user-1",
       ownedProfile.id,
+    )
+  })
+
+  it("updates the stored fiqh preferences when editing a profile", async () => {
+    repoMocks.getProfileRecordById.mockResolvedValue(ownedProfile)
+    repoMocks.getProfileAccessGrantRecord.mockResolvedValue(null)
+    repoMocks.updateProfileRecord.mockResolvedValue(ownedProfile)
+
+    const result = await updateProfile(
+      {
+        userId: "user-1",
+        activeProfileId: ownedProfile.id,
+      },
+      {
+        profileId: ownedProfile.id,
+        name: "Family",
+        madhab: "maliki",
+        nisabBenchmark: "silver",
+      },
+    )
+
+    expect(result.id).toBe(ownedProfile.id)
+    expect(repoMocks.updateProfileRecord).toHaveBeenCalledWith(
+      ownedProfile.id,
+      "Family",
+      "maliki",
+      "silver",
     )
   })
 

@@ -1,4 +1,10 @@
 import { m } from "@/paraglide/messages"
+import {
+  calculateFiqhCalculation,
+  type FiqhMadhabCode,
+  type FiqhNisabBenchmarkCode,
+  fiqhCalculationVersion,
+} from "@/features/fiqh-calculation"
 
 import { wealthCategoryValues } from "../../lib/wealth-snapshot.constants"
 import {
@@ -24,8 +30,13 @@ type ReplaceWealthSnapshotInput = {
   entries: WealthSnapshotEntryInput[]
 }
 
+type ActiveProfileFiqhPreferences = {
+  madhab: FiqhMadhabCode
+  nisabBenchmark: FiqhNisabBenchmarkCode
+}
+
 export const WEALTH_SNAPSHOT_CALCULATION_VERSION = "wealth-snapshot-v1"
-const SNAPSHOT_NISAB_THRESHOLD_CENTS = 0
+const SNAPSHOT_NISAB_THRESHOLD_CENTS = 1
 
 const ASSET_CATEGORIES: WealthCategory[] = wealthCategoryValues.filter(
   (category) => category !== "debts_liabilities",
@@ -92,12 +103,37 @@ export function calculateWealthSnapshotWriteContext(
   }
 }
 
-async function requireCurrentActiveProfileId(actor: Actor) {
+function calculateFiqhWealthSnapshotWriteContext(
+  entries: WealthSnapshotEntryInput[],
+  activeProfile: ActiveProfileFiqhPreferences | null,
+): WealthSnapshotWriteContext {
+  const snapshot = calculateWealthSnapshotWriteContext(entries)
+
+  if (!activeProfile) {
+    return snapshot
+  }
+
+  return calculateFiqhCalculation({
+    madhab: activeProfile.madhab,
+    nisabBenchmark: activeProfile.nisabBenchmark,
+    netZakatableBase: snapshot.netZakatableBase ?? "0.00",
+    nisabThreshold: formatCents(SNAPSHOT_NISAB_THRESHOLD_CENTS),
+    hawlStartedAt: null,
+    asOf: new Date(),
+    calculationVersion: fiqhCalculationVersion,
+  }).snapshot
+}
+
+async function requireCurrentActiveProfile(actor: Actor) {
   const { resolveCurrentActiveProfile } = await import(
     "@/features/profiles/server/services/profile-access.service"
   )
 
-  const activeProfile = await resolveCurrentActiveProfile(actor)
+  return resolveCurrentActiveProfile(actor)
+}
+
+async function requireCurrentActiveProfileId(actor: Actor) {
+  const activeProfile = await requireCurrentActiveProfile(actor)
 
   return activeProfile?.id ?? null
 }
@@ -134,13 +170,17 @@ export async function replaceWealthSnapshot(
   actor: Actor,
   input: ReplaceWealthSnapshotInput,
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
-  const profileId = await requireCurrentActiveProfileId(actor)
+  const activeProfile = await requireCurrentActiveProfile(actor)
+  const profileId = activeProfile?.id ?? null
 
-  if (!profileId) {
+  if (!profileId || !activeProfile) {
     throw new Error(m.wealth_snapshot_no_active_profile())
   }
 
-  const snapshot = calculateWealthSnapshotWriteContext(input.entries)
+  const snapshot = calculateFiqhWealthSnapshotWriteContext(input.entries, {
+    madhab: activeProfile.madhab,
+    nisabBenchmark: activeProfile.nisabBenchmark,
+  })
   const entries = normalizeWealthSnapshotEntries(input.entries)
 
   return replaceWealthSnapshotRecord({

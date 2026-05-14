@@ -17,6 +17,7 @@
 - `profile owner`: the authenticated user who owns a profile and controls delegated access to it.
 - `delegated manager`: an authenticated user who is allowed to maintain one or more profiles owned by someone else.
 - `profile access grant`: a custom app permission that allows a delegated manager to edit a profile without owning it.
+- `fiqh preferences`: the required profile-level madhab and nisab benchmark selections that govern zakat calculation for that profile.
 - `active profile`: the persisted profile selection for an authenticated user, used as the default profile context across the app.
 - `balance update reminder`: a notification that prompts the user to refresh the wealth snapshot.
 - `zakat due reminder`: a notification that alerts the user when zakat is due or approaching due.

@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: planned
-- Current step: step 1
+- Overall: done
+- Current step: complete
 
 ## Goal
 
@@ -12,20 +12,20 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
 ## Plan
 
 1. Define the fiqh calculation contract and persistence boundary.
-   - Status: pending
+   - Status: done
    - Freeze the canonical enum values for `madhab` and `nisab benchmark`.
    - Decide which outputs belong on the immutable wealth snapshot and which belong on mutable cycle state.
    - Keep the contract aligned with PRD 04 and the shared glossary so the engine can be tested independently.
 
 2. Persist profile-level fiqh preferences.
-   - Status: pending
+   - Status: done
    - Extend the profile data model to store the selected madhab and nisab benchmark.
    - Add schema and migration support for those preferences.
    - Add server validation and Settings UI so the active profile can be configured from the profile-management flow.
    - Require an explicit selection rather than silently inferring a madhab for new or legacy profiles.
 
 3. Build the versioned fiqh rule engine.
-   - Status: pending
+   - Status: done
    - Add a dedicated, testable calculation module for fiqh logic.
    - Calculate nisab status from the current wealth snapshot and the selected benchmark.
    - Determine hawl progression and the current zakat date rule from the selected madhab.
@@ -33,20 +33,20 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
    - Return enough derived metadata for later history and explanation surfaces.
 
 4. Wire the engine into snapshot capture and cycle state.
-   - Status: pending
+   - Status: done
    - Have snapshot capture read the active profile's fiqh preferences and persist the frozen calculation context.
    - Write the derived fiqh outputs at capture time so history stays stable even if preferences change later.
-   - Introduce or refresh cycle state records if the app needs a mutable current obligation separate from the immutable snapshot.
    - Keep the snapshot/cycle boundary explicit so later payment and reminder changes do not rewrite calculation history.
+   - The current app does not yet persist a separate mutable cycle record, so the next slice can add that if the history/payment flow needs it.
 
 5. Surface the fiqh outputs in the app.
-   - Status: pending
+   - Status: done
    - Show the selected madhab and nisab benchmark in the profile settings experience.
    - Show nisab status, due amount, and date-rule summary in the wealth snapshot experience.
    - Keep all client-facing copy in Paraglide messages.
 
 6. Add unit and integration tests.
-   - Status: pending
+   - Status: done
    - Unit test each madhab path, nisab threshold transition, and hawl reset or preserve behavior.
    - Test snapshot capture against profile preferences and rule-version stability.
    - Test that historical outputs remain unchanged after preference changes or later rule-version updates.

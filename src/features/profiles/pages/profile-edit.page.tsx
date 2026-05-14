@@ -10,7 +10,7 @@ import { Spinner } from "@/shared/ui/spinner"
 import { Surface } from "@/shared/ui/surface"
 
 import { ProfileAccessCard } from "../components/profile-access-card"
-import { ProfileNameForm } from "../components/profile-name-form"
+import { ProfileDetailsForm } from "../components/profile-details-form"
 
 type ProfileEditPageProps = {
   profileId: string
@@ -81,15 +81,19 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
       ) : (
         <>
           <Surface rounded="xl" padding="lg">
-            <ProfileNameForm
-              initialName={profileQuery.data.name}
+            <ProfileDetailsForm
+              initialValues={{
+                name: profileQuery.data.name,
+                madhab: profileQuery.data.madhab,
+                nisabBenchmark: profileQuery.data.nisabBenchmark,
+              }}
               submitLabel={m.profiles_edit_submit_cta()}
               pendingLabel={m.profiles_edit_updating()}
               errorLabel={m.profiles_edit_error()}
-              onSubmit={async (name) => {
+              onSubmit={async (values) => {
                 await updateProfileMutation.mutateAsync({
                   profileId: profileQuery.data.id,
-                  name,
+                  ...values,
                 })
               }}
             />
