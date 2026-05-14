@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: in progress
-- Current step: step 6
+- Overall: done
+- Current step: complete
 
 ## Goal
 
@@ -46,7 +46,7 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
    - Keep all client-facing copy in Paraglide messages.
 
 6. Add unit and integration tests.
-   - Status: pending
+   - Status: done
    - Unit test each madhab path, nisab threshold transition, and hawl reset or preserve behavior.
    - Test snapshot capture against profile preferences and rule-version stability.
    - Test that historical outputs remain unchanged after preference changes or later rule-version updates.

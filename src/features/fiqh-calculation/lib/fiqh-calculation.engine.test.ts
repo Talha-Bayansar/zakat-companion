@@ -10,6 +10,57 @@ import {
 describe("fiqh calculation engine", () => {
   const asOf = new Date("2026-05-14T00:00:00Z")
 
+  const dateRuleExpectations = {
+    hanafi: {
+      policy: "reset",
+      summary: "A sub-nisab dip resets the current hawl in this version.",
+    },
+    maliki: {
+      policy: "preserve",
+      summary: "A sub-nisab dip preserves the current hawl in this version.",
+    },
+    shafii: {
+      policy: "reset",
+      summary: "A sub-nisab dip resets the current hawl in this version.",
+    },
+    hanbali: {
+      policy: "preserve",
+      summary: "A sub-nisab dip preserves the current hawl in this version.",
+    },
+  } as const
+
+  it.each([
+    ["hanafi", "reset"],
+    ["maliki", "preserve"],
+    ["shafii", "reset"],
+    ["hanbali", "preserve"],
+  ] as const)("applies the %s madhab's hawl policy", (madhab, policy) => {
+    const result = calculateFiqhCalculation({
+      madhab,
+      nisabBenchmark: "gold",
+      netZakatableBase: "60.00",
+      nisabThreshold: "75.00",
+      hawlStartedAt: new Date("2025-07-01T00:00:00Z"),
+      asOf,
+    })
+
+    expect(result.snapshot).toEqual({
+      madhab,
+      nisabBenchmark: "gold",
+      calculationVersion: fiqhCalculationVersion,
+      netZakatableBase: "60.00",
+      isAboveNisab: false,
+      isZakatDue: false,
+    })
+    expect(result.dateRule).toEqual(dateRuleExpectations[madhab])
+    expect(result.hawl).toMatchObject({
+      elapsedDays: 317,
+      requiredDays: fiqhHawlLengthDays,
+      isComplete: false,
+      resetRequired: policy === "reset",
+    })
+  })
+
   it("calculates the frozen snapshot and due amount for an above-nisab, complete hawl case", () => {
     const result = calculateFiqhCalculation({
       madhab: "hanafi",
@@ -33,10 +84,7 @@ describe("fiqh calculation engine", () => {
       nisabDifference: "12.50",
       zakatRate: fiqhZakatRate,
       zakatDueAmount: "2.50",
-      dateRule: {
-        policy: "reset",
-        summary: "A sub-nisab dip resets the current hawl in this version.",
-      },
+      dateRule: dateRuleExpectations.hanafi,
       hawl: {
         startedAt: new Date("2025-05-01T00:00:00Z"),
         asOf,
@@ -48,13 +96,13 @@ describe("fiqh calculation engine", () => {
     })
   })
 
-  it("marks under-nisab snapshots as not due and exposes the madhab-specific hawl policy", () => {
+  it("treats an exact nisab match as above nisab and due only once the hawl is complete", () => {
     const result = calculateFiqhCalculation({
       madhab: "maliki",
       nisabBenchmark: "silver",
-      netZakatableBase: "60.00",
+      netZakatableBase: "75.00",
       nisabThreshold: "75.00",
-      hawlStartedAt: new Date("2025-07-01T00:00:00Z"),
+      hawlStartedAt: new Date("2025-06-01T00:00:00Z"),
       asOf,
     })
 
@@ -62,20 +110,16 @@ describe("fiqh calculation engine", () => {
       madhab: "maliki",
       nisabBenchmark: "silver",
       calculationVersion: fiqhCalculationVersion,
-      netZakatableBase: "60.00",
-      isAboveNisab: false,
+      netZakatableBase: "75.00",
+      isAboveNisab: true,
       isZakatDue: false,
     })
     expect(result).toMatchObject({
       nisabThreshold: "75.00",
-      nisabDifference: "-15.00",
+      nisabDifference: "0.00",
       zakatDueAmount: "0.00",
-      dateRule: {
-        policy: "preserve",
-        summary: "A sub-nisab dip preserves the current hawl in this version.",
-      },
       hawl: {
-        elapsedDays: 317,
+        elapsedDays: 347,
         requiredDays: fiqhHawlLengthDays,
         isComplete: false,
         resetRequired: false,
