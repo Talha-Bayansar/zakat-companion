@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Add02Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { Wallet01Icon } from "@hugeicons/core-free-icons"
 
 import { m } from "@/paraglide/messages"
 
@@ -17,6 +18,7 @@ import { Skeleton } from "@/shared/ui/skeleton"
 
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
 
+import { WealthSnapshotFiqhSummary } from "../components/wealth-snapshot-fiqh-summary"
 import { WealthSnapshotHistoryItem } from "../components/wealth-snapshot-history-item"
 import {
   useWealthSnapshotHistoryInfiniteQuery,
@@ -69,20 +71,23 @@ export function WealthSnapshotPage() {
             <span>{m.wealth_snapshot_current_title()}</span>
           </div>
         ) : currentSnapshot ? (
-          <dl className="grid gap-4 sm:grid-cols-3">
-            <SummaryStat
-              label={m.wealth_snapshot_current_net_label()}
-              value={formatSnapshotAmount(currentSnapshot.entries)}
-            />
-            <SummaryStat
-              label={m.wealth_snapshot_current_saved_label()}
-              value={new Date(currentSnapshot.capturedAt).toLocaleString()}
-            />
-            <SummaryStat
-              label={m.wealth_snapshot_current_categories_label()}
-              value={String(currentSnapshot.entries.length)}
-            />
-          </dl>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <HugeiconsIcon icon={Wallet01Icon} strokeWidth={2} className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                  {m.wealth_snapshot_current_net_label()}
+                </p>
+                <p className="text-sm font-medium leading-6 text-foreground sm:text-[0.95rem]">
+                  {formatSnapshotAmount(currentSnapshot.entries)}
+                </p>
+              </div>
+            </div>
+
+            <WealthSnapshotFiqhSummary snapshot={currentSnapshot} />
+          </div>
         ) : (
           <Empty className="border-border/70 bg-background/80">
             <EmptyContent>
@@ -147,19 +152,6 @@ export function WealthSnapshotPage() {
         )}
       </section>
     </PageSection>
-  )
-}
-
-function SummaryStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <dt className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
-        {label}
-      </dt>
-      <dd className="text-sm font-medium text-foreground sm:text-base">
-        {value}
-      </dd>
-    </div>
   )
 }
 

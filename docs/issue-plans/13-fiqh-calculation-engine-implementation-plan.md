@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: in progress
-- Current step: step 5
+- Current step: step 6
 
 ## Goal
 
@@ -40,7 +40,7 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
    - The current app does not yet persist a separate mutable cycle record, so the next slice can add that if the history/payment flow needs it.
 
 5. Surface the fiqh outputs in the app.
-   - Status: in progress
+   - Status: done
    - Show the selected madhab and nisab benchmark in the profile settings experience.
    - Show nisab status, due amount, and date-rule summary in the wealth snapshot experience.
    - Keep all client-facing copy in Paraglide messages.
