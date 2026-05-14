@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: planned
-- Current step: step 1
+- Overall: in progress
+- Current step: step 2
 
 ## Goal
 
@@ -12,7 +12,7 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
 ## Plan
 
 1. Define the fiqh calculation contract and persistence boundary.
-   - Status: pending
+   - Status: done
    - Freeze the canonical enum values for `madhab` and `nisab benchmark`.
    - Decide which outputs belong on the immutable wealth snapshot and which belong on mutable cycle state.
    - Keep the contract aligned with PRD 04 and the shared glossary so the engine can be tested independently.

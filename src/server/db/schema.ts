@@ -9,6 +9,10 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core"
 
+import {
+  type FiqhMadhabCode,
+  type FiqhNisabBenchmarkCode,
+} from "@/features/fiqh-calculation"
 import { user } from "../auth/schema"
 import { wealthCategoryValues } from "@/features/wealth-snapshot/lib/wealth-snapshot.constants"
 
@@ -22,6 +26,10 @@ export const profile = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    madhab: text("madhab").$type<FiqhMadhabCode>().notNull(),
+    nisabBenchmark: text("nisab_benchmark")
+      .$type<FiqhNisabBenchmarkCode>()
+      .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -84,7 +92,7 @@ export const wealthSnapshot = pgTable(
     index("wealth_snapshot_profileId_idx").on(table.profileId),
     index("wealth_snapshot_profileId_capturedAt_idx").on(
       table.profileId,
-      table.capturedAt,
+      table.capturedAt
     ),
   ]
 )
@@ -108,7 +116,7 @@ export const wealthSnapshotEntry = pgTable(
     index("wealth_snapshot_entry_snapshotId_idx").on(table.snapshotId),
     uniqueIndex("wealth_snapshot_entry_snapshotId_category_unique").on(
       table.snapshotId,
-      table.category,
+      table.category
     ),
   ]
 )
@@ -148,7 +156,7 @@ export const wealthSnapshotRelations = relations(
       references: [profile.id],
     }),
     entries: many(wealthSnapshotEntry),
-  }),
+  })
 )
 
 export const wealthSnapshotEntryRelations = relations(
@@ -158,5 +166,5 @@ export const wealthSnapshotEntryRelations = relations(
       fields: [wealthSnapshotEntry.snapshotId],
       references: [wealthSnapshot.id],
     }),
-  }),
+  })
 )

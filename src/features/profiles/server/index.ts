@@ -15,7 +15,7 @@ export type {
   AccessibleProfile,
   ManagedProfileAccess,
   ProfileAccessRole,
-} from "./services/profile-access.service"
+} from "../lib/profile-access.types"
 export {
   ProfileAccessError,
   createProfile,

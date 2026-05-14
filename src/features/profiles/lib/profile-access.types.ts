@@ -1,9 +1,16 @@
+import type {
+  FiqhMadhabCode,
+  FiqhNisabBenchmarkCode,
+} from "@/features/fiqh-calculation"
+
 export type ProfileAccessRole = "owner" | "manager"
 
 export type AccessibleProfile = {
   id: string
   name: string
   ownerId: string
+  madhab: FiqhMadhabCode
+  nisabBenchmark: FiqhNisabBenchmarkCode
   role: ProfileAccessRole
   canManageAccess: boolean
   accessGrantedAt: Date | null

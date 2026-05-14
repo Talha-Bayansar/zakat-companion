@@ -7,7 +7,7 @@ import { PageHeaderWithBack, PageSection } from "@/shared/ui/page"
 
 import { useCreateProfileMutation } from "@/features/profiles"
 
-import { ProfileNameForm } from "../components/profile-name-form"
+import { ProfileDetailsForm } from "../components/profile-details-form"
 
 type ProfileCreatePageProps = {
   redirectTo?: string
@@ -28,13 +28,17 @@ export function ProfileCreatePage({ redirectTo }: ProfileCreatePageProps) {
       />
 
       <Surface rounded="xl" padding="lg">
-        <ProfileNameForm
-          initialName=""
+        <ProfileDetailsForm
+          initialValues={{
+            name: "",
+            madhab: "",
+            nisabBenchmark: "",
+          }}
           submitLabel={m.profiles_create_submit_cta()}
           pendingLabel={m.profiles_creating()}
           errorLabel={m.profiles_create_error()}
-          onSubmit={async (name) => {
-            const profile = await createProfileMutation.mutateAsync({ name })
+          onSubmit={async (values) => {
+            const profile = await createProfileMutation.mutateAsync(values)
             if (redirectTo) {
               await navigate({
                 to: redirectTo,

@@ -6,11 +6,17 @@ import {
   profilePermission,
   user,
 } from "@/server/db/schema"
+import {
+  type FiqhMadhabCode,
+  type FiqhNisabBenchmarkCode,
+} from "@/features/fiqh-calculation"
 
 export type ProfileRecord = {
   id: string
   name: string
   ownerId: string
+  madhab: FiqhMadhabCode
+  nisabBenchmark: FiqhNisabBenchmarkCode
   createdAt: Date
   updatedAt: Date
 }
@@ -63,6 +69,8 @@ export async function listOwnedProfileRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     })
@@ -92,6 +100,8 @@ export async function listDelegatedProfileRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
       grantedAt: profilePermission.createdAt,
@@ -129,6 +139,8 @@ export async function listAccessibleProfilePageRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
       role: sql<ProfileAccessRole>`'owner'`.as("role"),
@@ -145,6 +157,8 @@ export async function listAccessibleProfilePageRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
       role: sql<ProfileAccessRole>`'manager'`.as("role"),
@@ -166,6 +180,8 @@ export async function listAccessibleProfilePageRecords(
       id: accessibleProfiles.id,
       name: accessibleProfiles.name,
       ownerId: accessibleProfiles.ownerId,
+      madhab: accessibleProfiles.madhab,
+      nisabBenchmark: accessibleProfiles.nisabBenchmark,
       createdAt: accessibleProfiles.createdAt,
       updatedAt: accessibleProfiles.updatedAt,
       role: accessibleProfiles.role,
@@ -192,6 +208,8 @@ export async function getProfileRecordById(profileId: string) {
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     })
@@ -252,18 +270,29 @@ export async function listProfileAccessGrantPageRecords(
     .offset((input.page - 1) * input.pageSize)
 }
 
-export async function createProfileRecord(ownerId: string, name: string) {
+export async function createProfileRecord(
+  ownerId: string,
+  name: string,
+  madhab: FiqhMadhabCode,
+  nisabBenchmark: FiqhNisabBenchmarkCode,
+) {
+  const values = {
+    id: crypto.randomUUID(),
+    ownerId,
+    name,
+    madhab,
+    nisabBenchmark,
+  } satisfies typeof profile.$inferInsert
+
   const [record] = await db
     .insert(profile)
-    .values({
-      id: crypto.randomUUID(),
-      ownerId,
-      name,
-    })
+    .values(values)
     .returning({
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     })
@@ -271,11 +300,18 @@ export async function createProfileRecord(ownerId: string, name: string) {
   return record
 }
 
-export async function updateProfileRecord(profileId: string, name: string) {
+export async function updateProfileRecord(
+  profileId: string,
+  name: string,
+  madhab: FiqhMadhabCode,
+  nisabBenchmark: FiqhNisabBenchmarkCode,
+) {
   const [record] = await db
     .update(profile)
     .set({
       name,
+      madhab,
+      nisabBenchmark,
       updatedAt: new Date(),
     })
     .where(eq(profile.id, profileId))
@@ -283,6 +319,8 @@ export async function updateProfileRecord(profileId: string, name: string) {
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      madhab: profile.madhab,
+      nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     })
