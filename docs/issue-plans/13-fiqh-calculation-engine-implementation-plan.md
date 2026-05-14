@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: in progress
-- Current step: step 2
+- Current step: step 4
 
 ## Goal
 
@@ -18,14 +18,14 @@ Implement a versioned, madhab-aware fiqh calculation engine that reads the activ
    - Keep the contract aligned with PRD 04 and the shared glossary so the engine can be tested independently.
 
 2. Persist profile-level fiqh preferences.
-   - Status: pending
+   - Status: done
    - Extend the profile data model to store the selected madhab and nisab benchmark.
    - Add schema and migration support for those preferences.
    - Add server validation and Settings UI so the active profile can be configured from the profile-management flow.
    - Require an explicit selection rather than silently inferring a madhab for new or legacy profiles.
 
 3. Build the versioned fiqh rule engine.
-   - Status: pending
+   - Status: done
    - Add a dedicated, testable calculation module for fiqh logic.
    - Calculate nisab status from the current wealth snapshot and the selected benchmark.
    - Determine hawl progression and the current zakat date rule from the selected madhab.
