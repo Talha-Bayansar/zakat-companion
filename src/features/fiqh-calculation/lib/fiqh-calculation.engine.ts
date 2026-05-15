@@ -105,5 +105,35 @@ export function calculateFiqhCalculation(
     zakatDueAmount: formatCents(zakatDueAmountCents),
     dateRule,
     hawl,
+    explanation: {
+      inputs: {
+        madhab: input.madhab,
+        nisabBenchmark: input.nisabBenchmark,
+        netZakatableBase: input.netZakatableBase,
+        nisabThreshold: input.nisabThreshold,
+        hawlStartedAt: input.hawlStartedAt?.toISOString() ?? null,
+        asOf: input.asOf.toISOString(),
+      },
+      nisab: {
+        netZakatableBase: formatCents(netZakatableBaseCents),
+        nisabThreshold: formatCents(nisabThresholdCents),
+        difference: formatCents(nisabDifferenceCents),
+        isAboveNisab,
+      },
+      hawl: {
+        startedAt: hawlStartedAt?.toISOString() ?? null,
+        asOf: input.asOf.toISOString(),
+        elapsedDays,
+        requiredDays: fiqhHawlLengthDays,
+        isComplete: hawl.isComplete,
+        resetRequired: hawl.resetRequired,
+      },
+      dueAmount: {
+        rate: fiqhZakatRate,
+        amount: formatCents(zakatDueAmountCents),
+        isZakatDue,
+      },
+      dateRule,
+    },
   }
 }

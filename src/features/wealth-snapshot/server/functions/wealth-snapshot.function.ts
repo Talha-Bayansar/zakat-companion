@@ -74,3 +74,14 @@ export const replaceWealthSnapshotFn = createServerFn({ method: "POST" })
 
     return replaceWealthSnapshot(actor, data)
   })
+
+export const refreshWealthSnapshotFn = createServerFn({ method: "POST" })
+  .inputValidator(saveWealthSnapshotInputSchema)
+  .handler(async ({ data }) => {
+    const actor = await requireActor()
+    const { refreshWealthSnapshot } = await import(
+      "../services/wealth-snapshot.service"
+    )
+
+    return refreshWealthSnapshot(actor, data)
+  })

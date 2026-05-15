@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router"
-import { Add02Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Wallet01Icon } from "@hugeicons/core-free-icons"
 
@@ -19,6 +18,7 @@ import { Skeleton } from "@/shared/ui/skeleton"
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
 
 import { WealthSnapshotFiqhSummary } from "../components/wealth-snapshot-fiqh-summary"
+import { WealthSnapshotFiqhExplanation } from "../components/wealth-snapshot-fiqh-explanation"
 import { WealthSnapshotHistoryItem } from "../components/wealth-snapshot-history-item"
 import {
   useWealthSnapshotHistoryInfiniteQuery,
@@ -46,13 +46,6 @@ export function WealthSnapshotPage() {
           description={m.wealth_description()}
         />
 
-        <Link
-          to="/app/wealth-snapshot/new"
-          aria-label={m.wealth_snapshot_create_button_label()}
-          className={buttonVariants({ variant: "default", size: "icon-sm" })}
-        >
-          <HugeiconsIcon icon={Add02Icon} strokeWidth={2} className="size-4" />
-        </Link>
       </div>
 
       <section className="flex flex-col gap-4 border-t border-b border-border/60 py-4">
@@ -87,6 +80,19 @@ export function WealthSnapshotPage() {
             </div>
 
             <WealthSnapshotFiqhSummary snapshot={currentSnapshot} />
+            <WealthSnapshotFiqhExplanation snapshot={currentSnapshot} />
+
+            <div className="flex flex-col gap-2">
+              <Link
+                to="/app/wealth-snapshot/edit"
+                className={buttonVariants({ variant: "secondary", size: "sm" })}
+              >
+                {m.wealth_snapshot_refresh_cta()}
+              </Link>
+              <p className="text-xs leading-5 text-muted-foreground">
+                {m.wealth_snapshot_refresh_warning()}
+              </p>
+            </div>
           </div>
         ) : (
           <Empty className="border-border/70 bg-background/80">
@@ -95,6 +101,12 @@ export function WealthSnapshotPage() {
               <EmptyDescription>
                 {m.wealth_snapshot_current_empty_description()}
               </EmptyDescription>
+              <Link
+                to="/app/wealth-snapshot/new"
+                className={buttonVariants({ variant: "default", size: "sm" })}
+              >
+                {m.wealth_snapshot_create_button_label()}
+              </Link>
             </EmptyContent>
           </Empty>
         )}

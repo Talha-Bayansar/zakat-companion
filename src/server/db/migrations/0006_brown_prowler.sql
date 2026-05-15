@@ -1,0 +1,1 @@
+ALTER TABLE "wealth_snapshot" ADD COLUMN "fiqh_explanation" text;

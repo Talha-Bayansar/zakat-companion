@@ -82,6 +82,7 @@ export const wealthSnapshot = pgTable(
     netZakatableBase: text("net_zakatable_base"),
     isAboveNisab: boolean("is_above_nisab"),
     isZakatDue: boolean("is_zakat_due"),
+    fiqhExplanation: text("fiqh_explanation"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

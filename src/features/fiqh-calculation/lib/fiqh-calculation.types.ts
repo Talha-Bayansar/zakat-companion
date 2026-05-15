@@ -42,6 +42,45 @@ export type FiqhDateRule = {
   summary: string
 }
 
+export type FiqhCalculationExplanationInputs = {
+  madhab: FiqhMadhabCode
+  nisabBenchmark: FiqhNisabBenchmarkCode
+  netZakatableBase: string
+  nisabThreshold: string
+  hawlStartedAt: string | null
+  asOf: string
+}
+
+export type FiqhCalculationNisabExplanation = {
+  netZakatableBase: string
+  nisabThreshold: string
+  difference: string
+  isAboveNisab: boolean
+}
+
+export type FiqhCalculationHawlExplanation = {
+  startedAt: string | null
+  asOf: string
+  elapsedDays: number | null
+  requiredDays: number
+  isComplete: boolean
+  resetRequired: boolean
+}
+
+export type FiqhCalculationDueAmountExplanation = {
+  rate: string
+  amount: string
+  isZakatDue: boolean
+}
+
+export type FiqhCalculationExplanation = {
+  inputs: FiqhCalculationExplanationInputs
+  nisab: FiqhCalculationNisabExplanation
+  hawl: FiqhCalculationHawlExplanation
+  dueAmount: FiqhCalculationDueAmountExplanation
+  dateRule: FiqhDateRule
+}
+
 export type FiqhHawlProgress = {
   startedAt: Date | null
   asOf: Date
@@ -59,4 +98,5 @@ export type FiqhCalculationOutcome = {
   zakatDueAmount: string
   dateRule: FiqhDateRule
   hawl: FiqhHawlProgress
+  explanation: FiqhCalculationExplanation
 }

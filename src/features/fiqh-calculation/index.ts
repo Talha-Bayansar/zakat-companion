@@ -12,6 +12,11 @@ export {
   type FiqhNisabBenchmarkCode,
 } from "./lib/fiqh-calculation.constants"
 export {
+  fiqhCalculationDueAmountExplanationSchema,
+  fiqhCalculationExplanationSchema,
+  fiqhCalculationExplanationInputsSchema,
+  fiqhCalculationHawlExplanationSchema,
+  fiqhCalculationNisabExplanationSchema,
   fiqhCalculationInputSchema,
   fiqhCalculationOutcomeSchema,
   fiqhDateRuleSchema,
@@ -26,6 +31,11 @@ export {
   type FiqhCalculationInput,
   type FiqhCalculationOutcome,
   type FiqhCalculationContext,
+  type FiqhCalculationExplanation,
+  type FiqhCalculationExplanationInputs,
+  type FiqhCalculationHawlExplanation,
+  type FiqhCalculationNisabExplanation,
+  type FiqhCalculationDueAmountExplanation,
   type FiqhCalculationResult,
   type FiqhCalculationSnapshot,
   type FiqhCycleLifecycle,

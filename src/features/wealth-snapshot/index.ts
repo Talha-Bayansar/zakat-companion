@@ -1,5 +1,6 @@
 export { WealthSnapshotPage } from "./pages/wealth-snapshot.page"
 export { WealthSnapshotCreatePage } from "./pages/wealth-snapshot-create.page"
+export { WealthSnapshotEditPage } from "./pages/wealth-snapshot-edit.page"
 export { wealthCategoryValues } from "./lib/wealth-snapshot.constants"
 export type { WealthCategory } from "./lib/wealth-snapshot.constants"
 export {

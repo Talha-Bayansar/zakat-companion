@@ -1,6 +1,7 @@
 import { m } from "@/paraglide/messages"
 import {
   calculateFiqhCalculation,
+  type FiqhCalculationOutcome,
   type FiqhMadhabCode,
   type FiqhNisabBenchmarkCode,
   fiqhCalculationVersion,
@@ -100,13 +101,14 @@ export function calculateWealthSnapshotWriteContext(
     netZakatableBase: formatCents(netZakatableBase),
     isAboveNisab,
     isZakatDue: null,
+    fiqhExplanation: null,
   }
 }
 
-function calculateFiqhWealthSnapshotWriteContext(
+function calculateFiqhWealthSnapshotOutcome(
   entries: WealthSnapshotEntryInput[],
   activeProfile: ActiveProfileFiqhPreferences | null,
-): WealthSnapshotWriteContext {
+): FiqhCalculationOutcome | WealthSnapshotWriteContext {
   const snapshot = calculateWealthSnapshotWriteContext(entries)
 
   if (!activeProfile) {
@@ -121,7 +123,45 @@ function calculateFiqhWealthSnapshotWriteContext(
     hawlStartedAt: null,
     asOf: new Date(),
     calculationVersion: fiqhCalculationVersion,
-  }).snapshot
+  })
+}
+
+function toWealthSnapshotWriteContext(
+  outcome: FiqhCalculationOutcome | WealthSnapshotWriteContext,
+): WealthSnapshotWriteContext {
+  if ("snapshot" in outcome) {
+    return {
+      ...outcome.snapshot,
+      fiqhExplanation: outcome.explanation,
+    }
+  }
+
+  return outcome
+}
+
+async function saveWealthSnapshotRevision(
+  actor: Actor,
+  input: ReplaceWealthSnapshotInput,
+) {
+  const activeProfile = await requireCurrentActiveProfile(actor)
+  const profileId = activeProfile?.id ?? null
+
+  if (!profileId || !activeProfile) {
+    throw new Error(m.wealth_snapshot_no_active_profile())
+  }
+
+  const outcome = calculateFiqhWealthSnapshotOutcome(input.entries, {
+    madhab: activeProfile.madhab,
+    nisabBenchmark: activeProfile.nisabBenchmark,
+  })
+  const snapshot = toWealthSnapshotWriteContext(outcome)
+  const entries = normalizeWealthSnapshotEntries(input.entries)
+
+  return replaceWealthSnapshotRecord({
+    profileId,
+    entries,
+    snapshot,
+  })
 }
 
 async function requireCurrentActiveProfile(actor: Actor) {
@@ -170,22 +210,12 @@ export async function replaceWealthSnapshot(
   actor: Actor,
   input: ReplaceWealthSnapshotInput,
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
-  const activeProfile = await requireCurrentActiveProfile(actor)
-  const profileId = activeProfile?.id ?? null
+  return saveWealthSnapshotRevision(actor, input)
+}
 
-  if (!profileId || !activeProfile) {
-    throw new Error(m.wealth_snapshot_no_active_profile())
-  }
-
-  const snapshot = calculateFiqhWealthSnapshotWriteContext(input.entries, {
-    madhab: activeProfile.madhab,
-    nisabBenchmark: activeProfile.nisabBenchmark,
-  })
-  const entries = normalizeWealthSnapshotEntries(input.entries)
-
-  return replaceWealthSnapshotRecord({
-    profileId,
-    entries,
-    snapshot,
-  })
+export async function refreshWealthSnapshot(
+  actor: Actor,
+  input: ReplaceWealthSnapshotInput,
+): Promise<WealthSnapshotWithEntriesRecord | null> {
+  return saveWealthSnapshotRevision(actor, input)
 }

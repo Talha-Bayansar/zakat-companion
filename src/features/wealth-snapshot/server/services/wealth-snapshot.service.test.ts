@@ -71,6 +71,7 @@ describe("wealth snapshot service", () => {
       netZakatableBase: "87.50",
       isAboveNisab: true,
       isZakatDue: null,
+      fiqhExplanation: null,
     })
   })
 
@@ -87,6 +88,7 @@ describe("wealth snapshot service", () => {
       netZakatableBase: "0.00",
       isAboveNisab: false,
       isZakatDue: null,
+      fiqhExplanation: null,
     })
   })
 
@@ -136,6 +138,18 @@ describe("wealth snapshot service", () => {
         netZakatableBase: "87.50",
         isAboveNisab: true,
         isZakatDue: false,
+        fiqhExplanation: expect.objectContaining({
+          inputs: expect.objectContaining({
+            madhab: "hanafi",
+            nisabBenchmark: "gold",
+          }),
+          nisab: expect.objectContaining({
+            isAboveNisab: true,
+          }),
+          dueAmount: expect.objectContaining({
+            isZakatDue: false,
+          }),
+        }),
       },
     })
   })

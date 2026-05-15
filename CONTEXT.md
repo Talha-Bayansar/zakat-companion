@@ -3,6 +3,15 @@
 ## Domain Terms
 
 - `wealth snapshot`: the user's current zakatable assets and liabilities used to determine nisab status and zakat due amount.
+- `wealth snapshot revision`: an edited wealth snapshot captured as a new record so history remains append-only.
+- `wealth snapshot edit page`: the dedicated screen for cloning the current snapshot into a new revision.
+- `wealth snapshot refresh`: the user-facing action for capturing a new revision of the current snapshot.
+- `wealth snapshot edit flow`: the server-resolved path that updates the current snapshot by creating a new revision.
+- `wealth snapshot explanation disclosure`: the collapsed explanation section on the current snapshot screen.
+- `wealth snapshot explanation inputs line`: the compact line that shows the frozen inputs used for a snapshot explanation.
+- `wealth snapshot refresh warning`: the note that saving a refresh creates a new revision instead of mutating the existing one.
+- `wealth snapshot explanation title`: the user-facing heading for the current snapshot explanation disclosure.
+- `wealth snapshot explanation sections`: the separate explanation blocks for nisab, hawl, due amount, and frozen inputs.
 - `zakatable categories`: the asset and liability types the app includes in the wealth snapshot by default.
 - `nisab benchmark`: the threshold reference used to determine whether zakat is due; gold is the default benchmark, with silver as a selectable alternative.
 - `madhab`: the user's chosen school of Islamic jurisprudence that governs how the app calculates zakat rules.
@@ -12,6 +21,8 @@
 - `full fiqh handling`: the app should model madhab-specific zakat rules as fully as practical, rather than using a simplified universal rule set.
 - `fiqh calculation context`: the frozen madhab and nisab benchmark codes captured with a snapshot so historical calculations can be reproduced later.
 - `fiqh calculation result`: the derived snapshot summary stored at capture time so history does not change when profile preferences change later.
+- `fiqh explanation inputs`: the calculation inputs captured with a snapshot revision so the explanation payload remains reproducible.
+- `fiqh explanation payload`: the structured explanation data captured with a wealth snapshot revision so historical reasoning remains reproducible.
 - `wealth classes`: the app should support cash, gold and silver, trade inventory, receivables, and debts/liabilities in the initial model.
 - `profile`: a separate zakat tracking record for a person or household member that can be managed by an authenticated user.
 - `profile owner`: the authenticated user who owns a profile and controls delegated access to it.

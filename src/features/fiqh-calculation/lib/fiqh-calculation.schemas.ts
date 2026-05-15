@@ -46,6 +46,45 @@ export const fiqhDateRuleSchema = z.object({
   summary: z.string().trim().min(1),
 })
 
+export const fiqhCalculationExplanationInputsSchema = z.object({
+  madhab: z.enum(fiqhMadhabCodeValues),
+  nisabBenchmark: z.enum(fiqhNisabBenchmarkCodeValues),
+  netZakatableBase: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  nisabThreshold: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  hawlStartedAt: z.string().trim().min(1).nullable(),
+  asOf: z.string().trim().min(1),
+})
+
+export const fiqhCalculationNisabExplanationSchema = z.object({
+  netZakatableBase: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  nisabThreshold: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  difference: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  isAboveNisab: z.boolean(),
+})
+
+export const fiqhCalculationHawlExplanationSchema = z.object({
+  startedAt: z.string().trim().min(1).nullable(),
+  asOf: z.string().trim().min(1),
+  elapsedDays: z.number().int().nonnegative().nullable(),
+  requiredDays: z.number().int().positive(),
+  isComplete: z.boolean(),
+  resetRequired: z.boolean(),
+})
+
+export const fiqhCalculationDueAmountExplanationSchema = z.object({
+  rate: z.string().trim().regex(/^0\.\d+$/),
+  amount: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  isZakatDue: z.boolean(),
+})
+
+export const fiqhCalculationExplanationSchema = z.object({
+  inputs: fiqhCalculationExplanationInputsSchema,
+  nisab: fiqhCalculationNisabExplanationSchema,
+  hawl: fiqhCalculationHawlExplanationSchema,
+  dueAmount: fiqhCalculationDueAmountExplanationSchema,
+  dateRule: fiqhDateRuleSchema,
+})
+
 export const fiqhHawlProgressSchema = z.object({
   startedAt: z.date().nullable(),
   asOf: z.date(),
@@ -63,4 +102,5 @@ export const fiqhCalculationOutcomeSchema = z.object({
   zakatDueAmount: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
   dateRule: fiqhDateRuleSchema,
   hawl: fiqhHawlProgressSchema,
+  explanation: fiqhCalculationExplanationSchema,
 })

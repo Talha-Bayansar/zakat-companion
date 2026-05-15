@@ -54,10 +54,42 @@ describe("fiqh calculation engine", () => {
     })
     expect(result.dateRule).toEqual(dateRuleExpectations[madhab])
     expect(result.hawl).toMatchObject({
+      startedAt: new Date("2025-07-01T00:00:00Z"),
+      asOf,
       elapsedDays: 317,
       requiredDays: fiqhHawlLengthDays,
       isComplete: false,
       resetRequired: policy === "reset",
+    })
+    expect(result.explanation).toMatchObject({
+      inputs: {
+        madhab,
+        nisabBenchmark: "gold",
+        netZakatableBase: "60.00",
+        nisabThreshold: "75.00",
+        hawlStartedAt: "2025-07-01T00:00:00.000Z",
+        asOf: "2026-05-14T00:00:00.000Z",
+      },
+      nisab: {
+        netZakatableBase: "60.00",
+        nisabThreshold: "75.00",
+        difference: "-15.00",
+        isAboveNisab: false,
+      },
+      hawl: {
+        startedAt: "2025-07-01T00:00:00.000Z",
+        asOf: "2026-05-14T00:00:00.000Z",
+        elapsedDays: 317,
+        requiredDays: fiqhHawlLengthDays,
+        isComplete: false,
+        resetRequired: policy === "reset",
+      },
+      dueAmount: {
+        rate: fiqhZakatRate,
+        amount: "0.00",
+        isZakatDue: false,
+      },
+      dateRule: dateRuleExpectations[madhab],
     })
   })
 
@@ -71,7 +103,7 @@ describe("fiqh calculation engine", () => {
       asOf,
     })
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       snapshot: {
         madhab: "hanafi",
         nisabBenchmark: "gold",
@@ -92,6 +124,36 @@ describe("fiqh calculation engine", () => {
         requiredDays: fiqhHawlLengthDays,
         isComplete: true,
         resetRequired: false,
+      },
+      explanation: {
+        inputs: {
+          madhab: "hanafi",
+          nisabBenchmark: "gold",
+          netZakatableBase: "100.00",
+          nisabThreshold: "87.50",
+          hawlStartedAt: "2025-05-01T00:00:00.000Z",
+          asOf: "2026-05-14T00:00:00.000Z",
+        },
+        nisab: {
+          netZakatableBase: "100.00",
+          nisabThreshold: "87.50",
+          difference: "12.50",
+          isAboveNisab: true,
+        },
+        hawl: {
+          startedAt: "2025-05-01T00:00:00.000Z",
+          asOf: "2026-05-14T00:00:00.000Z",
+          elapsedDays: 378,
+          requiredDays: fiqhHawlLengthDays,
+          isComplete: true,
+          resetRequired: false,
+        },
+        dueAmount: {
+          rate: fiqhZakatRate,
+          amount: "2.50",
+          isZakatDue: true,
+        },
+        dateRule: dateRuleExpectations.hanafi,
       },
     })
   })
@@ -117,12 +179,45 @@ describe("fiqh calculation engine", () => {
     expect(result).toMatchObject({
       nisabThreshold: "75.00",
       nisabDifference: "0.00",
+      zakatRate: fiqhZakatRate,
       zakatDueAmount: "0.00",
       hawl: {
+        startedAt: new Date("2025-06-01T00:00:00Z"),
+        asOf,
         elapsedDays: 347,
         requiredDays: fiqhHawlLengthDays,
         isComplete: false,
         resetRequired: false,
+      },
+      explanation: {
+        inputs: {
+          madhab: "maliki",
+          nisabBenchmark: "silver",
+          netZakatableBase: "75.00",
+          nisabThreshold: "75.00",
+          hawlStartedAt: "2025-06-01T00:00:00.000Z",
+          asOf: "2026-05-14T00:00:00.000Z",
+        },
+        nisab: {
+          netZakatableBase: "75.00",
+          nisabThreshold: "75.00",
+          difference: "0.00",
+          isAboveNisab: true,
+        },
+        hawl: {
+          startedAt: "2025-06-01T00:00:00.000Z",
+          asOf: "2026-05-14T00:00:00.000Z",
+          elapsedDays: 347,
+          requiredDays: fiqhHawlLengthDays,
+          isComplete: false,
+          resetRequired: false,
+        },
+        dueAmount: {
+          rate: fiqhZakatRate,
+          amount: "0.00",
+          isZakatDue: false,
+        },
+        dateRule: dateRuleExpectations.maliki,
       },
     })
   })
@@ -158,6 +253,36 @@ describe("fiqh calculation engine", () => {
         requiredDays: fiqhHawlLengthDays,
         isComplete: false,
         resetRequired: false,
+      },
+      explanation: {
+        inputs: {
+          madhab: "hanbali",
+          nisabBenchmark: "gold",
+          netZakatableBase: "87.49",
+          nisabThreshold: "87.50",
+          hawlStartedAt: null,
+          asOf: "2026-05-14T00:00:00.000Z",
+        },
+        nisab: {
+          netZakatableBase: "87.49",
+          nisabThreshold: "87.50",
+          difference: "-0.01",
+          isAboveNisab: false,
+        },
+        hawl: {
+          startedAt: null,
+          asOf: "2026-05-14T00:00:00.000Z",
+          elapsedDays: null,
+          requiredDays: fiqhHawlLengthDays,
+          isComplete: false,
+          resetRequired: false,
+        },
+        dueAmount: {
+          rate: fiqhZakatRate,
+          amount: "0.00",
+          isZakatDue: false,
+        },
+        dateRule: dateRuleExpectations.hanbali,
       },
     })
   })

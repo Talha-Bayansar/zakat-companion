@@ -4,6 +4,7 @@ import { db } from "@/server/db/client"
 import { wealthSnapshot, wealthSnapshotEntry } from "@/server/db/schema"
 import type { InfiniteListPage } from "@/shared/lib/infinite-list"
 import type {
+  FiqhCalculationExplanation,
   FiqhMadhabCode,
   FiqhNisabBenchmarkCode,
   FiqhCalculationSnapshot,
@@ -25,6 +26,7 @@ export type WealthSnapshotRecord = {
   netZakatableBase: FiqhCalculationSnapshot["netZakatableBase"] | null
   isAboveNisab: FiqhCalculationSnapshot["isAboveNisab"] | null
   isZakatDue: FiqhCalculationSnapshot["isZakatDue"] | null
+  fiqhExplanation: FiqhCalculationExplanation | null
   createdAt: Date
   updatedAt: Date
 }
@@ -51,6 +53,7 @@ export type WealthSnapshotWriteContext = {
   netZakatableBase: FiqhCalculationSnapshot["netZakatableBase"] | null
   isAboveNisab: FiqhCalculationSnapshot["isAboveNisab"] | null
   isZakatDue: FiqhCalculationSnapshot["isZakatDue"] | null
+  fiqhExplanation: FiqhCalculationExplanation | null
 }
 
 export type ReplaceWealthSnapshotInput = {
@@ -69,8 +72,23 @@ type WealthSnapshotDbRecord = {
   netZakatableBase: string | null
   isAboveNisab: boolean | null
   isZakatDue: boolean | null
+  fiqhExplanation: string | null
   createdAt: Date
   updatedAt: Date
+}
+
+function parseFiqhExplanation(
+  value: string | null,
+): FiqhCalculationExplanation | null {
+  if (!value) {
+    return null
+  }
+
+  try {
+    return JSON.parse(value) as FiqhCalculationExplanation
+  } catch {
+    return null
+  }
 }
 
 function toWealthSnapshotRecord(
@@ -80,6 +98,7 @@ function toWealthSnapshotRecord(
     ...record,
     madhab: record.madhab as FiqhMadhabCode | null,
     nisabBenchmark: record.nisabBenchmark as FiqhNisabBenchmarkCode | null,
+    fiqhExplanation: parseFiqhExplanation(record.fiqhExplanation),
   }
 }
 
@@ -97,6 +116,7 @@ export async function getWealthSnapshotRecordByProfileId(
       netZakatableBase: wealthSnapshot.netZakatableBase,
       isAboveNisab: wealthSnapshot.isAboveNisab,
       isZakatDue: wealthSnapshot.isZakatDue,
+      fiqhExplanation: wealthSnapshot.fiqhExplanation,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })
@@ -151,6 +171,7 @@ export async function listWealthSnapshotRecordsByProfileId(
       netZakatableBase: wealthSnapshot.netZakatableBase,
       isAboveNisab: wealthSnapshot.isAboveNisab,
       isZakatDue: wealthSnapshot.isZakatDue,
+      fiqhExplanation: wealthSnapshot.fiqhExplanation,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })
@@ -177,6 +198,7 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
       netZakatableBase: wealthSnapshot.netZakatableBase,
       isAboveNisab: wealthSnapshot.isAboveNisab,
       isZakatDue: wealthSnapshot.isZakatDue,
+      fiqhExplanation: wealthSnapshot.fiqhExplanation,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })
@@ -254,6 +276,9 @@ export async function replaceWealthSnapshotRecord(
       netZakatableBase: input.snapshot.netZakatableBase,
       isAboveNisab: input.snapshot.isAboveNisab,
       isZakatDue: input.snapshot.isZakatDue,
+      fiqhExplanation: input.snapshot.fiqhExplanation
+        ? JSON.stringify(input.snapshot.fiqhExplanation)
+        : null,
     })
     .returning({
       id: wealthSnapshot.id,
@@ -265,6 +290,7 @@ export async function replaceWealthSnapshotRecord(
       netZakatableBase: wealthSnapshot.netZakatableBase,
       isAboveNisab: wealthSnapshot.isAboveNisab,
       isZakatDue: wealthSnapshot.isZakatDue,
+      fiqhExplanation: wealthSnapshot.fiqhExplanation,
       createdAt: wealthSnapshot.createdAt,
       updatedAt: wealthSnapshot.updatedAt,
     })) as WealthSnapshotDbRecord[]

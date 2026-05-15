@@ -1,6 +1,7 @@
 import type { InfiniteListPage } from "@/shared/lib/infinite-list"
 
 import type {
+  FiqhCalculationExplanation,
   FiqhCalculationSnapshot,
   FiqhMadhabCode,
   FiqhNisabBenchmarkCode,
@@ -26,6 +27,7 @@ export type WealthSnapshotRecord = {
   netZakatableBase: FiqhCalculationSnapshot["netZakatableBase"] | null
   isAboveNisab: FiqhCalculationSnapshot["isAboveNisab"] | null
   isZakatDue: FiqhCalculationSnapshot["isZakatDue"] | null
+  fiqhExplanation: FiqhCalculationExplanation | null
   createdAt: string | Date
   updatedAt: string | Date
   entries: WealthSnapshotEntryRecord[]

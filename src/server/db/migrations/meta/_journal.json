@@ -43,6 +43,13 @@
       "when": 1778768662211,
       "tag": "0005_groovy_silver_sable",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778850919558,
+      "tag": "0006_brown_prowler",
+      "breakpoints": true
     }
   ]
 }
