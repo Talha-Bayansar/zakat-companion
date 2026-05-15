@@ -3,6 +3,7 @@ import type {
   ReminderJobPhase,
   ReminderJobStatus,
 } from "./reminders.constants"
+import type { FiqhCycleState } from "@/features/fiqh-calculation"
 
 export type ReminderQuietHours = {
   startTime: string
@@ -25,6 +26,7 @@ export type ReminderPreferenceRecord = ReminderPreference & {
 type ReminderJobBaseRecord = {
   id: string
   profileId: string
+  dedupeKey: string
   scheduledFor: Date
   status: ReminderJobStatus
   attemptCount: number
@@ -38,14 +40,27 @@ type ReminderJobBaseRecord = {
 
 export type BalanceUpdateReminderJobRecord = ReminderJobBaseRecord & {
   kind: "balance_update"
+  zakatCycleId: null
   phase: null
 }
 
 export type ZakatDueReminderJobRecord = ReminderJobBaseRecord & {
   kind: "zakat_due"
+  zakatCycleId: string
   phase: ReminderJobPhase
 }
 
 export type ReminderJobRecord =
   | BalanceUpdateReminderJobRecord
   | ZakatDueReminderJobRecord
+
+export type ZakatCycleRecord = {
+  id: string
+  profileId: string
+  sourceSnapshotId: string | null
+  state: FiqhCycleState
+  dueAt: Date
+  paidAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}

@@ -11,6 +11,7 @@ import {
   reminderPreferenceSchema,
   reminderJobSchema,
   reminderQuietHoursSchema,
+  zakatCycleSchema,
 } from "./reminders.schemas"
 
 describe("reminder contract", () => {
@@ -86,7 +87,9 @@ describe("reminder contract", () => {
       reminderJobSchema.parse({
         id: "job-1",
         profileId: "profile-1",
+        dedupeKey: "balance_update:profile-1:2026-05-15T09:00:00.000Z",
         kind: "balance_update",
+        zakatCycleId: null,
         phase: null,
         scheduledFor: new Date("2026-05-15T09:00:00.000Z"),
         status: "pending",
@@ -107,7 +110,9 @@ describe("reminder contract", () => {
       reminderJobSchema.parse({
         id: "job-2",
         profileId: "profile-1",
+        dedupeKey: "zakat_due:profile-1:cycle-1:follow_up",
         kind: "zakat_due",
+        zakatCycleId: "cycle-1",
         phase: "follow_up",
         scheduledFor: new Date("2026-05-15T09:00:00.000Z"),
         status: "claimed",
@@ -122,6 +127,23 @@ describe("reminder contract", () => {
     ).toMatchObject({
       kind: "zakat_due",
       phase: "follow_up",
+    })
+  })
+
+  it("validates zakat cycles", () => {
+    expect(
+      zakatCycleSchema.parse({
+        id: "cycle-1",
+        profileId: "profile-1",
+        sourceSnapshotId: "snapshot-1",
+        state: "due",
+        dueAt: new Date("2026-05-16T09:00:00.000Z"),
+        paidAt: null,
+        createdAt: new Date("2026-05-15T09:00:00.000Z"),
+        updatedAt: new Date("2026-05-15T09:00:00.000Z"),
+      }),
+    ).toMatchObject({
+      state: "due",
     })
   })
 })

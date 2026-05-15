@@ -2,12 +2,13 @@ import { z } from "zod"
 
 import {
   defaultReminderCadence,
+  reminderQuietHourTimePattern,
   reminderCadenceValues,
   reminderJobKindValues,
   reminderJobPhaseValues,
   reminderJobStatusValues,
-  reminderQuietHourTimePattern,
 } from "./reminders.constants"
+import { fiqhCycleStateValues } from "@/features/fiqh-calculation"
 
 export const reminderCadenceSchema = z.enum(reminderCadenceValues)
 
@@ -27,6 +28,7 @@ export const reminderPreferenceSchema = z.object({
 const reminderJobBaseSchema = z.object({
   id: z.string().trim().min(1),
   profileId: z.string().trim().min(1),
+  dedupeKey: z.string().trim().min(1),
   scheduledFor: z.date(),
   status: z.enum(reminderJobStatusValues),
   attemptCount: z.number().int().nonnegative(),
@@ -45,6 +47,7 @@ export const balanceUpdateReminderJobSchema = reminderJobBaseSchema.extend({
 
 export const zakatDueReminderJobSchema = reminderJobBaseSchema.extend({
   kind: z.literal("zakat_due"),
+  zakatCycleId: z.string().trim().min(1),
   phase: z.enum(reminderJobPhaseValues),
 })
 
@@ -56,3 +59,14 @@ export const reminderJobSchema = z.discriminatedUnion("kind", [
 export const reminderJobKindSchema = z.enum(reminderJobKindValues)
 
 export const reminderJobPhaseSchema = z.enum(reminderJobPhaseValues)
+
+export const zakatCycleSchema = z.object({
+  id: z.string().trim().min(1),
+  profileId: z.string().trim().min(1),
+  sourceSnapshotId: z.string().trim().min(1).nullable(),
+  state: z.enum(fiqhCycleStateValues),
+  dueAt: z.date(),
+  paidAt: z.date().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})

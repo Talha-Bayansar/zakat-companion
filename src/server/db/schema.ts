@@ -13,6 +13,7 @@ import {
 import {
   type FiqhMadhabCode,
   type FiqhNisabBenchmarkCode,
+  fiqhCycleStateValues,
 } from "@/features/fiqh-calculation"
 import {
   defaultReminderCadence,
@@ -91,6 +92,7 @@ export const reminderJobStatus = pgEnum(
   "reminder_job_status",
   reminderJobStatusValues
 )
+export const zakatCycleState = pgEnum("zakat_cycle_state", fiqhCycleStateValues)
 
 export const reminderPreference = pgTable(
   "reminder_preference",
@@ -150,6 +152,35 @@ export const wealthSnapshot = pgTable(
   ]
 )
 
+export const zakatCycle = pgTable(
+  "zakat_cycle",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profile.id, { onDelete: "cascade" }),
+    sourceSnapshotId: text("source_snapshot_id").references(
+      () => wealthSnapshot.id,
+      {
+        onDelete: "set null",
+      }
+    ),
+    state: zakatCycleState("state").notNull().default("open"),
+    dueAt: timestamp("due_at").notNull(),
+    paidAt: timestamp("paid_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("zakat_cycle_profileId_idx").on(table.profileId),
+    index("zakat_cycle_state_dueAt_idx").on(table.state, table.dueAt),
+    index("zakat_cycle_sourceSnapshotId_idx").on(table.sourceSnapshotId),
+  ]
+)
+
 export const wealthSnapshotEntry = pgTable(
   "wealth_snapshot_entry",
   {
@@ -181,8 +212,12 @@ export const reminderJob = pgTable(
     profileId: text("profile_id")
       .notNull()
       .references(() => profile.id, { onDelete: "cascade" }),
+    zakatCycleId: text("zakat_cycle_id").references(() => zakatCycle.id, {
+      onDelete: "cascade",
+    }),
     kind: reminderJobKind("kind").notNull(),
     phase: reminderJobPhase("phase"),
+    dedupeKey: text("dedupe_key").notNull(),
     status: reminderJobStatus("status").notNull().default("pending"),
     scheduledFor: timestamp("scheduled_for").notNull(),
     attemptCount: integer("attempt_count").notNull().default(0),
@@ -198,10 +233,12 @@ export const reminderJob = pgTable(
   },
   (table) => [
     index("reminder_job_profileId_idx").on(table.profileId),
+    index("reminder_job_zakatCycleId_idx").on(table.zakatCycleId),
     index("reminder_job_status_scheduledFor_idx").on(
       table.status,
       table.scheduledFor
     ),
+    uniqueIndex("reminder_job_dedupeKey_unique").on(table.dedupeKey),
   ]
 )
 
@@ -211,6 +248,7 @@ export const profileRelations = relations(profile, ({ one, many }) => ({
     references: [user.id],
   }),
   reminderPreference: one(reminderPreference),
+  zakatCycles: many(zakatCycle),
   reminderJobs: many(reminderJob),
   permissions: many(profilePermission),
   wealthSnapshots: many(wealthSnapshot),
@@ -242,8 +280,21 @@ export const wealthSnapshotRelations = relations(
       references: [profile.id],
     }),
     entries: many(wealthSnapshotEntry),
+    zakatCycles: many(zakatCycle),
   })
 )
+
+export const zakatCycleRelations = relations(zakatCycle, ({ one, many }) => ({
+  profile: one(profile, {
+    fields: [zakatCycle.profileId],
+    references: [profile.id],
+  }),
+  sourceSnapshot: one(wealthSnapshot, {
+    fields: [zakatCycle.sourceSnapshotId],
+    references: [wealthSnapshot.id],
+  }),
+  reminderJobs: many(reminderJob),
+}))
 
 export const wealthSnapshotEntryRelations = relations(
   wealthSnapshotEntry,
@@ -269,5 +320,9 @@ export const reminderJobRelations = relations(reminderJob, ({ one }) => ({
   profile: one(profile, {
     fields: [reminderJob.profileId],
     references: [profile.id],
+  }),
+  zakatCycle: one(zakatCycle, {
+    fields: [reminderJob.zakatCycleId],
+    references: [zakatCycle.id],
   }),
 }))

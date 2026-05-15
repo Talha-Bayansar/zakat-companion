@@ -18,6 +18,7 @@ export {
   reminderJobSchema,
   reminderPreferenceSchema,
   reminderQuietHoursSchema,
+  zakatCycleSchema,
   zakatDueReminderJobSchema,
 } from "./lib/reminders.schemas"
 export type {
@@ -26,5 +27,6 @@ export type {
   ReminderPreference,
   ReminderPreferenceRecord,
   ReminderQuietHours,
+  ZakatCycleRecord,
   ZakatDueReminderJobRecord,
 } from "./lib/reminders.types"

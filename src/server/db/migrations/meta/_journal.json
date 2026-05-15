@@ -57,6 +57,13 @@
       "when": 1778855018839,
       "tag": "0007_melted_black_tom",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778857410676,
+      "tag": "0008_grey_lethal_legion",
+      "breakpoints": true
     }
   ]
 }
