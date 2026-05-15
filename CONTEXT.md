@@ -30,11 +30,13 @@
 - `profile access grant`: a custom app permission that allows a delegated manager to edit a profile without owning it.
 - `fiqh preferences`: the required profile-level madhab and nisab benchmark selections that govern zakat calculation for that profile.
 - `active profile`: the persisted profile selection for an authenticated user, used as the default profile context across the app.
+- `reminder preference`: the profile-level record that stores reminder cadence, timezone, quiet hours, and zakat follow-up behavior.
 - `balance update reminder`: a notification that prompts the user to refresh the wealth snapshot.
 - `zakat due reminder`: a notification that alerts the user when zakat is due or approaching due.
 - `reminder cadence`: user-configurable intervals controlling how often balance update reminders are sent.
 - `due reminder lifecycle`: the app sends a reminder before the due date, on the due date, and optionally follows up until the user marks the zakat as paid.
 - `timezone-aware reminders`: notifications should respect the user's local timezone and quiet hours.
+- `quiet hours window`: the local-time interval during which reminder delivery should be deferred.
 - `paid state`: the user’s confirmation that a zakat obligation has been settled for the current cycle.
 - `permission model`: delegated access should be implemented as custom app permissions in the product domain.
 - `reminder job`: an explicit unit of reminder work that can be processed by cron today and a queue later.

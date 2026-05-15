@@ -50,6 +50,13 @@
       "when": 1778850919558,
       "tag": "0006_brown_prowler",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778855018839,
+      "tag": "0007_melted_black_tom",
+      "breakpoints": true
     }
   ]
 }

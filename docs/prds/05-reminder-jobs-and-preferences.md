@@ -6,7 +6,7 @@ Users need separate reminders for balance updates and zakat due dates, and those
 
 ## Solution
 
-Add profile-level reminder preferences and database-backed reminder jobs that can be executed by cron now and a queue later.
+Add profile-level reminder preferences and database-backed reminder jobs that can be executed by cron now and a queue later, including balance update reminders, zakat due reminders, cadence, timezone, quiet hours, and follow-up behavior.
 
 ## User Stories
 
@@ -27,7 +27,7 @@ Add profile-level reminder preferences and database-backed reminder jobs that ca
 
 ## Testing Decisions
 
-- Verify reminder job creation, claiming, dispatch, and retry behavior.
+- Verify reminder job creation, claiming, dispatch, idempotent execution, and retry behavior.
 - Verify cadence and timezone rules against profile settings.
 
 ## Out of Scope

@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm"
 import {
   index,
   boolean,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -13,6 +14,13 @@ import {
   type FiqhMadhabCode,
   type FiqhNisabBenchmarkCode,
 } from "@/features/fiqh-calculation"
+import {
+  defaultReminderCadence,
+  reminderCadenceValues,
+  reminderJobKindValues,
+  reminderJobPhaseValues,
+  reminderJobStatusValues,
+} from "@/features/reminders/lib/reminders.constants"
 import { user } from "../auth/schema"
 import { wealthCategoryValues } from "@/features/wealth-snapshot/lib/wealth-snapshot.constants"
 
@@ -67,6 +75,50 @@ export const profilePermission = pgTable(
 )
 
 export const wealthCategory = pgEnum("wealth_category", wealthCategoryValues)
+export const reminderCadence = pgEnum(
+  "reminder_cadence",
+  reminderCadenceValues
+)
+export const reminderJobKind = pgEnum(
+  "reminder_job_kind",
+  reminderJobKindValues
+)
+export const reminderJobPhase = pgEnum(
+  "reminder_job_phase",
+  reminderJobPhaseValues
+)
+export const reminderJobStatus = pgEnum(
+  "reminder_job_status",
+  reminderJobStatusValues
+)
+
+export const reminderPreference = pgTable(
+  "reminder_preference",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profile.id, { onDelete: "cascade" }),
+    balanceUpdateCadence: reminderCadence("balance_update_cadence")
+      .notNull()
+      .default(defaultReminderCadence),
+    timezone: text("timezone").notNull(),
+    quietHoursStartTime: text("quiet_hours_start_time"),
+    quietHoursEndTime: text("quiet_hours_end_time"),
+    zakatDueFollowUpEnabled: boolean("zakat_due_follow_up_enabled")
+      .notNull()
+      .default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("reminder_preference_profileId_idx").on(table.profileId),
+    uniqueIndex("reminder_preference_profileId_unique").on(table.profileId),
+  ]
+)
 
 export const wealthSnapshot = pgTable(
   "wealth_snapshot",
@@ -122,11 +174,44 @@ export const wealthSnapshotEntry = pgTable(
   ]
 )
 
+export const reminderJob = pgTable(
+  "reminder_job",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profile.id, { onDelete: "cascade" }),
+    kind: reminderJobKind("kind").notNull(),
+    phase: reminderJobPhase("phase"),
+    status: reminderJobStatus("status").notNull().default("pending"),
+    scheduledFor: timestamp("scheduled_for").notNull(),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    claimedAt: timestamp("claimed_at"),
+    completedAt: timestamp("completed_at"),
+    lastAttemptAt: timestamp("last_attempt_at"),
+    lastError: text("last_error"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("reminder_job_profileId_idx").on(table.profileId),
+    index("reminder_job_status_scheduledFor_idx").on(
+      table.status,
+      table.scheduledFor
+    ),
+  ]
+)
+
 export const profileRelations = relations(profile, ({ one, many }) => ({
   owner: one(user, {
     fields: [profile.ownerId],
     references: [user.id],
   }),
+  reminderPreference: one(reminderPreference),
+  reminderJobs: many(reminderJob),
   permissions: many(profilePermission),
   wealthSnapshots: many(wealthSnapshot),
 }))
@@ -169,3 +254,20 @@ export const wealthSnapshotEntryRelations = relations(
     }),
   })
 )
+
+export const reminderPreferenceRelations = relations(
+  reminderPreference,
+  ({ one }) => ({
+    profile: one(profile, {
+      fields: [reminderPreference.profileId],
+      references: [profile.id],
+    }),
+  })
+)
+
+export const reminderJobRelations = relations(reminderJob, ({ one }) => ({
+  profile: one(profile, {
+    fields: [reminderJob.profileId],
+    references: [profile.id],
+  }),
+}))
