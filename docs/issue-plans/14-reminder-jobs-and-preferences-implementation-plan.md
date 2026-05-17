@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: planned
-- Current step: step 7
+- Overall: completed
+- Current step: completed
 
 ## Goal
 
@@ -48,7 +48,7 @@ Implement profile-level reminder preferences and database-backed reminder jobs t
    - Record enough job state to support future queue-based execution without changing the model.
 
 7. Add tests for preference updates and job execution.
-   - Status: in progress
+   - Status: completed
    - Test cadence, timezone, quiet hours, and follow-up validation.
    - Test job creation, claiming, dispatch, and retry behavior.
    - Confirm the behavior stays stable when the active profile changes.

@@ -89,6 +89,59 @@ describe("reminders service", () => {
     )
   })
 
+  it("re-reads the active profile when preference requests follow a profile switch", async () => {
+    resolveCurrentActiveProfile
+      .mockResolvedValueOnce({
+        id: "profile-1",
+        ownerId: "user-1",
+        role: "owner",
+      })
+      .mockResolvedValueOnce({
+        id: "profile-2",
+        ownerId: "user-1",
+        role: "owner",
+      })
+    getReminderPreferenceRecordByProfileId
+      .mockResolvedValueOnce({
+        profileId: "profile-1",
+        balanceUpdateCadence: "monthly",
+        timezone: "Europe/Brussels",
+        quietHours: null,
+        zakatDueFollowUpEnabled: true,
+        createdAt: new Date("2026-05-15T09:00:00.000Z"),
+        updatedAt: new Date("2026-05-15T09:00:00.000Z"),
+      })
+      .mockResolvedValueOnce({
+        profileId: "profile-2",
+        balanceUpdateCadence: "weekly",
+        timezone: "UTC",
+        quietHours: null,
+        zakatDueFollowUpEnabled: false,
+        createdAt: new Date("2026-05-15T09:00:00.000Z"),
+        updatedAt: new Date("2026-05-15T09:00:00.000Z"),
+      })
+
+    const first = await getReminderPreference({
+      userId: "user-1",
+      activeProfileId: "profile-1",
+    })
+    const second = await getReminderPreference({
+      userId: "user-1",
+      activeProfileId: "profile-2",
+    })
+
+    expect(first?.profileId).toBe("profile-1")
+    expect(second?.profileId).toBe("profile-2")
+    expect(getReminderPreferenceRecordByProfileId).toHaveBeenNthCalledWith(
+      1,
+      "profile-1",
+    )
+    expect(getReminderPreferenceRecordByProfileId).toHaveBeenNthCalledWith(
+      2,
+      "profile-2",
+    )
+  })
+
   it("rejects reminder preference changes for delegated managers", async () => {
     resolveCurrentActiveProfile.mockResolvedValue({
       id: "profile-1",
