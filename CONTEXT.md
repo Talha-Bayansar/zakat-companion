@@ -44,6 +44,8 @@
 - `cycle state`: the mutable status of a zakat cycle, such as open, due, paid, or followed up.
 - `calculation version`: the rule-set version used when a snapshot is captured, so historical calculations remain reproducible.
 - `push subscription`: the browser push subscription record attached to a profile and used for web push delivery.
+- `notification subscription`: the stored browser push subscription record for a profile, including its lifecycle state.
+- `notification delivery attempt`: one recorded push send attempt for a reminder job and subscription.
 - `web push notification`: the browser notification sent from the Worker runtime for a reminder job.
 - `notification delivery payload`: the structured reminder content sent to a push subscription.
 - `unbounded collection`: any user-growable data set fetched asynchronously that should default to infinite scrolling because it may not stay small.

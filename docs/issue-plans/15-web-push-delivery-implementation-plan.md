@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: planned
-- Current step: step 2
+- Current step: step 3
 
 ## Goal
 
@@ -19,7 +19,7 @@ Implement browser web push subscription management and delivery so reminder jobs
    - Keep the subscription model separate from reminder jobs so delivery can change later without rewriting scheduling state.
 
 2. Add schema and migration support.
-   - Status: pending
+   - Status: done
    - Update `src/server/db/schema.ts` with a notification subscription table and a delivery-attempt table if failures need to be persisted separately.
    - Add the supporting enums or status fields needed for active, disabled, expired, and failed states.
    - Generate and apply the database migration.

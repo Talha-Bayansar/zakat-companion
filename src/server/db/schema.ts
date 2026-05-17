@@ -16,6 +16,11 @@ import {
   fiqhCycleStateValues,
 } from "@/features/fiqh-calculation"
 import {
+  notificationChannelValues,
+  notificationDeliveryAttemptStatusValues,
+  notificationSubscriptionStatusValues,
+} from "@/features/notifications/lib/notifications.constants"
+import {
   defaultReminderCadence,
   reminderCadenceValues,
   reminderJobKindValues,
@@ -91,6 +96,18 @@ export const reminderJobPhase = pgEnum(
 export const reminderJobStatus = pgEnum(
   "reminder_job_status",
   reminderJobStatusValues
+)
+export const notificationChannel = pgEnum(
+  "notification_channel",
+  notificationChannelValues
+)
+export const notificationSubscriptionStatus = pgEnum(
+  "notification_subscription_status",
+  notificationSubscriptionStatusValues
+)
+export const notificationDeliveryAttemptStatus = pgEnum(
+  "notification_delivery_attempt_status",
+  notificationDeliveryAttemptStatusValues
 )
 export const zakatCycleState = pgEnum("zakat_cycle_state", fiqhCycleStateValues)
 
@@ -242,6 +259,82 @@ export const reminderJob = pgTable(
   ]
 )
 
+export const notificationSubscription = pgTable(
+  "notification_subscription",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profile.id, { onDelete: "cascade" }),
+    channel: notificationChannel("channel").notNull().default("web_push"),
+    endpoint: text("endpoint").notNull(),
+    auth: text("auth").notNull(),
+    p256dh: text("p256dh").notNull(),
+    status: notificationSubscriptionStatus("status")
+      .notNull()
+      .default("active"),
+    expiresAt: timestamp("expires_at"),
+    disabledAt: timestamp("disabled_at"),
+    expiredAt: timestamp("expired_at"),
+    failedAt: timestamp("failed_at"),
+    lastFailureReason: text("last_failure_reason"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("notification_subscription_profileId_idx").on(table.profileId),
+    index("notification_subscription_profileId_status_idx").on(
+      table.profileId,
+      table.status
+    ),
+    uniqueIndex("notification_subscription_endpoint_unique").on(table.endpoint),
+  ]
+)
+
+export const notificationDeliveryAttempt = pgTable(
+  "notification_delivery_attempt",
+  {
+    id: text("id").primaryKey(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profile.id, { onDelete: "cascade" }),
+    reminderJobId: text("reminder_job_id")
+      .notNull()
+      .references(() => reminderJob.id, { onDelete: "cascade" }),
+    subscriptionId: text("subscription_id")
+      .notNull()
+      .references(() => notificationSubscription.id, { onDelete: "cascade" }),
+    channel: notificationChannel("channel").notNull().default("web_push"),
+    kind: reminderJobKind("kind").notNull(),
+    status: notificationDeliveryAttemptStatus("status").notNull(),
+    payload: text("payload").notNull(),
+    attemptedAt: timestamp("attempted_at").defaultNow().notNull(),
+    deliveredAt: timestamp("delivered_at"),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("notification_delivery_attempt_profileId_idx").on(table.profileId),
+    index("notification_delivery_attempt_reminderJobId_idx").on(
+      table.reminderJobId
+    ),
+    index("notification_delivery_attempt_subscriptionId_idx").on(
+      table.subscriptionId
+    ),
+    index("notification_delivery_attempt_status_attemptedAt_idx").on(
+      table.status,
+      table.attemptedAt
+    ),
+  ]
+)
+
 export const profileRelations = relations(profile, ({ one, many }) => ({
   owner: one(user, {
     fields: [profile.ownerId],
@@ -250,6 +343,8 @@ export const profileRelations = relations(profile, ({ one, many }) => ({
   reminderPreference: one(reminderPreference),
   zakatCycles: many(zakatCycle),
   reminderJobs: many(reminderJob),
+  notificationSubscriptions: many(notificationSubscription),
+  notificationDeliveryAttempts: many(notificationDeliveryAttempt),
   permissions: many(profilePermission),
   wealthSnapshots: many(wealthSnapshot),
 }))
@@ -326,3 +421,32 @@ export const reminderJobRelations = relations(reminderJob, ({ one }) => ({
     references: [zakatCycle.id],
   }),
 }))
+
+export const notificationSubscriptionRelations = relations(
+  notificationSubscription,
+  ({ one, many }) => ({
+    profile: one(profile, {
+      fields: [notificationSubscription.profileId],
+      references: [profile.id],
+    }),
+    deliveryAttempts: many(notificationDeliveryAttempt),
+  })
+)
+
+export const notificationDeliveryAttemptRelations = relations(
+  notificationDeliveryAttempt,
+  ({ one }) => ({
+    profile: one(profile, {
+      fields: [notificationDeliveryAttempt.profileId],
+      references: [profile.id],
+    }),
+    reminderJob: one(reminderJob, {
+      fields: [notificationDeliveryAttempt.reminderJobId],
+      references: [reminderJob.id],
+    }),
+    subscription: one(notificationSubscription, {
+      fields: [notificationDeliveryAttempt.subscriptionId],
+      references: [notificationSubscription.id],
+    }),
+  })
+)

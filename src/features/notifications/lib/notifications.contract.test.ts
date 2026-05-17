@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest"
 
 import {
   notificationChannelValues,
+  notificationDeliveryAttemptStatusValues,
   notificationDeliveryKindValues,
+  notificationSubscriptionStatusValues,
 } from "./notifications.constants"
 import {
+  notificationDeliveryAttemptSchema,
   notificationDeliveryPayloadSchema,
   notificationSubscriptionSchema,
 } from "./notifications.schemas"
@@ -21,6 +24,7 @@ describe("notification contract", () => {
   it("treats push subscriptions as profile-scoped web push records", () => {
     expect(
       notificationSubscriptionSchema.parse({
+        id: "subscription-1",
         profileId: "profile-1",
         channel: "web_push",
         endpoint: "https://push.example.test/subscriptions/abc",
@@ -28,12 +32,52 @@ describe("notification contract", () => {
           auth: "auth-key",
           p256dh: "p256dh-key",
         },
+        status: "active",
+        expiresAt: null,
+        disabledAt: null,
+        expiredAt: null,
+        failedAt: null,
+        lastFailureReason: null,
         createdAt: new Date("2026-05-17T09:00:00.000Z"),
         updatedAt: new Date("2026-05-17T09:00:00.000Z"),
       }),
     ).toMatchObject({
       profileId: "profile-1",
       channel: "web_push",
+    })
+  })
+
+  it("tracks push delivery attempts separately from subscriptions", () => {
+    expect(notificationSubscriptionStatusValues).toEqual([
+      "active",
+      "disabled",
+      "expired",
+      "failed",
+    ])
+    expect(notificationDeliveryAttemptStatusValues).toEqual([
+      "succeeded",
+      "failed",
+    ])
+
+    expect(
+      notificationDeliveryAttemptSchema.parse({
+        id: "attempt-1",
+        profileId: "profile-1",
+        reminderJobId: "reminder-job-1",
+        subscriptionId: "subscription-1",
+        channel: "web_push",
+        kind: "balance_update",
+        status: "succeeded",
+        payload: '{"title":"Balance update"}',
+        attemptedAt: new Date("2026-05-17T09:05:00.000Z"),
+        deliveredAt: new Date("2026-05-17T09:05:01.000Z"),
+        errorMessage: null,
+        createdAt: new Date("2026-05-17T09:05:00.000Z"),
+        updatedAt: new Date("2026-05-17T09:05:00.000Z"),
+      }),
+    ).toMatchObject({
+      kind: "balance_update",
+      status: "succeeded",
     })
   })
 
