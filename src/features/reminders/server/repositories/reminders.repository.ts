@@ -1,4 +1,4 @@
-import { and, eq, lte, sql } from "drizzle-orm"
+import { and, eq, isNotNull, lte, or, sql } from "drizzle-orm"
 
 import { db } from "@/server/db/client"
 import {
@@ -14,7 +14,10 @@ import {
   type ZakatCycleRecord,
   type ZakatDueReminderJobRecord,
 } from "../../lib/reminders.types"
-import type { ReminderJobPhase } from "../../lib/reminders.constants"
+import {
+  reminderJobClaimLeaseMs,
+  type ReminderJobPhase,
+} from "../../lib/reminders.constants"
 
 function toReminderPreferenceRecord(
   record: typeof reminderPreference.$inferSelect,
@@ -294,7 +297,10 @@ export async function createZakatDueReminderJobRecord(input: {
   return toReminderJobRecord(record)
 }
 
-export async function claimDueReminderJobRecords(now = new Date()) {
+export async function claimDueReminderJobRecords(
+  now = new Date(),
+  staleClaimBefore = new Date(now.getTime() - reminderJobClaimLeaseMs),
+) {
   const claimedRows = await db
     .update(reminderJob)
     .set({
@@ -305,9 +311,56 @@ export async function claimDueReminderJobRecords(now = new Date()) {
       updatedAt: now,
     })
     .where(
-      and(eq(reminderJob.status, "pending"), lte(reminderJob.scheduledFor, now)),
+      or(
+        and(
+          eq(reminderJob.status, "pending"),
+          lte(reminderJob.scheduledFor, now),
+        ),
+        and(
+          eq(reminderJob.status, "claimed"),
+          isNotNull(reminderJob.claimedAt),
+          lte(reminderJob.claimedAt, staleClaimBefore),
+          lte(reminderJob.scheduledFor, now),
+        ),
+      ),
     )
     .returning()
 
   return claimedRows.map(toReminderJobRecord)
+}
+
+export async function markReminderJobSucceededRecord(
+  reminderJobId: string,
+  completedAt = new Date(),
+) {
+  const [record] = await db
+    .update(reminderJob)
+    .set({
+      status: "succeeded",
+      completedAt,
+      updatedAt: completedAt,
+    })
+    .where(eq(reminderJob.id, reminderJobId))
+    .returning()
+
+  return record ? toReminderJobRecord(record) : null
+}
+
+export async function recordReminderJobDispatchFailureRecord(
+  reminderJobId: string,
+  lastError: string,
+  attemptedAt = new Date(),
+) {
+  const [record] = await db
+    .update(reminderJob)
+    .set({
+      claimedAt: attemptedAt,
+      lastAttemptAt: attemptedAt,
+      lastError,
+      updatedAt: attemptedAt,
+    })
+    .where(eq(reminderJob.id, reminderJobId))
+    .returning()
+
+  return record ? toReminderJobRecord(record) : null
 }

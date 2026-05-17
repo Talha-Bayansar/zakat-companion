@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: planned
-- Current step: step 4
+- Current step: step 7
 
 ## Goal
 
@@ -30,25 +30,25 @@ Implement profile-level reminder preferences and database-backed reminder jobs t
    - Keep job creation idempotent so repeated scheduling work does not duplicate reminders.
 
 4. Add server functions for settings and job orchestration.
-   - Status: pending
+   - Status: completed
    - Add server functions under `src/features/reminders/server/functions/` for reading and updating reminder preferences.
    - Add server entry points for creating and claiming due jobs.
    - Keep the route surface thin and expose the feature through a public `index.ts` barrel.
 
 5. Implement the settings UI for reminder preferences.
-   - Status: pending
+   - Status: completed
    - Add the reminder preferences experience inside `Settings`.
    - Use the repo's standard form, loading, and empty-state patterns.
    - Keep all client-facing copy in Paraglide messages.
 
 6. Wire cron execution and retry behavior.
-   - Status: pending
+   - Status: completed
    - Add the Cloudflare cron-driven execution path that picks up due jobs.
    - Ensure claims are idempotent and safe to retry.
    - Record enough job state to support future queue-based execution without changing the model.
 
 7. Add tests for preference updates and job execution.
-   - Status: pending
+   - Status: in progress
    - Test cadence, timezone, quiet hours, and follow-up validation.
    - Test job creation, claiming, dispatch, and retry behavior.
    - Confirm the behavior stays stable when the active profile changes.

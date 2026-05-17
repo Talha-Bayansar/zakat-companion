@@ -8,6 +8,7 @@ export {
   ReminderServiceError,
   updateReminderPreference,
 } from "./services/reminders.service"
+export { runDueReminderJobs } from "./jobs/reminders.job"
 export {
   claimDueReminderJobRecords,
   createBalanceUpdateReminderJobRecord,
@@ -16,6 +17,8 @@ export {
   createZakatDueReminderJobRecord,
   getReminderPreferenceRecordByProfileId,
   getZakatCycleRecordById,
+  markReminderJobSucceededRecord,
+  recordReminderJobDispatchFailureRecord,
   upsertReminderPreferenceRecord,
 } from "./repositories/reminders.repository"
 export {
