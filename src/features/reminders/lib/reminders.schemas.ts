@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { m } from "@/paraglide/messages"
 import {
   defaultReminderCadence,
   reminderQuietHourTimePattern,
@@ -12,6 +13,15 @@ import { fiqhCycleStateValues } from "@/features/fiqh-calculation"
 
 export const reminderCadenceSchema = z.enum(reminderCadenceValues)
 
+function isValidIanaTimezone(timezone: string) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: timezone })
+    return true
+  } catch {
+    return false
+  }
+}
+
 export const reminderQuietHoursSchema = z
   .object({
     startTime: z.string().trim().regex(reminderQuietHourTimePattern),
@@ -20,10 +30,75 @@ export const reminderQuietHoursSchema = z
 
 export const reminderPreferenceSchema = z.object({
   balanceUpdateCadence: reminderCadenceSchema.default(defaultReminderCadence),
-  timezone: z.string().trim().min(1),
+  timezone: z
+    .string()
+    .trim()
+    .min(1)
+    .refine(isValidIanaTimezone, {
+      message: m.settings_reminders_validation_invalid_timezone(),
+    }),
   quietHours: reminderQuietHoursSchema.nullable(),
   zakatDueFollowUpEnabled: z.boolean(),
 })
+
+type ReminderPreferenceFormSchemaMessages = {
+  requiredTimezone: string
+  invalidTimezone: string
+  requiredQuietHoursStartTime: string
+  requiredQuietHoursEndTime: string
+  invalidQuietHoursWindow: string
+}
+
+export function createReminderPreferenceFormSchema(
+  messages: ReminderPreferenceFormSchemaMessages,
+) {
+  return z
+    .object({
+      balanceUpdateCadence: reminderCadenceSchema,
+      timezone: z
+        .string()
+        .trim()
+        .min(1, messages.requiredTimezone)
+        .refine(isValidIanaTimezone, messages.invalidTimezone),
+      quietHoursEnabled: z.enum(["enabled", "disabled"]),
+      quietHoursStartTime: z.string().trim(),
+      quietHoursEndTime: z.string().trim(),
+      zakatDueFollowUpEnabled: z.enum(["enabled", "disabled"]),
+    })
+    .superRefine((value, context) => {
+      if (value.quietHoursEnabled !== "enabled") {
+        return
+      }
+
+      if (!value.quietHoursStartTime) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["quietHoursStartTime"],
+          message: messages.requiredQuietHoursStartTime,
+        })
+      }
+
+      if (!value.quietHoursEndTime) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["quietHoursEndTime"],
+          message: messages.requiredQuietHoursEndTime,
+        })
+      }
+
+      if (
+        value.quietHoursStartTime &&
+        value.quietHoursEndTime &&
+        value.quietHoursStartTime === value.quietHoursEndTime
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["quietHoursEndTime"],
+          message: messages.invalidQuietHoursWindow,
+        })
+      }
+    })
+}
 
 const reminderJobBaseSchema = z.object({
   id: z.string().trim().min(1),

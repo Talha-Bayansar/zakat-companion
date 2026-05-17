@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: planned
-- Current step: step 3
+- Current step: step 4
 
 ## Goal
 
@@ -24,7 +24,7 @@ Implement profile-level reminder preferences and database-backed reminder jobs t
    - Generate and apply the database migration.
 
 3. Build server repositories and services.
-   - Status: pending
+   - Status: completed
    - Add feature-local repositories under `src/features/reminders/server/repositories/`.
    - Add a service layer under `src/features/reminders/server/services/` to validate input, resolve the active profile, persist preference changes, and create due jobs.
    - Keep job creation idempotent so repeated scheduling work does not duplicate reminders.

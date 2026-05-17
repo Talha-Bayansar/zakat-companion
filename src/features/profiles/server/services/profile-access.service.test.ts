@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const repoMocks = vi.hoisted(() => ({
   createProfileRecord: vi.fn(),
+  createDefaultReminderPreferenceRecord: vi.fn(),
   deleteProfileRecord: vi.fn(),
   deleteProfileAccessGrantRecord: vi.fn(),
   findUserRecordByEmail: vi.fn(),
@@ -17,6 +18,14 @@ const repoMocks = vi.hoisted(() => ({
 }))
 
 vi.mock("../repositories/profile-access.repository", () => repoMocks)
+
+vi.mock(
+  "@/features/reminders/server/repositories/reminders.repository",
+  () => ({
+    createDefaultReminderPreferenceRecord:
+      repoMocks.createDefaultReminderPreferenceRecord,
+  }),
+)
 
 import {
   createProfile,
@@ -92,6 +101,15 @@ describe("profile access active selection", () => {
     repoMocks.listDelegatedProfileRecords.mockResolvedValue([])
     repoMocks.updateUserActiveProfileRecord.mockResolvedValue(null)
     repoMocks.createProfileRecord.mockResolvedValue(ownedProfile)
+    repoMocks.createDefaultReminderPreferenceRecord.mockResolvedValue({
+      profileId: ownedProfile.id,
+      balanceUpdateCadence: "monthly",
+      timezone: "Europe/Brussels",
+      quietHours: null,
+      zakatDueFollowUpEnabled: true,
+      createdAt: new Date("2026-05-01T00:00:00Z"),
+      updatedAt: new Date("2026-05-01T00:00:00Z"),
+    })
 
     const result = await createProfile(
       {
@@ -106,6 +124,9 @@ describe("profile access active selection", () => {
     )
 
     expect(result.id).toBe(ownedProfile.id)
+    expect(repoMocks.createDefaultReminderPreferenceRecord).toHaveBeenCalledWith(
+      ownedProfile.id,
+    )
     expect(repoMocks.updateUserActiveProfileRecord).toHaveBeenCalledWith(
       "user-1",
       ownedProfile.id,

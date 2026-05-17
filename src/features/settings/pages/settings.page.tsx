@@ -11,6 +11,7 @@ import { LocaleSwitcher } from "@/shared/ui/locale-switcher"
 import { useSignOutMutation } from "@/features/auth/lib/auth.mutations"
 import { ActiveProfileSelectorSection } from "../components/active-profile-selector-section"
 import { ActiveProfileFiqhSection } from "../components/active-profile-fiqh-section"
+import { ReminderPreferencesSection } from "../components/reminder-preferences-section"
 
 export function SettingsPage() {
   const navigate = useNavigate()
@@ -27,6 +28,8 @@ export function SettingsPage() {
       <ActiveProfileSelectorSection />
 
       <ActiveProfileFiqhSection />
+
+      <ReminderPreferencesSection />
 
       <section className="flex flex-col gap-4 rounded-[1.75rem] border border-border/70 bg-background/80 p-5 backdrop-blur-sm">
         <div className="flex flex-col gap-1">

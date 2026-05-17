@@ -8,6 +8,7 @@ import {
   reminderJobStatusValues,
 } from "./reminders.constants"
 import {
+  createReminderPreferenceFormSchema,
   reminderPreferenceSchema,
   reminderJobSchema,
   reminderQuietHoursSchema,
@@ -80,6 +81,15 @@ describe("reminder contract", () => {
       startTime: "23:00",
       endTime: "07:00",
     })
+
+    expect(() =>
+      reminderPreferenceSchema.parse({
+        balanceUpdateCadence: "monthly",
+        timezone: "Not/AZone",
+        quietHours: null,
+        zakatDueFollowUpEnabled: true,
+      }),
+    ).toThrow()
   })
 
   it("validates reminder jobs by kind", () => {
@@ -128,6 +138,40 @@ describe("reminder contract", () => {
       kind: "zakat_due",
       phase: "follow_up",
     })
+  })
+
+  it("validates reminder preference form rules", () => {
+    const reminderPreferenceFormSchema = createReminderPreferenceFormSchema({
+      requiredTimezone: "Timezone is required.",
+      invalidTimezone: "Timezone is invalid.",
+      requiredQuietHoursStartTime: "Quiet hours start is required.",
+      requiredQuietHoursEndTime: "Quiet hours end is required.",
+      invalidQuietHoursWindow: "Quiet hours window is invalid.",
+    })
+
+    expect(
+      reminderPreferenceFormSchema.parse({
+        balanceUpdateCadence: "monthly",
+        timezone: "Europe/Brussels",
+        quietHoursEnabled: "enabled",
+        quietHoursStartTime: "22:00",
+        quietHoursEndTime: "06:00",
+        zakatDueFollowUpEnabled: "enabled",
+      }),
+    ).toMatchObject({
+      quietHoursEnabled: "enabled",
+    })
+
+    expect(() =>
+      reminderPreferenceFormSchema.parse({
+        balanceUpdateCadence: "monthly",
+        timezone: "Europe/Brussels",
+        quietHoursEnabled: "enabled",
+        quietHoursStartTime: "22:00",
+        quietHoursEndTime: "22:00",
+        zakatDueFollowUpEnabled: "enabled",
+      }),
+    ).toThrow()
   })
 
   it("validates zakat cycles", () => {

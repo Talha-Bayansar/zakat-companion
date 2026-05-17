@@ -18,6 +18,7 @@ import {
   updateProfileRecord,
   upsertProfileAccessGrantRecord,
 } from "../repositories/profile-access.repository"
+import { createDefaultReminderPreferenceRecord } from "@/features/reminders/server/repositories/reminders.repository"
 import type {
   AccessibleProfile,
 } from "../../lib/profile-access.types"
@@ -274,6 +275,7 @@ export async function createProfile(actor: Actor, input: CreateProfileInput) {
     input.madhab,
     input.nisabBenchmark,
   )
+  await createDefaultReminderPreferenceRecord(record.id)
 
   if (!currentActiveProfile) {
     await persistActiveProfileSelection(actor, record.id)

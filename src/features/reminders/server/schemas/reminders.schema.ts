@@ -9,12 +9,10 @@ import {
 export const reminderPreferenceUpdateInputSchema = reminderPreferenceSchema
 
 export const balanceUpdateReminderJobInputSchema = z.object({
-  profileId: z.string().trim().min(1),
   scheduledFor: z.date(),
 })
 
 export const zakatDueReminderJobInputSchema = z.object({
-  profileId: z.string().trim().min(1),
   zakatCycleId: z.string().trim().min(1),
   phase: reminderJobPhaseSchema,
   scheduledFor: z.date(),

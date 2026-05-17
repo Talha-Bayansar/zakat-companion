@@ -1,5 +1,5 @@
+import { m } from "@/paraglide/messages"
 import { resolveCurrentActiveProfile } from "@/features/profiles/server/services/profile-access.service"
-import { getProfileRecordById } from "@/features/profiles/server/repositories/profile-access.repository"
 
 import {
   type BalanceUpdateReminderJobInput,
@@ -15,6 +15,7 @@ import {
 } from "../schemas/reminders.schema"
 import {
   claimDueReminderJobRecords,
+  createDefaultReminderPreferenceRecord,
   createBalanceUpdateReminderJobRecord,
   createZakatDueReminderJobRecord,
   createZakatCycleRecord,
@@ -67,18 +68,8 @@ async function requireOwnerActiveProfile(actor: Actor) {
   if (profile.role !== "owner") {
     throw new ReminderServiceError(
       "FORBIDDEN",
-      "Reminder preferences can only be edited by the profile owner.",
+      m.profile_access_owner_only(),
     )
-  }
-
-  return profile
-}
-
-async function requireProfileExists(profileId: string) {
-  const profile = await getProfileRecordById(profileId)
-
-  if (!profile) {
-    throw new ReminderServiceError("NOT_FOUND", "Profile not found.")
   }
 
   return profile
@@ -88,7 +79,10 @@ async function requireZakatCycle(profileId: string, zakatCycleId: string) {
   const zakatCycle = await getZakatCycleRecordById(zakatCycleId)
 
   if (!zakatCycle || zakatCycle.profileId !== profileId) {
-    throw new ReminderServiceError("NOT_FOUND", "Zakat cycle not found.")
+    throw new ReminderServiceError(
+      "NOT_FOUND",
+      m.reminder_zakat_cycle_not_found(),
+    )
   }
 
   return zakatCycle
@@ -101,7 +95,13 @@ export async function getReminderPreference(actor: Actor) {
     return null
   }
 
-  return getReminderPreferenceRecordByProfileId(profile.id)
+  const record = await getReminderPreferenceRecordByProfileId(profile.id)
+
+  if (record) {
+    return record
+  }
+
+  return createDefaultReminderPreferenceRecord(profile.id)
 }
 
 export async function updateReminderPreference(
@@ -113,7 +113,7 @@ export async function updateReminderPreference(
   if (!profile) {
     throw new ReminderServiceError(
       "NO_ACTIVE_PROFILE",
-      "No active profile is selected.",
+      m.reminder_preferences_no_active_profile(),
     )
   }
 
@@ -122,34 +122,57 @@ export async function updateReminderPreference(
   return upsertReminderPreferenceRecord(profile.id, parsed)
 }
 
+async function requireActiveReminderProfile(actor: Actor) {
+  const profile = await requireOwnerActiveProfile(actor)
+
+  if (!profile) {
+    throw new ReminderServiceError(
+      "NO_ACTIVE_PROFILE",
+      m.reminder_preferences_no_active_profile(),
+    )
+  }
+
+  return profile
+}
+
 export async function createBalanceUpdateReminderJob(
+  actor: Actor,
   input: BalanceUpdateReminderJobInput,
 ) {
   const parsed = balanceUpdateReminderJobInputSchema.parse(input)
+  const profile = await requireActiveReminderProfile(actor)
 
-  await requireProfileExists(parsed.profileId)
-
-  return createBalanceUpdateReminderJobRecord(parsed)
+  return createBalanceUpdateReminderJobRecord({
+    profileId: profile.id,
+    scheduledFor: parsed.scheduledFor,
+  })
 }
 
 export async function createZakatDueReminderJob(
+  actor: Actor,
   input: ZakatDueReminderJobInput,
 ) {
   const parsed = zakatDueReminderJobInputSchema.parse(input)
+  const profile = await requireActiveReminderProfile(actor)
 
-  await requireZakatCycle(parsed.profileId, parsed.zakatCycleId)
+  await requireZakatCycle(profile.id, parsed.zakatCycleId)
 
-  return createZakatDueReminderJobRecord(parsed)
+  return createZakatDueReminderJobRecord({
+    profileId: profile.id,
+    zakatCycleId: parsed.zakatCycleId,
+    phase: parsed.phase,
+    scheduledFor: parsed.scheduledFor,
+  })
 }
 
-export async function createReminderJob(input: ReminderJobInput) {
+export async function createReminderJob(actor: Actor, input: ReminderJobInput) {
   const parsed = reminderJobInputSchema.parse(input)
 
   if (parsed.kind === "balance_update") {
-    return createBalanceUpdateReminderJob(parsed)
+    return createBalanceUpdateReminderJob(actor, parsed)
   }
 
-  return createZakatDueReminderJob(parsed)
+  return createZakatDueReminderJob(actor, parsed)
 }
 
 export async function createZakatCycle(input: CreateZakatCycleInput) {

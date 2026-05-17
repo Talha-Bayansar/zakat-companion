@@ -105,6 +105,19 @@ function createZakatDueDedupeKey(
   return `zakat_due:${profileId}:${zakatCycleId}:${phase}`
 }
 
+function getDefaultReminderTimezone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+}
+
+export function createDefaultReminderPreferenceInput(): ReminderPreference {
+  return {
+    balanceUpdateCadence: "monthly",
+    timezone: getDefaultReminderTimezone(),
+    quietHours: null,
+    zakatDueFollowUpEnabled: true,
+  }
+}
+
 export async function getReminderPreferenceRecordByProfileId(profileId: string) {
   const [record] = await db
     .select()
@@ -113,6 +126,10 @@ export async function getReminderPreferenceRecordByProfileId(profileId: string) 
     .limit(1)
 
   return record ? toReminderPreferenceRecord(record) : null
+}
+
+export async function createDefaultReminderPreferenceRecord(profileId: string) {
+  return upsertReminderPreferenceRecord(profileId, createDefaultReminderPreferenceInput())
 }
 
 export async function upsertReminderPreferenceRecord(
