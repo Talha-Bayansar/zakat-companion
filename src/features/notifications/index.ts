@@ -22,3 +22,21 @@ export type {
   NotificationSubscriptionKeys,
   NotificationSubscriptionRecord,
 } from "./lib/notifications.types"
+export {
+  listNotificationSubscriptionsFn,
+  registerNotificationSubscriptionFn,
+  removeNotificationSubscriptionFn,
+} from "./server/functions/notifications.function"
+export type {
+  NotificationSubscriptionRegistrationInput,
+  NotificationSubscriptionRemovalInput,
+  NotificationSubscriptionTestDeliveryInput,
+} from "./server/schemas/notifications.schema"
+export {
+  NotificationServiceError,
+  getNotificationSubscription,
+  listNotificationSubscriptions,
+  registerNotificationSubscription,
+  removeNotificationSubscription,
+  sendNotificationPayloadToProfile,
+} from "./server/services/notifications.service"
