@@ -14,6 +14,7 @@
     "required": [
       "BETTER_AUTH_SECRET",
       "DATABASE_URL",
+      "METALS_DEV_API_KEY",
       "GOOGLE_CLIENT_ID",
       "GOOGLE_CLIENT_SECRET",
       "WEB_PUSH_VAPID_PRIVATE_KEY"
@@ -21,5 +22,8 @@
   },
   "observability": {
     "enabled": true,
+  },
+  "triggers": {
+    "crons": ["0 2 * * *"],
   },
 }

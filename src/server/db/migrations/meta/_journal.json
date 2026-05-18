@@ -71,6 +71,13 @@
       "when": 1779037947640,
       "tag": "0009_busy_ken_ellis",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779112110640,
+      "tag": "0010_spicy_blindfold",
+      "breakpoints": true
     }
   ]
 }
