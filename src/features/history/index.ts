@@ -1,10 +1,11 @@
 export { HistoryPage } from "./pages/history.page"
 export {
-  listHistoryCyclesFn,
-  listHistoryCyclesInputSchema,
-  markCyclePaidFn,
-  historyMarkCyclePaidInputSchema,
-} from "./server"
+  historyCyclesInfiniteQueryKey,
+  historyCyclesQueryKey,
+  useHistoryCyclesInfiniteQuery,
+  useHistoryCyclesQuery,
+} from "./lib/history.query"
+export { useMarkCyclePaidMutation } from "./lib/history.mutations"
 export {
   historyBalanceUpdateReminderJobSchema,
   historyCycleHistoryPageSchema,
