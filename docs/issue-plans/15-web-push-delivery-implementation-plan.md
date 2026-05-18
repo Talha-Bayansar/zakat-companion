@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: in progress
-- Current step: step 5
+- Current step: step 6
 
 ## Goal
 
@@ -40,7 +40,7 @@ Implement browser web push subscription management and delivery so reminder jobs
    - Keep the job execution idempotent if the same reminder is claimed more than once.
 
 5. Add the user-facing permission and subscription UI.
-   - Status: pending
+   - Status: done
    - Add a notification settings section in `Settings` for push permission status and subscription management.
    - Surface permission prompts and unsubscribe actions with the repo's standard form, loading, and empty-state patterns.
    - Keep all user-facing copy in Paraglide messages.

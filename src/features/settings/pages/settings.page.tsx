@@ -11,6 +11,7 @@ import { LocaleSwitcher } from "@/shared/ui/locale-switcher"
 import { useSignOutMutation } from "@/features/auth/lib/auth.mutations"
 import { ActiveProfileSelectorSection } from "../components/active-profile-selector-section"
 import { ActiveProfileFiqhSection } from "../components/active-profile-fiqh-section"
+import { NotificationPreferencesSection } from "../components/notification-preferences-section"
 import { ReminderPreferencesSection } from "../components/reminder-preferences-section"
 
 export function SettingsPage() {
@@ -28,6 +29,8 @@ export function SettingsPage() {
       <ActiveProfileSelectorSection />
 
       <ActiveProfileFiqhSection />
+
+      <NotificationPreferencesSection />
 
       <ReminderPreferencesSection />
 

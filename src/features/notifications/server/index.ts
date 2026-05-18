@@ -1,4 +1,5 @@
 export {
+  getNotificationVapidPublicKeyFn,
   listNotificationSubscriptionsFn,
   registerNotificationSubscriptionFn,
   removeNotificationSubscriptionFn,

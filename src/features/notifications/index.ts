@@ -23,11 +23,27 @@ export type {
   NotificationSubscriptionRecord,
 } from "./lib/notifications.types"
 export {
+  getNotificationVapidPublicKeyFn,
   listNotificationSubscriptionsFn,
   registerNotificationSubscriptionFn,
   removeNotificationSubscriptionFn,
   sendNotificationTestDeliveryFn,
 } from "./server/functions/notifications.function"
+export {
+  buildBrowserPushSubscriptionRegistration,
+  getBrowserNotificationPermission,
+  getCurrentBrowserPushSubscription,
+  requestBrowserNotificationPermission,
+  unsubscribeCurrentBrowserPushSubscription,
+} from "./lib/notifications.client"
+export {
+  useNotificationSubscriptionsQuery,
+  useNotificationVapidPublicKeyQuery,
+} from "./lib/notifications.query"
+export {
+  useRegisterNotificationSubscriptionMutation,
+  useRemoveNotificationSubscriptionMutation,
+} from "./lib/notifications.mutations"
 export type {
   NotificationSubscriptionRegistrationInput,
   NotificationSubscriptionRemovalInput,

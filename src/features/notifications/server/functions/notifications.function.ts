@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
+import { env } from "cloudflare:workers"
 
 import { m } from "@/paraglide/messages"
 
@@ -18,19 +19,17 @@ async function requireActor() {
   const userId = session?.user?.id
 
   if (!userId) {
-    const { NotificationServiceError } = await import(
-      "../services/notifications.service"
-    )
+    const { NotificationServiceError } =
+      await import("../services/notifications.service")
 
     throw new NotificationServiceError(
       "UNAUTHENTICATED",
-      m.notification_sign_in_required(),
+      m.notification_sign_in_required()
     )
   }
 
-  const { getUserRecordById } = await import(
-    "@/features/profiles/server/repositories/profile-access.repository"
-  )
+  const { getUserRecordById } =
+    await import("@/features/profiles/server/repositories/profile-access.repository")
   const userRecord = await getUserRecordById(userId)
 
   return {
@@ -39,15 +38,15 @@ async function requireActor() {
   }
 }
 
-export const listNotificationSubscriptionsFn = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const actor = await requireActor()
-    const { listNotificationSubscriptions } = await import(
-      "../services/notifications.service"
-    )
+export const listNotificationSubscriptionsFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const actor = await requireActor()
+  const { listNotificationSubscriptions } =
+    await import("../services/notifications.service")
 
-    return listNotificationSubscriptions(actor)
-  })
+  return listNotificationSubscriptions(actor)
+})
 
 export const registerNotificationSubscriptionFn = createServerFn({
   method: "POST",
@@ -55,20 +54,20 @@ export const registerNotificationSubscriptionFn = createServerFn({
   .inputValidator(notificationSubscriptionRegistrationInputSchema)
   .handler(async ({ data }) => {
     const actor = await requireActor()
-    const { registerNotificationSubscription } = await import(
-      "../services/notifications.service"
-    )
+    const { registerNotificationSubscription } =
+      await import("../services/notifications.service")
 
     return registerNotificationSubscription(actor, data)
   })
 
-export const removeNotificationSubscriptionFn = createServerFn({ method: "POST" })
+export const removeNotificationSubscriptionFn = createServerFn({
+  method: "POST",
+})
   .inputValidator(notificationSubscriptionRemovalInputSchema)
   .handler(async ({ data }) => {
     const actor = await requireActor()
-    const { removeNotificationSubscription } = await import(
-      "../services/notifications.service"
-    )
+    const { removeNotificationSubscription } =
+      await import("../services/notifications.service")
 
     return removeNotificationSubscription(actor, data)
   })
@@ -77,9 +76,12 @@ export const sendNotificationTestDeliveryFn = createServerFn({ method: "POST" })
   .inputValidator(notificationSubscriptionTestDeliveryInputSchema)
   .handler(async ({ data }) => {
     const actor = await requireActor()
-    const { sendNotificationTestDelivery } = await import(
-      "../services/notifications.service"
-    )
+    const { sendNotificationTestDelivery } =
+      await import("../services/notifications.service")
 
     return sendNotificationTestDelivery(actor, data)
   })
+
+export const getNotificationVapidPublicKeyFn = createServerFn({
+  method: "GET",
+}).handler(async () => env.WEB_PUSH_VAPID_PUBLIC_KEY?.trim() ?? null)
