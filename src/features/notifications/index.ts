@@ -26,6 +26,7 @@ export {
   listNotificationSubscriptionsFn,
   registerNotificationSubscriptionFn,
   removeNotificationSubscriptionFn,
+  sendNotificationTestDeliveryFn,
 } from "./server/functions/notifications.function"
 export type {
   NotificationSubscriptionRegistrationInput,
@@ -39,4 +40,5 @@ export {
   registerNotificationSubscription,
   removeNotificationSubscription,
   sendNotificationPayloadToProfile,
+  sendNotificationTestDelivery,
 } from "./server/services/notifications.service"

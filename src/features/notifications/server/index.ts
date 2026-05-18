@@ -2,6 +2,7 @@ export {
   listNotificationSubscriptionsFn,
   registerNotificationSubscriptionFn,
   removeNotificationSubscriptionFn,
+  sendNotificationTestDeliveryFn,
 } from "./functions/notifications.function"
 export {
   disableNotificationSubscriptionRecord,
@@ -21,6 +22,7 @@ export {
   registerNotificationSubscription,
   removeNotificationSubscription,
   sendNotificationPayloadToProfile,
+  sendNotificationTestDelivery,
 } from "./services/notifications.service"
 export {
   notificationSubscriptionRegistrationInputSchema,

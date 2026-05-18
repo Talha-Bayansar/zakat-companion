@@ -6,6 +6,7 @@ import { m } from "@/paraglide/messages"
 import {
   notificationSubscriptionRegistrationInputSchema,
   notificationSubscriptionRemovalInputSchema,
+  notificationSubscriptionTestDeliveryInputSchema,
 } from "../schemas/notifications.schema"
 
 async function requireActor() {
@@ -70,4 +71,15 @@ export const removeNotificationSubscriptionFn = createServerFn({ method: "POST" 
     )
 
     return removeNotificationSubscription(actor, data)
+  })
+
+export const sendNotificationTestDeliveryFn = createServerFn({ method: "POST" })
+  .inputValidator(notificationSubscriptionTestDeliveryInputSchema)
+  .handler(async ({ data }) => {
+    const actor = await requireActor()
+    const { sendNotificationTestDelivery } = await import(
+      "../services/notifications.service"
+    )
+
+    return sendNotificationTestDelivery(actor, data)
   })
