@@ -9,9 +9,6 @@ import type {
   NotificationDeliveryPayload,
   NotificationSubscriptionRecord,
 } from "../../lib/notifications.types"
-import type {
-  NotificationSubscriptionTestDeliveryInput,
-} from "../schemas/notifications.schema"
 import {
   disableNotificationSubscriptionRecord,
   expireNotificationSubscriptionRecord,
@@ -53,14 +50,7 @@ export type NotificationDeliveryRunResult = {
   succeededCount: number
   failedCount: number
   expiredCount: number
-}
-
-export type NotificationTestDeliveryRunResult = {
-  profileId: string
-  attemptedCount: number
-  succeededCount: number
-  failedCount: number
-  expiredCount: number
+  firstFailureMessage: string | null
 }
 
 export class NotificationServiceError extends Error {
@@ -304,10 +294,12 @@ async function deliverNotificationPayloadToSubscriptions(
 ): Promise<Pick<
   NotificationDeliveryRunResult,
   "attemptedCount" | "succeededCount" | "failedCount" | "expiredCount"
->> {
+> &
+  Pick<NotificationDeliveryRunResult, "firstFailureMessage">> {
   let succeededCount = 0
   let failedCount = 0
   let expiredCount = 0
+  let firstFailureMessage: string | null = null
 
   for (const subscription of subscriptions) {
     try {
@@ -339,6 +331,11 @@ async function deliverNotificationPayloadToSubscriptions(
         m.notification_delivery_failed(),
         statusCode,
       )
+      const errorMessage = getWebPushErrorMessage(failure)
+
+      if (!firstFailureMessage) {
+        firstFailureMessage = errorMessage
+      }
 
       if (mode === "persist") {
         const outcome = await recordNotificationDeliveryFailure(
@@ -372,6 +369,11 @@ async function deliverNotificationPayloadToSubscriptions(
           now,
           error,
         )
+        const errorMessage = getWebPushErrorMessage(error)
+
+        if (!firstFailureMessage) {
+          firstFailureMessage = errorMessage
+        }
 
         if (outcome === "expired") {
           expiredCount += 1
@@ -387,6 +389,10 @@ async function deliverNotificationPayloadToSubscriptions(
       } else {
         failedCount += 1
       }
+
+      if (!firstFailureMessage) {
+        firstFailureMessage = getWebPushErrorMessage(error)
+      }
     }
   }
 
@@ -395,6 +401,7 @@ async function deliverNotificationPayloadToSubscriptions(
     succeededCount,
     failedCount,
     expiredCount,
+    firstFailureMessage,
   }
 }
 
@@ -434,6 +441,7 @@ export async function sendNotificationPayloadToProfile(
     succeededCount: deliveryResult.succeededCount,
     failedCount: deliveryResult.failedCount,
     expiredCount: deliveryResult.expiredCount,
+    firstFailureMessage: deliveryResult.firstFailureMessage,
   }
 }
 
@@ -448,45 +456,4 @@ export async function getNotificationSubscription(
   }
 
   return requireNotificationSubscriptionRecord(profile.id, input.subscriptionId)
-}
-
-export async function sendNotificationTestDelivery(
-  actor: Actor,
-  input: NotificationSubscriptionTestDeliveryInput,
-): Promise<NotificationTestDeliveryRunResult> {
-  const profile = await requireOwnerActiveProfile(actor)
-
-  if (!profile) {
-    throw new NotificationServiceError(
-      "NO_ACTIVE_PROFILE",
-      m.notification_no_active_profile(),
-    )
-  }
-
-  const parsed = ensureNotificationPayload(profile.id, input.payload)
-
-  const subscriptions = input.subscriptionId
-    ? [
-        await requireActiveNotificationSubscriptionRecord(
-          profile.id,
-          input.subscriptionId,
-        ),
-      ]
-    : await listActiveNotificationSubscriptionRecordsByProfileId(profile.id)
-
-  const deliveryResult = await deliverNotificationPayloadToSubscriptions(
-    subscriptions,
-    null,
-    parsed,
-    new Date(),
-    "ephemeral",
-  )
-
-  return {
-    profileId: profile.id,
-    attemptedCount: deliveryResult.attemptedCount,
-    succeededCount: deliveryResult.succeededCount,
-    failedCount: deliveryResult.failedCount,
-    expiredCount: deliveryResult.expiredCount,
-  }
 }

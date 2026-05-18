@@ -179,6 +179,7 @@ export function NotificationPreferencesSection() {
     string | null
   >(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
   const [removingSubscriptionId, setRemovingSubscriptionId] = useState<
     string | null
@@ -316,6 +317,7 @@ export function NotificationPreferencesSection() {
     }
 
     setActionError(null)
+    setActionSuccess(null)
     setIsConnecting(true)
 
     try {
@@ -329,6 +331,7 @@ export function NotificationPreferencesSection() {
 
       setBrowserPermission("granted")
       setCurrentBrowserEndpoint(subscription.endpoint)
+      setActionSuccess(m.settings_notifications_register_success())
     } catch (error) {
       setActionError(
         error instanceof Error && error.message
@@ -344,6 +347,7 @@ export function NotificationPreferencesSection() {
     subscription: NotificationSubscriptionRecord
   ) {
     setActionError(null)
+    setActionSuccess(null)
     setRemovingSubscriptionId(subscription.id)
 
     try {
@@ -355,6 +359,8 @@ export function NotificationPreferencesSection() {
       await removeSubscriptionMutation.mutateAsync({
         subscriptionId: subscription.id,
       })
+
+      setActionSuccess(m.settings_notifications_remove_success())
     } catch (error) {
       setActionError(
         error instanceof Error && error.message
@@ -456,6 +462,12 @@ export function NotificationPreferencesSection() {
         {actionError ? (
           <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
             {actionError}
+          </p>
+        ) : null}
+
+        {actionSuccess ? (
+          <p className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm leading-6 text-emerald-700 dark:text-emerald-300">
+            {actionSuccess}
           </p>
         ) : null}
       </div>

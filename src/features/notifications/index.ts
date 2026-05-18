@@ -17,18 +17,15 @@ export {
   notificationSubscriptionSchema,
 } from "./lib/notifications.schemas"
 export type {
+  NotificationSubscriptionRegistrationInput,
+  NotificationSubscriptionRemovalInput,
+} from "./lib/notifications.inputs"
+export type {
   NotificationDeliveryPayload,
   NotificationDeliveryAttemptRecord,
   NotificationSubscriptionKeys,
   NotificationSubscriptionRecord,
 } from "./lib/notifications.types"
-export {
-  getNotificationVapidPublicKeyFn,
-  listNotificationSubscriptionsFn,
-  registerNotificationSubscriptionFn,
-  removeNotificationSubscriptionFn,
-  sendNotificationTestDeliveryFn,
-} from "./server/functions/notifications.function"
 export {
   buildBrowserPushSubscriptionRegistration,
   getBrowserNotificationPermission,
@@ -44,17 +41,3 @@ export {
   useRegisterNotificationSubscriptionMutation,
   useRemoveNotificationSubscriptionMutation,
 } from "./lib/notifications.mutations"
-export type {
-  NotificationSubscriptionRegistrationInput,
-  NotificationSubscriptionRemovalInput,
-  NotificationSubscriptionTestDeliveryInput,
-} from "./server/schemas/notifications.schema"
-export {
-  NotificationServiceError,
-  getNotificationSubscription,
-  listNotificationSubscriptions,
-  registerNotificationSubscription,
-  removeNotificationSubscription,
-  sendNotificationPayloadToProfile,
-  sendNotificationTestDelivery,
-} from "./server/services/notifications.service"

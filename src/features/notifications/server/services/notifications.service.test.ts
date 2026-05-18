@@ -51,11 +51,9 @@ vi.mock("./web-push-delivery.service", () => ({
 }))
 
 import {
-  NotificationServiceError,
   registerNotificationSubscription,
   removeNotificationSubscription,
   sendNotificationPayloadToProfile,
-  sendNotificationTestDelivery,
 } from "./notifications.service"
 
 const actor = {
@@ -244,55 +242,5 @@ describe("notifications service", () => {
       failedCount: 0,
       expiredCount: 0,
     })
-  })
-
-  it("sends manual test deliveries without recording reminder attempts", async () => {
-    getNotificationSubscriptionRecordById.mockResolvedValue(subscription)
-    sendWebPushNotification.mockResolvedValue({ statusCode: 201 })
-
-    const result = await sendNotificationTestDelivery(actor, {
-      subscriptionId: "subscription-1",
-      payload: {
-        channel: "web_push",
-        kind: "zakat_due",
-        profileId: "profile-1",
-        title: "Zakat due",
-        body: "Your zakat cycle is due.",
-        url: "/history",
-        tag: "zakat-due:profile-1",
-      },
-    })
-
-    expect(sendWebPushNotification).toHaveBeenCalledTimes(1)
-    expect(recordNotificationDeliveryAttemptRecord).not.toHaveBeenCalled()
-    expect(result).toMatchObject({
-      profileId: "profile-1",
-      attemptedCount: 1,
-      succeededCount: 1,
-      failedCount: 0,
-      expiredCount: 0,
-    })
-  })
-
-  it("rejects test delivery for inactive subscriptions", async () => {
-    getNotificationSubscriptionRecordById.mockResolvedValue({
-      ...subscription,
-      status: "disabled",
-    })
-
-    await expect(
-      sendNotificationTestDelivery(actor, {
-        subscriptionId: "subscription-1",
-        payload: {
-          channel: "web_push",
-          kind: "zakat_due",
-          profileId: "profile-1",
-          title: "Zakat due",
-          body: "Your zakat cycle is due.",
-          url: "/history",
-          tag: "zakat-due:profile-1",
-        },
-      }),
-    ).rejects.toBeInstanceOf(NotificationServiceError)
   })
 })

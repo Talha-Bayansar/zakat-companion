@@ -7,7 +7,7 @@ import {
 import type {
   NotificationSubscriptionRegistrationInput,
   NotificationSubscriptionRemovalInput,
-} from "../server/schemas/notifications.schema"
+} from "./notifications.inputs"
 
 import { notificationQueryKey } from "./notifications.query"
 
@@ -44,4 +44,3 @@ export function useRemoveNotificationSubscriptionMutation() {
     },
   })
 }
-

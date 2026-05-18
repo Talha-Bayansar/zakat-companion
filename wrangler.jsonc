@@ -7,7 +7,7 @@
   // Put non-secret runtime values in `vars`.
   // Put secrets in `.dev.vars` locally or with `wrangler secret put` in Cloudflare.
   "vars": {
-    "WEB_PUSH_VAPID_SUBJECT": "talha.bayansar@hotmail.com",
+    "WEB_PUSH_VAPID_SUBJECT": "mailto:talha.bayansar@hotmail.com",
     "WEB_PUSH_VAPID_PUBLIC_KEY": "BDfcDI4-GVdlPf398-CkqysUNU4Ni8YVLho6Nj9lm-DAMTRxuqb51LOUxpz4pG8cLa-g5YxdkTuSiBixJLmg0oQ",
   },
   "secrets": {

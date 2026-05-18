@@ -63,6 +63,14 @@ function getStatusCode(error: unknown) {
 }
 
 export function getWebPushErrorMessage(error: unknown) {
+  const statusCode = getStatusCode(error)
+
+  if (statusCode !== null) {
+    return m.notification_delivery_failed_with_status({
+      statusCode: String(statusCode),
+    })
+  }
+
   if (error instanceof Error && error.message) {
     return error.message
   }

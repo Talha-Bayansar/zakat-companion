@@ -2,9 +2,12 @@ import { z } from "zod"
 
 import {
   notificationChannelSchema,
-  notificationDeliveryPayloadSchema,
   notificationSubscriptionKeysSchema,
 } from "../../lib/notifications.schemas"
+import type {
+  NotificationSubscriptionRegistrationInput as SharedNotificationSubscriptionRegistrationInput,
+  NotificationSubscriptionRemovalInput as SharedNotificationSubscriptionRemovalInput,
+} from "../../lib/notifications.inputs"
 
 export const notificationSubscriptionRegistrationInputSchema = z.object({
   channel: notificationChannelSchema.default("web_push"),
@@ -17,19 +20,8 @@ export const notificationSubscriptionRemovalInputSchema = z.object({
   subscriptionId: z.string().trim().min(1),
 })
 
-export const notificationSubscriptionTestDeliveryInputSchema = z.object({
-  subscriptionId: z.string().trim().min(1).optional(),
-  payload: notificationDeliveryPayloadSchema,
-})
+export type NotificationSubscriptionRegistrationInput =
+  SharedNotificationSubscriptionRegistrationInput
 
-export type NotificationSubscriptionRegistrationInput = z.infer<
-  typeof notificationSubscriptionRegistrationInputSchema
->
-
-export type NotificationSubscriptionRemovalInput = z.infer<
-  typeof notificationSubscriptionRemovalInputSchema
->
-
-export type NotificationSubscriptionTestDeliveryInput = z.infer<
-  typeof notificationSubscriptionTestDeliveryInputSchema
->
+export type NotificationSubscriptionRemovalInput =
+  SharedNotificationSubscriptionRemovalInput

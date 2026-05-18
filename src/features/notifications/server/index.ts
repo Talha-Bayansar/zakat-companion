@@ -3,7 +3,6 @@ export {
   listNotificationSubscriptionsFn,
   registerNotificationSubscriptionFn,
   removeNotificationSubscriptionFn,
-  sendNotificationTestDeliveryFn,
 } from "./functions/notifications.function"
 export {
   disableNotificationSubscriptionRecord,
@@ -23,12 +22,12 @@ export {
   registerNotificationSubscription,
   removeNotificationSubscription,
   sendNotificationPayloadToProfile,
-  sendNotificationTestDelivery,
 } from "./services/notifications.service"
 export {
   notificationSubscriptionRegistrationInputSchema,
   notificationSubscriptionRemovalInputSchema,
-  notificationSubscriptionTestDeliveryInputSchema,
+  type NotificationSubscriptionRegistrationInput,
+  type NotificationSubscriptionRemovalInput,
 } from "./schemas/notifications.schema"
 export {
   WebPushDeliveryError,
