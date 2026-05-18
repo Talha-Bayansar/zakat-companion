@@ -14,6 +14,7 @@ import {
 } from "@/features/fiqh-calculation"
 
 import { wealthCategoryValues } from "../../lib/wealth-snapshot.constants"
+import { orchestrateWealthSnapshotSave } from "@/features/reminders/server/services/reminder-orchestration.service"
 import {
   getWealthSnapshotWithEntriesRecordByProfileId,
   listWealthSnapshotHistoryRecordsByProfileId,
@@ -277,12 +278,17 @@ async function saveWealthSnapshotRevision(
   const snapshot = toWealthSnapshotWriteContext(outcome)
   const entries = normalizeWealthSnapshotEntries(input.entries)
 
-  return replaceWealthSnapshotRecord({
-    profileId,
-    entries,
-    snapshot,
-    capturedAt,
-  })
+  return orchestrateWealthSnapshotSave(async (database) =>
+    replaceWealthSnapshotRecord(
+      {
+        profileId,
+        entries,
+        snapshot,
+        capturedAt,
+      },
+      database,
+    ),
+  )
 }
 
 async function requireCurrentActiveProfile(actor: Actor) {

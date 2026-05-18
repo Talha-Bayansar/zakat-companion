@@ -1,6 +1,6 @@
-import { and, eq, isNotNull, lte, or, sql } from "drizzle-orm"
+import { and, eq, gt, isNotNull, lte, or, sql } from "drizzle-orm"
 
-import { db } from "@/server/db/client"
+import { db, type Database } from "@/server/db/client"
 import {
   reminderJob,
   reminderPreference,
@@ -18,6 +18,11 @@ import {
   reminderJobClaimLeaseMs,
   type ReminderJobPhase,
 } from "../../lib/reminders.constants"
+
+type DatabaseLike = Pick<
+  Database,
+  "select" | "insert" | "update" | "delete"
+>
 
 function toReminderPreferenceRecord(
   record: typeof reminderPreference.$inferSelect,
@@ -96,8 +101,14 @@ function toReminderJobRecord(
   } satisfies ZakatDueReminderJobRecord
 }
 
-function createBalanceUpdateDedupeKey(profileId: string, scheduledFor: Date) {
-  return `balance_update:${profileId}:${scheduledFor.toISOString()}`
+function createBalanceUpdateDedupeKey(
+  profileId: string,
+  sourceSnapshotId: string | null,
+  scheduledFor: Date,
+) {
+  return sourceSnapshotId
+    ? `balance_update:${profileId}:${sourceSnapshotId}`
+    : `balance_update:${profileId}:${scheduledFor.toISOString()}`
 }
 
 function createZakatDueDedupeKey(
@@ -121,8 +132,11 @@ export function createDefaultReminderPreferenceInput(): ReminderPreference {
   }
 }
 
-export async function getReminderPreferenceRecordByProfileId(profileId: string) {
-  const [record] = await db
+export async function getReminderPreferenceRecordByProfileId(
+  profileId: string,
+  database: DatabaseLike = db,
+) {
+  const [record] = await database
     .select()
     .from(reminderPreference)
     .where(eq(reminderPreference.profileId, profileId))
@@ -131,15 +145,23 @@ export async function getReminderPreferenceRecordByProfileId(profileId: string) 
   return record ? toReminderPreferenceRecord(record) : null
 }
 
-export async function createDefaultReminderPreferenceRecord(profileId: string) {
-  return upsertReminderPreferenceRecord(profileId, createDefaultReminderPreferenceInput())
+export async function createDefaultReminderPreferenceRecord(
+  profileId: string,
+  database: DatabaseLike = db,
+) {
+  return upsertReminderPreferenceRecord(
+    profileId,
+    createDefaultReminderPreferenceInput(),
+    database,
+  )
 }
 
 export async function upsertReminderPreferenceRecord(
   profileId: string,
   input: ReminderPreference,
+  database: DatabaseLike = db,
 ) {
-  const [record] = await db
+  const [record] = await database
     .insert(reminderPreference)
     .values({
       id: crypto.randomUUID(),
@@ -182,8 +204,8 @@ export async function createZakatCycleRecord(input: {
   state: ZakatCycleRecord["state"]
   dueAt: Date
   paidAt?: Date | null
-}) {
-  const [record] = await db
+}, database: DatabaseLike = db) {
+  const [record] = await database
     .insert(zakatCycle)
     .values({
       id: crypto.randomUUID(),
@@ -201,13 +223,15 @@ export async function createZakatCycleRecord(input: {
 export async function createBalanceUpdateReminderJobRecord(input: {
   profileId: string
   scheduledFor: Date
-}) {
+  sourceSnapshotId?: string | null
+}, database: DatabaseLike = db) {
   const dedupeKey = createBalanceUpdateDedupeKey(
     input.profileId,
+    input.sourceSnapshotId ?? null,
     input.scheduledFor,
   )
 
-  const [record] = await db
+  const [record] = await database
     .insert(reminderJob)
     .values({
       id: crypto.randomUUID(),
@@ -251,14 +275,14 @@ export async function createZakatDueReminderJobRecord(input: {
   zakatCycleId: string
   phase: ReminderJobPhase
   scheduledFor: Date
-}) {
+}, database: DatabaseLike = db) {
   const dedupeKey = createZakatDueDedupeKey(
     input.profileId,
     input.zakatCycleId,
     input.phase,
   )
 
-  const [record] = await db
+  const [record] = await database
     .insert(reminderJob)
     .values({
       id: crypto.randomUUID(),
@@ -295,6 +319,34 @@ export async function createZakatDueReminderJobRecord(input: {
     .returning()
 
   return toReminderJobRecord(record)
+}
+
+export async function suppressFutureZakatDueReminderJobRecords(
+  input: {
+    profileId: string
+    zakatCycleId: string
+    paidAt: Date
+  },
+  database: DatabaseLike = db,
+) {
+  const rows = await database
+    .update(reminderJob)
+    .set({
+      status: "suppressed",
+      updatedAt: input.paidAt,
+    })
+    .where(
+      and(
+        eq(reminderJob.profileId, input.profileId),
+        eq(reminderJob.zakatCycleId, input.zakatCycleId),
+        eq(reminderJob.kind, "zakat_due"),
+        eq(reminderJob.status, "pending"),
+        gt(reminderJob.scheduledFor, input.paidAt),
+      ),
+    )
+    .returning()
+
+  return rows.map(toReminderJobRecord)
 }
 
 export async function claimDueReminderJobRecords(

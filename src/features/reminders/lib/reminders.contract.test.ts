@@ -35,6 +35,7 @@ describe("reminder contract", () => {
       "claimed",
       "succeeded",
       "failed",
+      "suppressed",
     ])
   })
 
@@ -137,6 +138,28 @@ describe("reminder contract", () => {
     ).toMatchObject({
       kind: "zakat_due",
       phase: "follow_up",
+    })
+
+    expect(
+      reminderJobSchema.parse({
+        id: "job-3",
+        profileId: "profile-1",
+        dedupeKey: "zakat_due:profile-1:cycle-1:suppressed",
+        kind: "zakat_due",
+        zakatCycleId: "cycle-1",
+        phase: "follow_up",
+        scheduledFor: new Date("2026-05-15T09:00:00.000Z"),
+        status: "suppressed",
+        attemptCount: 0,
+        claimedAt: null,
+        completedAt: null,
+        lastAttemptAt: null,
+        lastError: null,
+        createdAt: new Date("2026-05-15T09:00:00.000Z"),
+        updatedAt: new Date("2026-05-15T09:00:00.000Z"),
+      }),
+    ).toMatchObject({
+      status: "suppressed",
     })
   })
 

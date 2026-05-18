@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const resolveCurrentActiveProfile = vi.fn()
 const listHistoryCycleRecordsByProfileId = vi.fn()
 const markHistoryCyclePaidRecord = vi.fn()
+const orchestrateCyclePayment = vi.fn(async (work: (database: unknown) => Promise<unknown>) =>
+  work({}),
+)
 
 vi.mock("@/features/profiles/server/services/profile-access.service", () => ({
   resolveCurrentActiveProfile,
@@ -12,6 +15,13 @@ vi.mock("../repositories/history.repository", () => ({
   listHistoryCycleRecordsByProfileId,
   markHistoryCyclePaidRecord,
 }))
+
+vi.mock(
+  "@/features/reminders/server/services/reminder-orchestration.service",
+  () => ({
+    orchestrateCyclePayment,
+  }),
+)
 
 vi.mock("@/paraglide/messages", () => ({
   m: {
@@ -198,6 +208,8 @@ describe("history service", () => {
     expect(markHistoryCyclePaidRecord).toHaveBeenCalledWith(
       "profile-1",
       "cycle-1",
+      expect.any(Date),
+      expect.anything(),
     )
   })
 

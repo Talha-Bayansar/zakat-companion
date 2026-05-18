@@ -1,5 +1,6 @@
 import { m } from "@/paraglide/messages"
 import { resolveCurrentActiveProfile } from "@/features/profiles/server/services/profile-access.service"
+import { orchestrateCyclePayment } from "@/features/reminders/server/services/reminder-orchestration.service"
 
 import type { HistoryCycleHistoryPage } from "../../lib/history.types"
 import {
@@ -75,9 +76,14 @@ export async function markCyclePaid(
     )
   }
 
-  const record = await markHistoryCyclePaidRecord(
-    profileId,
-    input.zakatCycleId,
+  const paidAt = new Date()
+  const record = await orchestrateCyclePayment(async (database) =>
+    markHistoryCyclePaidRecord(
+      profileId,
+      input.zakatCycleId,
+      paidAt,
+      database,
+    ),
   )
 
   if (!record) {

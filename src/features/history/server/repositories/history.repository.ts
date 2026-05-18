@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, isNull, ne, or } from "drizzle-orm"
 
-import { db } from "@/server/db/client"
+import { db, type Database } from "@/server/db/client"
 import {
   notificationDeliveryAttempt,
   reminderJob,
@@ -32,6 +32,11 @@ import type {
   HistorySourceSnapshotSummary,
 } from "../../lib/history.types"
 import type { ListHistoryCyclesInput } from "../schemas/history.schema"
+
+type DatabaseLike = Pick<
+  Database,
+  "select" | "insert" | "update" | "delete"
+>
 
 type HistoryCycleDbRecord = {
   id: string
@@ -358,8 +363,9 @@ export async function markHistoryCyclePaidRecord(
   profileId: string,
   zakatCycleId: string,
   paidAt = new Date(),
+  database: DatabaseLike = db,
 ): Promise<HistoryCycleRecord | null> {
-  const updatedRows = (await db
+  const updatedRows = (await database
     .update(zakatCycle)
     .set({
       state: "paid",
@@ -390,7 +396,7 @@ export async function markHistoryCyclePaidRecord(
     return toHistoryCycleRecord(updated, null, [])
   }
 
-  const [existing] = (await db
+  const [existing] = (await database
     .select({
       id: zakatCycle.id,
       profileId: zakatCycle.profileId,

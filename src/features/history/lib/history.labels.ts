@@ -118,6 +118,11 @@ export function getHistoryReminderJobStatusMeta(
         label: m.history_reminder_job_status_failed(),
         className: pillToneClasses.rose,
       }
+    case "suppressed":
+      return {
+        label: m.history_reminder_job_status_suppressed(),
+        className: pillToneClasses.neutral,
+      }
     default:
       return { label: String(status), className: pillToneClasses.neutral }
   }

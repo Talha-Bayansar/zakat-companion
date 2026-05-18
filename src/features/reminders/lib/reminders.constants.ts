@@ -27,6 +27,7 @@ export const reminderJobStatusValues = [
   "claimed",
   "succeeded",
   "failed",
+  "suppressed",
 ] as const
 
 export type ReminderJobStatus = (typeof reminderJobStatusValues)[number]

@@ -88,6 +88,7 @@ describe("HistoryCycleItem", () => {
     expect(screen.getAllByText(m.history_reminder_kind_zakat_due()).length).toBeGreaterThan(0)
     expect(screen.getByText(m.history_reminder_job_status_claimed())).toBeDefined()
     expect(screen.getByText(m.history_reminder_job_status_failed())).toBeDefined()
+    expect(screen.getByText(m.history_reminder_job_status_suppressed())).toBeDefined()
     expect(screen.getByText("temporary failure")).toBeDefined()
     expect(screen.getByRole("button", { name: m.history_cycle_mark_paid() })).toBeDefined()
   })

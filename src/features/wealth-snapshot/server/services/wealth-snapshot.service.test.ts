@@ -37,6 +37,12 @@ const profileServiceMocks = vi.hoisted(() => ({
   resolveCurrentActiveProfile: vi.fn(),
 }))
 
+const reminderOrchestrationMocks = vi.hoisted(() => ({
+  orchestrateWealthSnapshotSave: vi.fn(
+    async (work: (database: unknown) => Promise<unknown>) => work({}),
+  ),
+}))
+
 const repositoryMocks = vi.hoisted(() => ({
   getWealthSnapshotWithEntriesRecordByProfileId: vi.fn(),
   listWealthSnapshotHistoryRecordsByProfileId: vi.fn(),
@@ -52,6 +58,10 @@ vi.mock("@/paraglide/messages", () => ({
 vi.mock("@/features/benchmark-pricing", () => benchmarkPricingMocks)
 vi.mock("@/features/benchmark-pricing/server", () => benchmarkPricingMocks)
 vi.mock("@/features/profiles/server/services/profile-access.service", () => profileServiceMocks)
+vi.mock(
+  "@/features/reminders/server/services/reminder-orchestration.service",
+  () => reminderOrchestrationMocks,
+)
 vi.mock("../repositories/wealth-snapshot.repository", () => repositoryMocks)
 
 import {
@@ -209,6 +219,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
   })
 
@@ -334,6 +345,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
     expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenNthCalledWith(
       2,
@@ -352,6 +364,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
   })
 
@@ -477,6 +490,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
   })
 
