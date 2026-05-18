@@ -10,7 +10,7 @@
 
 ### MVP Readiness Note
 
-The current codebase already includes Google sign-in, reminder job orchestration, and a versioned fiqh engine. The remaining MVP blockers are benchmark-driven nisab wiring in wealth snapshot capture and explicit cron configuration in `wrangler.jsonc` for reminder execution.
+The current codebase already includes Google sign-in, reminder job orchestration, a versioned fiqh engine, and explicit cron configuration in `wrangler.jsonc` for scheduled execution. Benchmark pricing now bootstraps on demand during snapshot capture when no cached nisab pricing exists, so the main remaining product risk is wiring higher-level reminder job creation into the product flows that should schedule it.
 
 ## Tech Stack
 
@@ -150,6 +150,8 @@ Responsible for:
 
 Reminder execution should be represented as database-backed jobs from day one. Cron is only the initial executor.
 
+In the current codebase, the reminder runner and job persistence layer are in place, and the product settings UI can manage reminder preferences and push subscriptions. The remaining work is primarily around higher-level job creation flows that connect snapshot and cycle state to scheduled reminder records, if those flows are needed for the MVP.
+
 ### Notification Delivery
 
 Responsible for:
@@ -200,7 +202,7 @@ This design can later be swapped to a queue without changing the job model or th
 - Cloudflare Workers runs the app.
 - Neon hosts PostgreSQL.
 - Cloudflare Cron Triggers run periodic reminder execution.
-- The deployment config must declare the cron schedule explicitly; a `scheduled` handler alone is not enough to run reminders in production.
+- The deployment config already declares the cron schedule explicitly, and the Worker `scheduled` handler routes benchmark refresh and reminder execution.
 - Web Push delivery is handled from the Worker runtime.
 
 Because Cloudflare cron executes in UTC, timezone-aware scheduling must be handled in application logic.

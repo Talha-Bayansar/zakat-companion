@@ -6,8 +6,8 @@ Use this file as the working reference for the remaining pre-production work on 
 
 Current focus areas:
 
-- fiqh correctness, especially nisab calculation
-- reminder scheduling and execution
+- benchmark pricing freshness for snapshot capture
+- reminder job creation flows that connect product events to scheduled jobs
 - docs alignment with the codebase
 
 Google auth is accepted for now and is not part of the current blocker list.
@@ -16,29 +16,28 @@ Google auth is accepted for now and is not part of the current blocker list.
 
 ### 1. Fiqh correctness
 
-- Status: needs work
-- Current risk: the wealth snapshot flow still uses a hardcoded nisab threshold shortcut instead of a proper benchmark-driven value.
-- Impact: the app can produce misleading zakat guidance if the threshold is wrong.
+- Status: resolved
+- Current risk: none on the fresh-deployment benchmark path; snapshot capture now bootstraps benchmark pricing on cache miss and falls back to the translated benchmark-unavailable error only if Metals.dev cannot provide data.
+- Impact: the app should no longer block snapshot capture just because the benchmark cache has not been seeded yet.
 
-### 2. Reminder scheduling
+### 2. Reminder execution
 
-- Status: needs work
-- Current risk: the Worker has a scheduled entrypoint, but the deployment config does not currently define a cron trigger.
-- Impact: reminder jobs may never run in production even if the job runner logic is present.
+- Status: mostly in place
+- Current risk: the runner and cron trigger exist, but the codebase still relies on service-level job creation paths to connect snapshot and cycle events to reminder jobs.
+- Impact: reminders will not be scheduled automatically unless those product flows call into the reminder services.
 
 ### 3. Documentation
 
 - Status: needs work
-- Current risk: the architectural and issue-plan docs do not fully reflect the current code state or the remaining gaps.
+- Current risk: some architecture and issue-plan docs still describe older blocker states or omit the current bootstrap and wiring gaps.
 - Impact: future work will be mis-scoped unless the docs are updated first.
 
 ## Execution Order
 
 1. Update docs so the scope is explicit and current.
-2. Fix nisab and fiqh calculation inputs.
-3. Wire reminder scheduling end-to-end.
-4. Add or update tests for the corrected behavior.
-5. Re-run verification and mark remaining gaps clearly.
+2. Wire reminder job creation into the relevant product flows.
+3. Add or update tests for the corrected behavior.
+4. Re-run verification and mark remaining gaps clearly.
 
 ## Workstreams
 
@@ -47,38 +46,37 @@ Google auth is accepted for now and is not part of the current blocker list.
 Goal:
 
 - bring `docs/architecture.md`, PRDs, and issue plans in line with the actual code
-- record the current MVP scope and the remaining blockers
+- record the current MVP scope and the remaining gaps
 
 Exit criteria:
 
 - docs state Google auth is acceptable for now
-- docs describe the real fiqh and reminder gaps
-- docs no longer imply the app is production-ready in those areas
+- docs describe the benchmark bootstrap and reminder wiring gaps accurately
+- docs no longer imply stale blocker states that the code has already resolved
 
-### Workstream B: Fiqh and nisab
+### Workstream B: Benchmark pricing
 
 Goal:
 
-- replace the hardcoded nisab shortcut with a real benchmark-driven model
-- keep madhab and benchmark selection visible in the UI and persisted in history
-- preserve historical calculations after rule changes
+- keep benchmark pricing available for snapshot capture, including fresh deployments with an empty cache
+- keep benchmark freshness visible in the UI and persisted in history
+- preserve historical calculations after benchmark refreshes
 
 Exit criteria:
 
-- nisab threshold is derived from the selected benchmark
-- gold and silver handling is explicit and tested
+- snapshot capture can succeed once benchmark pricing is fetched or refreshed
+- gold and silver handling remains explicit and tested
 - snapshot history remains stable and reproducible
 
-### Workstream C: Reminder scheduling
+### Workstream C: Reminder wiring
 
 Goal:
 
-- make reminder execution fully operational in Cloudflare Workers
+- connect product flows to reminder job creation
 - ensure timezone-aware scheduling, idempotent claims, and retry-safe execution
 
 Exit criteria:
 
-- cron trigger is configured in deployment
 - due jobs are generated and claimed correctly
 - reminder delivery is safe to retry
 
