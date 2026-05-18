@@ -3,7 +3,6 @@ export {
   historyCyclesInfiniteQueryKey,
   historyCyclesQueryKey,
   useHistoryCyclesInfiniteQuery,
-  useHistoryCyclesQuery,
 } from "./lib/history.query"
 export { useMarkCyclePaidMutation } from "./lib/history.mutations"
 export {

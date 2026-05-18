@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: planned
-- Current step: step 4
+- Overall: in progress
+- Current step: step 5
 
 ## Goal
 
@@ -30,14 +30,14 @@ Implement a cycle-centric history surface for the selected profile where users c
    - Make the mutation idempotent so repeated submits do not corrupt history.
 
 4. Build the history page UI.
-   - Status: in progress
+   - Status: completed
    - Replace the empty `/app/history` surface with a real cycle timeline.
    - Show one row per cycle with cycle state, payment state, due date, snapshot summary, and reminder attempts.
    - Use the repo's standard loading, empty-state, and destructive-action patterns.
    - Keep the page mobile-first and aligned with `History` as a primary tab.
 
 5. Use the repo's infinite-list pattern if the history can grow.
-   - Status: pending
+   - Status: in progress
    - Return history data in the shared `items`, `page`, `pageSize`, `hasMore` contract.
    - Reuse the shared infinite-list primitive for scrolling and loading behavior.
    - Keep the history surface readable even when a profile has many prior cycles.
