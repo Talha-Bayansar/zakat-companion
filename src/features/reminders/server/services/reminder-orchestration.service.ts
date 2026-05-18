@@ -5,10 +5,15 @@ import {
   type ReminderCadence,
   type ReminderJobPhase,
 } from "../../lib/reminders.constants"
+import { fiqhHawlLengthDays } from "@/features/fiqh-calculation"
 import {
   createBalanceUpdateReminderJobRecord,
   createZakatDueReminderJobRecord,
   getReminderPreferenceRecordByProfileId,
+  getLatestUnpaidZakatCycleRecordByProfileId,
+  getZakatCycleRecordBySourceSnapshotId,
+  createZakatCycleRecord,
+  suppressPendingZakatDueReminderJobRecords,
   suppressFutureZakatDueReminderJobRecords,
 } from "../repositories/reminders.repository"
 
@@ -21,6 +26,13 @@ type WealthSnapshotEvent = {
   id: string
   profileId: string
   capturedAt: Date
+  isAboveNisab: boolean | null
+  fiqhExplanation?: {
+    dateRule?: {
+      policy: "reset" | "preserve"
+      summary: string
+    } | null
+  } | null
 }
 
 type ZakatCycleEvent = {
@@ -48,6 +60,58 @@ const reminderCadenceOffsets: Record<ReminderCadence, number> = {
 
 function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * MS_PER_DAY)
+}
+
+function calculateZakatCycleDueAt(capturedAt: Date) {
+  return addDays(capturedAt, fiqhHawlLengthDays)
+}
+
+async function seedZakatDueReminderSequence(
+  database: DatabaseLike,
+  cycle: ZakatCycleEvent,
+) {
+  const scheduledPhases: Array<{
+    phase: ReminderJobPhase
+    scheduledFor: Date
+  }> = [
+    {
+      phase: "before_due",
+      scheduledFor: calculateZakatDueReminderScheduledFor(
+        cycle.dueAt,
+        "before_due",
+      ),
+    },
+    {
+      phase: "due",
+      scheduledFor: calculateZakatDueReminderScheduledFor(cycle.dueAt, "due"),
+    },
+    {
+      phase: "follow_up",
+      scheduledFor: calculateZakatDueReminderScheduledFor(
+        cycle.dueAt,
+        "follow_up",
+      ),
+    },
+  ]
+
+  for (const phase of scheduledPhases) {
+    await createZakatDueReminderJobRecord(
+      {
+        profileId: cycle.profileId,
+        zakatCycleId: cycle.id,
+        phase: phase.phase,
+        scheduledFor: phase.scheduledFor,
+      },
+      database,
+    )
+  }
+}
+
+function shouldResetZakatCycle(snapshot: WealthSnapshotEvent) {
+  return (
+    snapshot.isAboveNisab === false &&
+    snapshot.fiqhExplanation?.dateRule?.policy === "reset"
+  )
 }
 
 function withReminderTransaction<T>(work: OrchestrationWork<T>) {
@@ -103,6 +167,46 @@ export async function orchestrateWealthSnapshotSave<T extends WealthSnapshotEven
       database,
     )
 
+    if (shouldResetZakatCycle(snapshot)) {
+      const activeCycle = await getLatestUnpaidZakatCycleRecordByProfileId(
+        snapshot.profileId,
+        database,
+      )
+
+      if (activeCycle) {
+        await suppressPendingZakatDueReminderJobRecords(
+          {
+            profileId: snapshot.profileId,
+            zakatCycleId: activeCycle.id,
+            suppressedAt: snapshot.capturedAt,
+          },
+          database,
+        )
+      }
+    }
+
+    if (snapshot.isAboveNisab === true) {
+      const existingCycle = await getZakatCycleRecordBySourceSnapshotId(
+        snapshot.id,
+        database,
+      )
+
+      if (!existingCycle) {
+        const cycle = await createZakatCycleRecord(
+          {
+            profileId: snapshot.profileId,
+            sourceSnapshotId: snapshot.id,
+            state: "open",
+            dueAt: calculateZakatCycleDueAt(snapshot.capturedAt),
+            paidAt: null,
+          },
+          database,
+        )
+
+        await seedZakatDueReminderSequence(database, cycle)
+      }
+    }
+
     return snapshot
   })
 }
@@ -117,41 +221,7 @@ export async function orchestrateZakatCycleCreation<T extends ZakatCycleEvent>(
       return null
     }
 
-    const scheduledPhases: Array<{
-      phase: ReminderJobPhase
-      scheduledFor: Date
-    }> = [
-      {
-        phase: "before_due",
-        scheduledFor: calculateZakatDueReminderScheduledFor(
-          cycle.dueAt,
-          "before_due",
-        ),
-      },
-      {
-        phase: "due",
-        scheduledFor: calculateZakatDueReminderScheduledFor(cycle.dueAt, "due"),
-      },
-      {
-        phase: "follow_up",
-        scheduledFor: calculateZakatDueReminderScheduledFor(
-          cycle.dueAt,
-          "follow_up",
-        ),
-      },
-    ]
-
-    for (const phase of scheduledPhases) {
-      await createZakatDueReminderJobRecord(
-        {
-          profileId: cycle.profileId,
-          zakatCycleId: cycle.id,
-          phase: phase.phase,
-          scheduledFor: phase.scheduledFor,
-        },
-        database,
-      )
-    }
+    await seedZakatDueReminderSequence(database, cycle)
 
     return cycle
   })

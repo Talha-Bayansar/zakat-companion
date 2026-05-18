@@ -22,9 +22,9 @@ Google auth is accepted for now and is not part of the current blocker list.
 
 ### 2. Reminder execution
 
-- Status: mostly in place
-- Current risk: the runner and cron trigger exist, but the codebase still relies on service-level job creation paths to connect snapshot and cycle events to reminder jobs.
-- Impact: reminders will not be scheduled automatically unless those product flows call into the reminder services.
+- Status: wired
+- Current risk: the runner and cron trigger exist, and snapshot saves now persist explicit reset state below nisab while seeding reminder sequences when the next above-nisab snapshot starts a new cycle.
+- Impact: reminders are now scheduled automatically from the current snapshot save flow and cycle payment flow, with reset semantics preserved in history.
 
 ### 3. Documentation
 
@@ -35,9 +35,8 @@ Google auth is accepted for now and is not part of the current blocker list.
 ## Execution Order
 
 1. Update docs so the scope is explicit and current.
-2. Wire reminder job creation into the relevant product flows.
-3. Add or update tests for the corrected behavior.
-4. Re-run verification and mark remaining gaps clearly.
+2. Add or update tests for the corrected behavior.
+3. Re-run verification and mark remaining gaps clearly.
 
 ## Workstreams
 
@@ -72,7 +71,7 @@ Exit criteria:
 
 Goal:
 
-- connect product flows to reminder job creation
+- keep product flows connected to reminder job creation
 - ensure timezone-aware scheduling, idempotent claims, and retry-safe execution
 
 Exit criteria:

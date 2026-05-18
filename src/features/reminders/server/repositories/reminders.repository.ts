@@ -1,4 +1,4 @@
-import { and, eq, gt, isNotNull, lte, or, sql } from "drizzle-orm"
+import { and, desc, eq, gt, isNull, isNotNull, lte, ne, or, sql } from "drizzle-orm"
 
 import { db, type Database } from "@/server/db/client"
 import {
@@ -198,6 +198,42 @@ export async function getZakatCycleRecordById(zakatCycleId: string) {
   return record ? toZakatCycleRecord(record) : null
 }
 
+export async function getZakatCycleRecordBySourceSnapshotId(
+  sourceSnapshotId: string,
+  database: DatabaseLike = db,
+) {
+  const [record] = await database
+    .select()
+    .from(zakatCycle)
+    .where(eq(zakatCycle.sourceSnapshotId, sourceSnapshotId))
+    .limit(1)
+
+  return record ? toZakatCycleRecord(record) : null
+}
+
+export async function getLatestUnpaidZakatCycleRecordByProfileId(
+  profileId: string,
+  database: DatabaseLike = db,
+) {
+  const [record] = await database
+    .select()
+    .from(zakatCycle)
+    .where(
+      and(
+        eq(zakatCycle.profileId, profileId),
+        or(ne(zakatCycle.state, "paid"), isNull(zakatCycle.paidAt)),
+      ),
+    )
+    .orderBy(
+      desc(zakatCycle.dueAt),
+      desc(zakatCycle.createdAt),
+      desc(zakatCycle.id),
+    )
+    .limit(1)
+
+  return record ? toZakatCycleRecord(record) : null
+}
+
 export async function createZakatCycleRecord(input: {
   profileId: string
   sourceSnapshotId?: string | null
@@ -342,6 +378,33 @@ export async function suppressFutureZakatDueReminderJobRecords(
         eq(reminderJob.kind, "zakat_due"),
         eq(reminderJob.status, "pending"),
         gt(reminderJob.scheduledFor, input.paidAt),
+      ),
+    )
+    .returning()
+
+  return rows.map(toReminderJobRecord)
+}
+
+export async function suppressPendingZakatDueReminderJobRecords(
+  input: {
+    profileId: string
+    zakatCycleId: string
+    suppressedAt: Date
+  },
+  database: DatabaseLike = db,
+) {
+  const rows = await database
+    .update(reminderJob)
+    .set({
+      status: "suppressed",
+      updatedAt: input.suppressedAt,
+    })
+    .where(
+      and(
+        eq(reminderJob.profileId, input.profileId),
+        eq(reminderJob.zakatCycleId, input.zakatCycleId),
+        eq(reminderJob.kind, "zakat_due"),
+        eq(reminderJob.status, "pending"),
       ),
     )
     .returning()
