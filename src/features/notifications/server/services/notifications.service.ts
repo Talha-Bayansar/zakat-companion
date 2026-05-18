@@ -18,6 +18,7 @@ import {
   failNotificationSubscriptionRecord,
   getNotificationSubscriptionRecordById,
   listActiveNotificationSubscriptionRecordsByProfileId,
+  listNotificationDeliveryAttemptRecordsByReminderJobId,
   listNotificationSubscriptionRecordsByProfileId,
   recordNotificationDeliveryAttemptRecord,
   upsertNotificationSubscriptionRecord,
@@ -404,11 +405,22 @@ export async function sendNotificationPayloadToProfile(
   now = new Date(),
 ): Promise<NotificationDeliveryRunResult> {
   const parsed = ensureNotificationPayload(profileId, payload)
-  const subscriptions = await listActiveNotificationSubscriptionRecordsByProfileId(
-    profileId,
+  const [subscriptions, attempts] = await Promise.all([
+    listActiveNotificationSubscriptionRecordsByProfileId(profileId),
+    listNotificationDeliveryAttemptRecordsByReminderJobId(reminderJobId),
+  ])
+
+  const succeededSubscriptionIds = new Set(
+    attempts
+      .filter((attempt) => attempt.status === "succeeded")
+      .map((attempt) => attempt.subscriptionId),
   )
+  const pendingSubscriptions = subscriptions.filter(
+    (subscription) => !succeededSubscriptionIds.has(subscription.id),
+  )
+
   const deliveryResult = await deliverNotificationPayloadToSubscriptions(
-    subscriptions,
+    pendingSubscriptions,
     reminderJobId,
     parsed,
     now,
@@ -418,7 +430,7 @@ export async function sendNotificationPayloadToProfile(
   return {
     profileId,
     reminderJobId,
-    attemptedCount: subscriptions.length,
+    attemptedCount: pendingSubscriptions.length,
     succeededCount: deliveryResult.succeededCount,
     failedCount: deliveryResult.failedCount,
     expiredCount: deliveryResult.expiredCount,

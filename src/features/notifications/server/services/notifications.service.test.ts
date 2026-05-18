@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const resolveCurrentActiveProfile = vi.fn()
 const getNotificationSubscriptionRecordById = vi.fn()
 const listActiveNotificationSubscriptionRecordsByProfileId = vi.fn()
+const listNotificationDeliveryAttemptRecordsByReminderJobId = vi.fn()
 const listNotificationSubscriptionRecordsByProfileId = vi.fn()
 const upsertNotificationSubscriptionRecord = vi.fn()
 const disableNotificationSubscriptionRecord = vi.fn()
@@ -21,6 +22,7 @@ vi.mock("../repositories/notifications.repository", () => ({
   failNotificationSubscriptionRecord,
   getNotificationSubscriptionRecordById,
   listActiveNotificationSubscriptionRecordsByProfileId,
+  listNotificationDeliveryAttemptRecordsByReminderJobId,
   listNotificationSubscriptionRecordsByProfileId,
   recordNotificationDeliveryAttemptRecord,
   upsertNotificationSubscriptionRecord,
@@ -131,6 +133,7 @@ describe("notifications service", () => {
     listActiveNotificationSubscriptionRecordsByProfileId.mockResolvedValue([
       subscription,
     ])
+    listNotificationDeliveryAttemptRecordsByReminderJobId.mockResolvedValue([])
     sendWebPushNotification.mockResolvedValue({ statusCode: 201 })
     recordNotificationDeliveryAttemptRecord.mockResolvedValue({
       id: "attempt-1",
@@ -171,6 +174,71 @@ describe("notifications service", () => {
     expect(result).toMatchObject({
       profileId: "profile-1",
       reminderJobId: "reminder-job-1",
+      attemptedCount: 1,
+      succeededCount: 1,
+      failedCount: 0,
+      expiredCount: 0,
+    })
+  })
+
+  it("skips subscriptions that already succeeded for the reminder job", async () => {
+    const secondSubscription = {
+      ...subscription,
+      id: "subscription-2",
+      endpoint: "https://push.example.test/subscriptions/def",
+    }
+    listActiveNotificationSubscriptionRecordsByProfileId.mockResolvedValue([
+      subscription,
+      secondSubscription,
+    ])
+    listNotificationDeliveryAttemptRecordsByReminderJobId.mockResolvedValue([
+      {
+        id: "attempt-1",
+        profileId: "profile-1",
+        reminderJobId: "reminder-job-1",
+        subscriptionId: "subscription-1",
+        channel: "web_push",
+        kind: "balance_update",
+        status: "succeeded",
+        payload: "{}",
+        attemptedAt: new Date("2026-05-17T09:15:00.000Z"),
+        deliveredAt: new Date("2026-05-17T09:15:01.000Z"),
+        errorMessage: null,
+        createdAt: new Date("2026-05-17T09:15:00.000Z"),
+        updatedAt: new Date("2026-05-17T09:15:00.000Z"),
+      },
+    ])
+    sendWebPushNotification.mockResolvedValue({ statusCode: 201 })
+    recordNotificationDeliveryAttemptRecord.mockResolvedValue({
+      id: "attempt-2",
+    })
+
+    const result = await sendNotificationPayloadToProfile(
+      "profile-1",
+      "reminder-job-1",
+      {
+        channel: "web_push",
+        kind: "balance_update",
+        profileId: "profile-1",
+        title: "Balance update",
+        body: "Refresh your wealth snapshot.",
+        url: "/settings",
+        tag: "balance-update:profile-1",
+      },
+      new Date("2026-05-17T09:15:00.000Z"),
+    )
+
+    expect(sendWebPushNotification).toHaveBeenCalledTimes(1)
+    expect(sendWebPushNotification).toHaveBeenCalledWith(secondSubscription, {
+      channel: "web_push",
+      kind: "balance_update",
+      profileId: "profile-1",
+      title: "Balance update",
+      body: "Refresh your wealth snapshot.",
+      url: "/settings",
+      tag: "balance-update:profile-1",
+    })
+    expect(result).toMatchObject({
       attemptedCount: 1,
       succeededCount: 1,
       failedCount: 0,

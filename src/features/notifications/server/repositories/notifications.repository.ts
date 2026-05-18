@@ -106,6 +106,18 @@ export async function listActiveNotificationSubscriptionRecordsByProfileId(
   return records.map(toNotificationSubscriptionRecord)
 }
 
+export async function listNotificationDeliveryAttemptRecordsByReminderJobId(
+  reminderJobId: string,
+) {
+  const records = await db
+    .select()
+    .from(notificationDeliveryAttempt)
+    .where(eq(notificationDeliveryAttempt.reminderJobId, reminderJobId))
+    .orderBy(desc(notificationDeliveryAttempt.attemptedAt))
+
+  return records.map(toNotificationDeliveryAttemptRecord)
+}
+
 export async function upsertNotificationSubscriptionRecord(input: {
   profileId: string
   channel: NotificationSubscriptionRecord["channel"]

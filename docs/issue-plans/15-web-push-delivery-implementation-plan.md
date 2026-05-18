@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: planned
-- Current step: step 3
+- Overall: in progress
+- Current step: step 5
 
 ## Goal
 
@@ -26,14 +26,14 @@ Implement browser web push subscription management and delivery so reminder jobs
    - Ensure the schema supports multiple subscriptions for one profile if the chosen ownership model requires it.
 
 3. Build server persistence and delivery helpers.
-   - Status: pending
+   - Status: done
    - Add feature-local repositories under `src/features/notifications/server/repositories/`.
    - Add a service layer under `src/features/notifications/server/services/` to validate input, store subscriptions, and send web push notifications.
    - Add server functions under `src/features/notifications/server/functions/` for subscription registration, removal, and test delivery if needed.
    - Keep push sending isolated behind a dedicated helper so the reminder executor does not know about transport details.
 
 4. Wire reminder execution to push delivery.
-   - Status: pending
+   - Status: done
    - Have the reminder job flow build the correct payload for balance update and zakat due jobs.
    - Resolve the target profile's active notification subscriptions at send time.
    - Record send success and failure outcomes so retries and inspection are possible.
