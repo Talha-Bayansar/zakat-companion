@@ -12,19 +12,19 @@ Implement a cycle-centric history surface for the selected profile where users c
 ## Plan
 
 1. Define the history read model and boundaries.
-   - Status: pending
+   - Status: completed
    - Treat `zakat_cycle` as the primary history record.
    - Include the linked source snapshot summary, cycle state, `dueAt`, `paidAt`, and any reminder activity needed for the timeline.
    - Keep the history contract separate from the immutable wealth snapshot contract so payment state can evolve independently.
 
 2. Add a dedicated `history` feature server layer.
-   - Status: pending
+   - Status: completed
    - Create feature-local repositories, services, schemas, and server functions under `src/features/history/server/`.
    - Query the active profile's cycles and join the snapshot and reminder data needed for display.
    - Keep route files thin and expose the feature through a narrow public `index.ts` barrel.
 
 3. Add the cycle-paid mutation.
-   - Status: pending
+   - Status: in progress
    - Add a `markCyclePaid` server function in the history feature.
    - Reuse the existing `zakat_cycle.state` and `paidAt` columns instead of introducing a new payment model.
    - Make the mutation idempotent so repeated submits do not corrupt history.
