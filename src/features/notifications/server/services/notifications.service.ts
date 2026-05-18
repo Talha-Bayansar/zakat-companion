@@ -110,25 +110,6 @@ async function requireNotificationSubscriptionRecord(
   return record
 }
 
-async function requireActiveNotificationSubscriptionRecord(
-  profileId: string,
-  subscriptionId: string,
-) {
-  const record = await requireNotificationSubscriptionRecord(
-    profileId,
-    subscriptionId,
-  )
-
-  if (record.status !== "active") {
-    throw new NotificationServiceError(
-      "NOT_FOUND",
-      m.notification_subscription_not_found(),
-    )
-  }
-
-  return record
-}
-
 function ensureNotificationPayload(
   profileId: string,
   payload: NotificationDeliveryPayload,
