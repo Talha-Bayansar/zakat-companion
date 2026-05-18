@@ -211,7 +211,7 @@ describe("wealth snapshot service", () => {
     )
   })
 
-  it("freezes the captured fiqh output even if profile preferences change later", async () => {
+  it("freezes the captured fiqh output even if profile preferences or benchmark pricing change later", async () => {
     profileServiceMocks.resolveCurrentActiveProfile
       .mockResolvedValueOnce({
         id: "profile-1",
@@ -222,6 +222,27 @@ describe("wealth snapshot service", () => {
         id: "profile-1",
         madhab: "maliki",
         nisabBenchmark: "silver",
+      })
+    benchmarkPricingMocks.getCurrentBenchmarkPricing
+      .mockResolvedValueOnce({
+        currency: "EUR",
+        provider: "metals.dev",
+        goldPrice: "87.50",
+        silverPrice: "75.00",
+        sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
+        lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
+        createdAt: new Date("2026-05-18T12:00:00.000Z"),
+        updatedAt: new Date("2026-05-18T12:00:00.000Z"),
+      })
+      .mockResolvedValueOnce({
+        currency: "EUR",
+        provider: "metals.dev",
+        goldPrice: "99.99",
+        silverPrice: "77.77",
+        sourceTimestamp: new Date("2026-05-19T12:00:00.000Z"),
+        lastSuccessfulAt: new Date("2026-05-19T12:00:00.000Z"),
+        createdAt: new Date("2026-05-19T12:00:00.000Z"),
+        updatedAt: new Date("2026-05-19T12:00:00.000Z"),
       })
     repositoryMocks.replaceWealthSnapshotRecord
       .mockResolvedValueOnce({
@@ -307,6 +328,7 @@ describe("wealth snapshot service", () => {
           fiqhExplanation: expect.objectContaining({
             benchmark: expect.objectContaining({
               selectedBenchmark: "gold",
+              selectedBenchmarkPrice: "87.50",
             }),
           }),
         }),
@@ -324,6 +346,7 @@ describe("wealth snapshot service", () => {
           fiqhExplanation: expect.objectContaining({
             benchmark: expect.objectContaining({
               selectedBenchmark: "silver",
+              selectedBenchmarkPrice: "77.77",
             }),
           }),
         }),
