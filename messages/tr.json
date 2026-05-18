@@ -445,8 +445,6 @@
   "settings_sign_out_confirm_description": "Bu cihazdaki uygulama verilerinize erişmek için tekrar giriş yapmanız gerekecek.",
   "settings_sign_out_confirm_cancel": "İptal",
   "settings_sign_out_confirm_confirm": "Çıkış yap",
-  "history_empty_title": "Henüz döngü yok",
-  "history_empty_description": "Bir servet özeti bir döngü oluşturduğunda, ödeme durumu ve hatırlatıcı etkinliğiyle birlikte burada görünecek.",
   "profiles_empty_title": "Henüz profil yok",
   "profiles_empty_description": "Bir kişi veya hane için zekatı takip etmeye başlamak için ilk profilinizi oluşturun.",
   "reminders_empty_title": "Henüz hatırlatıcı yok",

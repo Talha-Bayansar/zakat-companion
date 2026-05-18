@@ -55,6 +55,117 @@ describe("history service", () => {
     expect(listHistoryCycleRecordsByProfileId).not.toHaveBeenCalled()
   })
 
+  it("returns cycles for the resolved active profile only", async () => {
+    resolveCurrentActiveProfile.mockResolvedValue({
+      id: "profile-1",
+      ownerId: "user-1",
+      role: "owner",
+    })
+    listHistoryCycleRecordsByProfileId.mockResolvedValue({
+      items: [
+        {
+          id: "cycle-1",
+          profileId: "profile-1",
+          sourceSnapshotId: "snapshot-1",
+          state: "due",
+          dueAt: new Date("2026-05-16T09:00:00.000Z"),
+          paidAt: null,
+          createdAt: new Date("2026-05-15T09:00:00.000Z"),
+          updatedAt: new Date("2026-05-15T09:00:00.000Z"),
+          sourceSnapshot: {
+            id: "snapshot-1",
+            capturedAt: new Date("2026-05-15T08:59:00.000Z"),
+            madhab: "hanafi",
+            nisabBenchmark: "gold",
+            calculationVersion: "wealth-snapshot-v1",
+            netZakatableBase: "1200.00",
+            isAboveNisab: true,
+            isZakatDue: true,
+            fiqhExplanation: null,
+          },
+          reminderJobs: [
+            {
+              id: "job-1",
+              profileId: "profile-1",
+              dedupeKey: "zakat_due:profile-1:cycle-1:due",
+              kind: "zakat_due",
+              zakatCycleId: "cycle-1",
+              phase: "due",
+              scheduledFor: new Date("2026-05-16T09:00:00.000Z"),
+              status: "claimed",
+              attemptCount: 1,
+              claimedAt: new Date("2026-05-16T09:01:00.000Z"),
+              completedAt: null,
+              lastAttemptAt: new Date("2026-05-16T09:01:00.000Z"),
+              lastError: null,
+              createdAt: new Date("2026-05-16T09:00:00.000Z"),
+              updatedAt: new Date("2026-05-16T09:01:00.000Z"),
+              deliveryAttempts: [
+                {
+                  id: "attempt-1",
+                  reminderJobId: "job-1",
+                  subscriptionId: "subscription-1",
+                  channel: "web_push",
+                  kind: "zakat_due",
+                  status: "failed",
+                  attemptedAt: new Date("2026-05-16T09:01:30.000Z"),
+                  deliveredAt: null,
+                  errorMessage: "temporary failure",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      page: 1,
+      pageSize: 10,
+      hasMore: false,
+    })
+
+    await expect(
+      listHistoryCycles(
+        {
+          userId: "user-1",
+          activeProfileId: "profile-stale",
+        },
+        {
+          page: 1,
+          pageSize: 10,
+        },
+      ),
+    ).resolves.toMatchObject({
+      items: [
+        {
+          id: "cycle-1",
+          profileId: "profile-1",
+          sourceSnapshot: {
+            id: "snapshot-1",
+            madhab: "hanafi",
+          },
+          reminderJobs: [
+            {
+              kind: "zakat_due",
+              deliveryAttempts: [
+                {
+                  status: "failed",
+                  channel: "web_push",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      page: 1,
+      pageSize: 10,
+      hasMore: false,
+    })
+
+    expect(listHistoryCycleRecordsByProfileId).toHaveBeenCalledWith("profile-1", {
+      page: 1,
+      pageSize: 10,
+    })
+  })
+
   it("marks the active profile cycle as paid", async () => {
     resolveCurrentActiveProfile.mockResolvedValue({
       id: "profile-1",

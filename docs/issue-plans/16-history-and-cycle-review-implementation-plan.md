@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: in progress
-- Current step: step 5
+- Overall: completed
+- Current step: complete
 
 ## Goal
 
@@ -37,19 +37,19 @@ Implement a cycle-centric history surface for the selected profile where users c
    - Keep the page mobile-first and aligned with `History` as a primary tab.
 
 5. Use the repo's infinite-list pattern if the history can grow.
-   - Status: in progress
+   - Status: completed
    - Return history data in the shared `items`, `page`, `pageSize`, `hasMore` contract.
    - Reuse the shared infinite-list primitive for scrolling and loading behavior.
    - Keep the history surface readable even when a profile has many prior cycles.
 
 6. Add translations and client-facing copy.
-   - Status: pending
+   - Status: completed
    - Add any new labels, loading text, empty states, error text, and action copy to Paraglide first.
    - Do not inline client-facing strings in the UI or server layer.
    - Keep server error messages translated if they can surface to the client.
 
 7. Add tests.
-   - Status: pending
+   - Status: completed
    - Test that history returns cycles for the active profile only.
    - Test that reminder attempts and snapshot summaries appear in the cycle timeline.
    - Test that marking a cycle paid updates `state` and `paidAt`.

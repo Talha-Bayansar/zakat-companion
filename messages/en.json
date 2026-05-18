@@ -441,8 +441,6 @@
   "settings_sign_out_confirm_description": "You will need to sign in again to access your app data on this device.",
   "settings_sign_out_confirm_cancel": "Cancel",
   "settings_sign_out_confirm_confirm": "Sign out",
-  "history_empty_title": "No cycles yet",
-  "history_empty_description": "Once a wealth snapshot creates a cycle, it will appear here with its payment state and reminder activity.",
   "profiles_empty_title": "No profiles yet",
   "profiles_empty_description": "Create your first profile to start tracking zakat for a person or household.",
   "reminders_empty_title": "No reminders yet",

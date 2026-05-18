@@ -445,8 +445,6 @@
   "settings_sign_out_confirm_description": "Je moet opnieuw inloggen om je app-gegevens op dit apparaat te openen.",
   "settings_sign_out_confirm_cancel": "Annuleren",
   "settings_sign_out_confirm_confirm": "Uitloggen",
-  "history_empty_title": "Nog geen cycli",
-  "history_empty_description": "Zodra een vermogenssnapshot een cyclus aanmaakt, verschijnt die hier met de betalingsstatus en herinneringsactiviteit.",
   "profiles_empty_title": "Nog geen profielen",
   "profiles_empty_description": "Maak je eerste profiel aan om zakat voor een persoon of huishouden bij te houden.",
   "reminders_empty_title": "Nog geen herinneringen",
