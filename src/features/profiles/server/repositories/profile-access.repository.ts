@@ -15,6 +15,7 @@ export type ProfileRecord = {
   id: string
   name: string
   ownerId: string
+  hawlStartedAt: Date | null
   madhab: FiqhMadhabCode
   nisabBenchmark: FiqhNisabBenchmarkCode
   createdAt: Date
@@ -69,6 +70,7 @@ export async function listOwnedProfileRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
@@ -100,6 +102,7 @@ export async function listDelegatedProfileRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
@@ -139,6 +142,7 @@ export async function listAccessibleProfilePageRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
@@ -157,6 +161,7 @@ export async function listAccessibleProfilePageRecords(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
@@ -180,6 +185,7 @@ export async function listAccessibleProfilePageRecords(
       id: accessibleProfiles.id,
       name: accessibleProfiles.name,
       ownerId: accessibleProfiles.ownerId,
+      hawlStartedAt: accessibleProfiles.hawlStartedAt,
       madhab: accessibleProfiles.madhab,
       nisabBenchmark: accessibleProfiles.nisabBenchmark,
       createdAt: accessibleProfiles.createdAt,
@@ -208,6 +214,7 @@ export async function getProfileRecordById(profileId: string) {
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
@@ -273,6 +280,7 @@ export async function listProfileAccessGrantPageRecords(
 export async function createProfileRecord(
   ownerId: string,
   name: string,
+  hawlStartedAt: Date | null,
   madhab: FiqhMadhabCode,
   nisabBenchmark: FiqhNisabBenchmarkCode,
 ) {
@@ -280,6 +288,7 @@ export async function createProfileRecord(
     id: crypto.randomUUID(),
     ownerId,
     name,
+    hawlStartedAt,
     madhab,
     nisabBenchmark,
   } satisfies typeof profile.$inferInsert
@@ -291,6 +300,7 @@ export async function createProfileRecord(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,
@@ -303,6 +313,7 @@ export async function createProfileRecord(
 export async function updateProfileRecord(
   profileId: string,
   name: string,
+  hawlStartedAt: Date | null,
   madhab: FiqhMadhabCode,
   nisabBenchmark: FiqhNisabBenchmarkCode,
 ) {
@@ -310,6 +321,7 @@ export async function updateProfileRecord(
     .update(profile)
     .set({
       name,
+      hawlStartedAt,
       madhab,
       nisabBenchmark,
       updatedAt: new Date(),
@@ -319,6 +331,7 @@ export async function updateProfileRecord(
       id: profile.id,
       name: profile.name,
       ownerId: profile.ownerId,
+      hawlStartedAt: profile.hawlStartedAt,
       madhab: profile.madhab,
       nisabBenchmark: profile.nisabBenchmark,
       createdAt: profile.createdAt,

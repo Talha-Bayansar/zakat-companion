@@ -40,6 +40,7 @@ describe("fiqh calculation contract", () => {
       "due",
       "paid",
       "followed_up",
+      "reset",
     ])
   })
 

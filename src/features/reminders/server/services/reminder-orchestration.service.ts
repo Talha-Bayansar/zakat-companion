@@ -114,8 +114,8 @@ function shouldResetZakatCycle(snapshot: WealthSnapshotEvent) {
   )
 }
 
-function withReminderTransaction<T>(work: OrchestrationWork<T>) {
-  return db.transaction(async (transaction) => work(transaction as DatabaseLike))
+function withReminderDatabase<T>(work: OrchestrationWork<T>) {
+  return work(db)
 }
 
 export function calculateBalanceUpdateReminderScheduledFor(
@@ -142,7 +142,7 @@ export function calculateZakatDueReminderScheduledFor(
 export async function orchestrateWealthSnapshotSave<T extends WealthSnapshotEvent>(
   writeSnapshot: OrchestrationWork<T | null>,
 ) {
-  return withReminderTransaction(async (database) => {
+  return withReminderDatabase(async (database) => {
     const snapshot = await writeSnapshot(database)
 
     if (!snapshot) {
@@ -214,7 +214,7 @@ export async function orchestrateWealthSnapshotSave<T extends WealthSnapshotEven
 export async function orchestrateZakatCycleCreation<T extends ZakatCycleEvent>(
   createCycle: OrchestrationWork<T | null>,
 ) {
-  return withReminderTransaction(async (database) => {
+  return withReminderDatabase(async (database) => {
     const cycle = await createCycle(database)
 
     if (!cycle) {
@@ -230,7 +230,7 @@ export async function orchestrateZakatCycleCreation<T extends ZakatCycleEvent>(
 export async function orchestrateCyclePayment<T extends PaidCycleEvent>(
   markPaid: OrchestrationWork<T | null>,
 ) {
-  return withReminderTransaction(async (database) => {
+  return withReminderDatabase(async (database) => {
     const cycle = await markPaid(database)
 
     if (!cycle) {

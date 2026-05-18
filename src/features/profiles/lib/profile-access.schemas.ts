@@ -27,6 +27,16 @@ export function createProfileSchema(messages: CreateProfileSchemaMessages) {
       .trim()
       .min(1, messages.requiredName)
       .max(120, messages.maxNameLength),
+    hawlStartedAt: z
+      .preprocess(
+        (value) => (value === "" ? null : value),
+        z
+          .string()
+          .trim()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .nullable()
+          .optional(),
+      ),
     madhab: z
       .string()
       .trim()
@@ -46,12 +56,22 @@ export function createProfileSchema(messages: CreateProfileSchemaMessages) {
         {
           message: messages.requiredNisabBenchmark,
         },
-      ),
+    ),
   })
 }
 
 export const profileDetailsInputSchema = z.object({
   name: z.string().trim().min(1).max(120),
+  hawlStartedAt: z
+    .preprocess(
+      (value) => (value === "" ? null : value),
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .nullable()
+        .optional(),
+    ),
 }).merge(fiqhPreferenceSchema)
 
 export function createManageProfileAccessSchema(
@@ -64,12 +84,14 @@ export function createManageProfileAccessSchema(
 
 export type CreateProfileValues = {
   name: string
+  hawlStartedAt?: string | null
   madhab: FiqhMadhabCode
   nisabBenchmark: FiqhNisabBenchmarkCode
 }
 
 export type ProfileDetailsFormValues = {
   name: string
+  hawlStartedAt: string
   madhab: string
   nisabBenchmark: string
 }

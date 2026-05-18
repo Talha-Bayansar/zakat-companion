@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { fiqhHawlLengthDays } from "@/features/fiqh-calculation"
 
-const dbTransaction = vi.fn()
+const dbMock = {}
 
 const getReminderPreferenceRecordByProfileId = vi.fn()
 const createBalanceUpdateReminderJobRecord = vi.fn()
@@ -14,9 +14,7 @@ const suppressPendingZakatDueReminderJobRecords = vi.fn()
 const suppressFutureZakatDueReminderJobRecords = vi.fn()
 
 vi.mock("@/server/db/client", () => ({
-  db: {
-    transaction: dbTransaction,
-  },
+  db: dbMock,
 }))
 
 vi.mock("../repositories/reminders.repository", () => ({
@@ -38,14 +36,8 @@ import {
   orchestrateZakatCycleCreation,
 } from "./reminder-orchestration.service"
 
-const transaction = {}
-
 beforeEach(() => {
   vi.clearAllMocks()
-
-  dbTransaction.mockImplementation(async (callback: (database: unknown) => Promise<unknown>) =>
-    callback(transaction),
-  )
 })
 
 describe("reminder orchestration", () => {
@@ -116,7 +108,7 @@ describe("reminder orchestration", () => {
 
     await orchestrateWealthSnapshotSave(writeSnapshot)
 
-    expect(writeSnapshot).toHaveBeenCalledWith(transaction)
+    expect(writeSnapshot).toHaveBeenCalledWith(dbMock)
     expect(createBalanceUpdateReminderJobRecord).toHaveBeenCalledWith(
       {
         profileId: "profile-1",
@@ -126,7 +118,7 @@ describe("reminder orchestration", () => {
           "weekly",
         ),
       },
-      transaction,
+      dbMock,
     )
     expect(createZakatCycleRecord).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -136,7 +128,7 @@ describe("reminder orchestration", () => {
         dueAt: new Date(capturedAt.getTime() + fiqhHawlLengthDays * 24 * 60 * 60 * 1000),
         paidAt: null,
       }),
-      transaction,
+      dbMock,
     )
     expect(createZakatDueReminderJobRecord).toHaveBeenNthCalledWith(
       1,
@@ -149,7 +141,7 @@ describe("reminder orchestration", () => {
           "before_due",
         ),
       }),
-      transaction,
+      dbMock,
     )
     expect(createZakatDueReminderJobRecord).toHaveBeenNthCalledWith(
       2,
@@ -158,7 +150,7 @@ describe("reminder orchestration", () => {
         zakatCycleId: "cycle-1",
         phase: "due",
       }),
-      transaction,
+      dbMock,
     )
     expect(createZakatDueReminderJobRecord).toHaveBeenNthCalledWith(
       3,
@@ -167,7 +159,7 @@ describe("reminder orchestration", () => {
         zakatCycleId: "cycle-1",
         phase: "follow_up",
       }),
-      transaction,
+      dbMock,
     )
   })
 
@@ -242,27 +234,13 @@ describe("reminder orchestration", () => {
       createdAt: capturedAt,
       updatedAt: capturedAt,
     })
-    markZakatCycleResetRecord.mockResolvedValue({
-      id: "cycle-active",
-      profileId: "profile-1",
-      sourceSnapshotId: "snapshot-previous",
-      state: "reset",
-      dueAt: new Date("2027-05-07T09:00:00.000Z"),
-      paidAt: null,
-      createdAt: capturedAt,
-      updatedAt: capturedAt,
-    })
     suppressPendingZakatDueReminderJobRecords.mockResolvedValue([])
 
     await orchestrateWealthSnapshotSave(writeSnapshot)
 
-    expect(markZakatCycleResetRecord).toHaveBeenCalledWith(
-      {
-        profileId: "profile-1",
-        zakatCycleId: "cycle-active",
-        resetAt: capturedAt,
-      },
-      transaction,
+    expect(getLatestUnpaidZakatCycleRecordByProfileId).toHaveBeenCalledWith(
+      "profile-1",
+      dbMock,
     )
     expect(createZakatCycleRecord).not.toHaveBeenCalled()
     expect(suppressPendingZakatDueReminderJobRecords).toHaveBeenCalledWith(
@@ -271,7 +249,7 @@ describe("reminder orchestration", () => {
         zakatCycleId: "cycle-active",
         suppressedAt: capturedAt,
       },
-      transaction,
+      dbMock,
     )
     expect(createZakatDueReminderJobRecord).not.toHaveBeenCalled()
   })
@@ -337,7 +315,7 @@ describe("reminder orchestration", () => {
 
     await orchestrateZakatCycleCreation(createCycle)
 
-    expect(createCycle).toHaveBeenCalledWith(transaction)
+    expect(createCycle).toHaveBeenCalledWith(dbMock)
     expect(createZakatDueReminderJobRecord).toHaveBeenCalledTimes(3)
     expect(createZakatDueReminderJobRecord).toHaveBeenNthCalledWith(
       1,
@@ -345,7 +323,7 @@ describe("reminder orchestration", () => {
         phase: "before_due",
         scheduledFor: calculateZakatDueReminderScheduledFor(dueAt, "before_due"),
       }),
-      transaction,
+      dbMock,
     )
     expect(createZakatDueReminderJobRecord).toHaveBeenNthCalledWith(
       2,
@@ -353,7 +331,7 @@ describe("reminder orchestration", () => {
         phase: "due",
         scheduledFor: calculateZakatDueReminderScheduledFor(dueAt, "due"),
       }),
-      transaction,
+      dbMock,
     )
     expect(createZakatDueReminderJobRecord).toHaveBeenNthCalledWith(
       3,
@@ -364,7 +342,7 @@ describe("reminder orchestration", () => {
           "follow_up",
         ),
       }),
-      transaction,
+      dbMock,
     )
   })
 
@@ -380,14 +358,14 @@ describe("reminder orchestration", () => {
 
     await orchestrateCyclePayment(markPaid)
 
-    expect(markPaid).toHaveBeenCalledWith(transaction)
+    expect(markPaid).toHaveBeenCalledWith(dbMock)
     expect(suppressFutureZakatDueReminderJobRecords).toHaveBeenCalledWith(
       {
         profileId: "profile-1",
         zakatCycleId: "cycle-1",
         paidAt,
       },
-      transaction,
+      dbMock,
     )
   })
 })

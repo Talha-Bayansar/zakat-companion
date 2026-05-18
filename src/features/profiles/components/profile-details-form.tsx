@@ -71,7 +71,7 @@ export function ProfileDetailsForm({
   const form = useForm({
     defaultValues: initialValues,
     validators: {
-      onSubmit: detailsSchema,
+      onSubmit: detailsSchema as never,
     },
     onSubmit: async ({ value }) => {
       setSubmitError(null)
@@ -122,6 +122,32 @@ export function ProfileDetailsForm({
                 />
                 <FieldDescription>
                   {m.settings_profile_create_name_description()}
+                </FieldDescription>
+                <FieldError errors={field.state.meta.errors as unknown[]} />
+              </Field>
+            )
+          }}
+        </form.Field>
+
+        <form.Field name="hawlStartedAt">
+          {(field) => {
+            const isInvalid =
+              form.state.isSubmitted && field.state.meta.errors.length > 0
+
+            return (
+              <Field data-invalid={isInvalid ? "" : undefined}>
+                <FieldLabel htmlFor={field.name}>
+                  {m.settings_profile_create_hawl_started_at_label()}
+                </FieldLabel>
+                <Input
+                  id={field.name}
+                  type="date"
+                  value={field.state.value}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  aria-invalid={isInvalid}
+                />
+                <FieldDescription>
+                  {m.settings_profile_create_hawl_started_at_description()}
                 </FieldDescription>
                 <FieldError errors={field.state.meta.errors as unknown[]} />
               </Field>

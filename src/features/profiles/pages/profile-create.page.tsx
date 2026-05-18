@@ -31,6 +31,7 @@ export function ProfileCreatePage({ redirectTo }: ProfileCreatePageProps) {
         <ProfileDetailsForm
           initialValues={{
             name: "",
+            hawlStartedAt: "",
             madhab: "",
             nisabBenchmark: "",
           }}

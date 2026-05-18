@@ -1,10 +1,12 @@
 import { m } from "@/paraglide/messages"
 import { getBenchmarkPricingFreshnessLabel, isBenchmarkPricingStale } from "@/features/benchmark-pricing"
 import {
+  getBootstrapBenchmarkPricing,
   getCurrentBenchmarkPricing,
-  refreshCurrentBenchmarkPricing,
 } from "@/features/benchmark-pricing/server"
 import {
+  fiqhGoldNisabGrams,
+  fiqhSilverNisabGrams,
   calculateFiqhCalculation,
   type FiqhCalculationBenchmarkExplanation,
   type FiqhCalculationOutcome,
@@ -41,6 +43,7 @@ type ReplaceWealthSnapshotInput = {
 type ActiveProfileFiqhPreferences = {
   madhab: FiqhMadhabCode
   nisabBenchmark: FiqhNisabBenchmarkCode
+  hawlStartedAt: Date | null
 }
 
 export const WEALTH_SNAPSHOT_CALCULATION_VERSION = "wealth-snapshot-v1"
@@ -83,9 +86,21 @@ function getBenchmarkThreshold(
     return null
   }
 
-  return benchmark === "gold"
-    ? benchmarkPricing.goldPrice
-    : benchmarkPricing.silverPrice
+  const benchmarkPrice =
+    benchmark === "gold"
+      ? benchmarkPricing.goldPrice
+      : benchmarkPricing.silverPrice
+  const benchmarkGrams =
+    benchmark === "gold" ? fiqhGoldNisabGrams : fiqhSilverNisabGrams
+  const benchmarkPricePerGram = Number(benchmarkPrice)
+
+  if (!Number.isFinite(benchmarkPricePerGram)) {
+    return null
+  }
+
+  return formatCents(
+    Math.round(benchmarkPricePerGram * benchmarkGrams * 100),
+  )
 }
 
 function toBenchmarkExplanation(
@@ -189,7 +204,7 @@ async function calculateFiqhWealthSnapshotOutcome(
     nisabBenchmark: activeProfile.nisabBenchmark,
     netZakatableBase: snapshot.netZakatableBase ?? "0.00",
     nisabThreshold,
-    hawlStartedAt: null,
+    hawlStartedAt: activeProfile.hawlStartedAt,
     asOf,
     calculationVersion: fiqhCalculationVersion,
   })
@@ -206,24 +221,6 @@ async function calculateFiqhWealthSnapshotOutcome(
       ),
     },
   }
-}
-
-async function getBootstrapBenchmarkPricing(
-  benchmarkPricingApiKey: string | undefined,
-  now: Date,
-) {
-  const currentBenchmarkPricing = await getCurrentBenchmarkPricing()
-
-  if (currentBenchmarkPricing) {
-    return currentBenchmarkPricing
-  }
-
-  const outcome = await refreshCurrentBenchmarkPricing({
-    apiKey: benchmarkPricingApiKey,
-    now,
-  })
-
-  return outcome.record
 }
 
 function toWealthSnapshotWriteContext(
@@ -257,10 +254,10 @@ async function saveWealthSnapshotRevision(
   }
 
   const capturedAt = new Date()
-  const benchmarkPricing = await getBootstrapBenchmarkPricing(
-    options.benchmarkPricingApiKey,
-    capturedAt,
-  )
+  const benchmarkPricing = await getBootstrapBenchmarkPricing({
+    apiKey: options.benchmarkPricingApiKey,
+    now: capturedAt,
+  })
 
   if (!benchmarkPricing) {
     throw new Error(m.wealth_snapshot_benchmark_unavailable())
@@ -271,6 +268,7 @@ async function saveWealthSnapshotRevision(
     {
       madhab: activeProfile.madhab,
       nisabBenchmark: activeProfile.nisabBenchmark,
+      hawlStartedAt: activeProfile.hawlStartedAt,
     },
     benchmarkPricing,
     capturedAt,

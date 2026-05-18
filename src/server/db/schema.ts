@@ -40,6 +40,7 @@ export const profile = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    hawlStartedAt: timestamp("hawl_started_at"),
     madhab: text("madhab").$type<FiqhMadhabCode>().notNull(),
     nisabBenchmark: text("nisab_benchmark")
       .$type<FiqhNisabBenchmarkCode>()

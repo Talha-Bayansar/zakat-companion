@@ -133,6 +133,16 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase()
 }
 
+function parseProfileHawlStartedAt(value: string | null | undefined) {
+  if (!value) {
+    return null
+  }
+
+  const parsed = new Date(`${value}T00:00:00.000Z`)
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
 function combineAccessibleProfiles(
   ownedProfiles: ProfileRecord[],
   delegatedProfiles: Array<
@@ -149,6 +159,7 @@ function combineAccessibleProfiles(
       id: record.id,
       name: record.name,
       ownerId: record.ownerId,
+      hawlStartedAt: record.hawlStartedAt,
       madhab: record.madhab,
       nisabBenchmark: record.nisabBenchmark,
       role: "manager",
@@ -272,6 +283,7 @@ export async function createProfile(actor: Actor, input: CreateProfileInput) {
   const record = await createProfileRecord(
     actor.userId,
     input.name.trim(),
+    parseProfileHawlStartedAt(input.hawlStartedAt),
     input.madhab,
     input.nisabBenchmark,
   )
@@ -290,6 +302,7 @@ export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
   const updated = await updateProfileRecord(
     record.id,
     input.name.trim(),
+    parseProfileHawlStartedAt(input.hawlStartedAt),
     input.madhab,
     input.nisabBenchmark,
   )
@@ -305,6 +318,7 @@ export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
     id: updated.id,
     name: updated.name,
     ownerId: updated.ownerId,
+    hawlStartedAt: updated.hawlStartedAt,
     role: record.role,
     canManageAccess: record.canManageAccess,
     accessGrantedAt: record.accessGrantedAt,

@@ -12,11 +12,15 @@ export const fiqhNisabBenchmarkCodeValues = ["gold", "silver"] as const
 export type FiqhNisabBenchmarkCode =
   (typeof fiqhNisabBenchmarkCodeValues)[number]
 
+export const fiqhGoldNisabGrams = 85 as const
+export const fiqhSilverNisabGrams = 595 as const
+
 export const fiqhCycleStateValues = [
   "open",
   "due",
   "paid",
   "followed_up",
+  "reset",
 ] as const
 
 export type FiqhCycleState = (typeof fiqhCycleStateValues)[number]

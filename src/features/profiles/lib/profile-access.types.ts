@@ -9,6 +9,7 @@ export type AccessibleProfile = {
   id: string
   name: string
   ownerId: string
+  hawlStartedAt: Date | null
   madhab: FiqhMadhabCode
   nisabBenchmark: FiqhNisabBenchmarkCode
   role: ProfileAccessRole
