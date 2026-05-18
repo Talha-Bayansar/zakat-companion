@@ -1,3 +1,7 @@
+import { Link } from "@tanstack/react-router"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { CursorEdit02Icon } from "@hugeicons/core-free-icons"
+
 import { m } from "@/paraglide/messages"
 
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
@@ -14,24 +18,24 @@ import {
 import { Spinner } from "@/shared/ui/spinner"
 import { Surface } from "@/shared/ui/surface"
 
-import {
-  ReminderPreferencesForm,
-  type ReminderPreferencesFormValues,
-} from "./reminder-preferences-form"
+function getReminderCadenceLabel(
+  cadence: ReminderPreferenceRecord["balanceUpdateCadence"],
+) {
+  return cadence === "daily"
+    ? m.settings_reminders_cadence_daily()
+    : cadence === "weekly"
+      ? m.settings_reminders_cadence_weekly()
+      : cadence === "monthly"
+        ? m.settings_reminders_cadence_monthly()
+        : m.settings_reminders_cadence_quarterly()
+}
 
-function getReminderPreferenceInitialValues(
-  preference: ReminderPreferenceRecord,
-): ReminderPreferencesFormValues {
-  return {
-    balanceUpdateCadence: preference.balanceUpdateCadence,
-    timezone: preference.timezone,
-    quietHoursEnabled: preference.quietHours ? "enabled" : "disabled",
-    quietHoursStartTime: preference.quietHours?.startTime ?? "",
-    quietHoursEndTime: preference.quietHours?.endTime ?? "",
-    zakatDueFollowUpEnabled: preference.zakatDueFollowUpEnabled
-      ? "enabled"
-      : "disabled",
+function getQuietHoursValue(preference: ReminderPreferenceRecord) {
+  if (!preference.quietHours) {
+    return m.settings_reminders_quiet_hours_disabled()
   }
+
+  return `${m.settings_reminders_quiet_hours_enabled()} · ${preference.quietHours.startTime} - ${preference.quietHours.endTime}`
 }
 
 export function ReminderPreferencesSection() {
@@ -74,7 +78,7 @@ export function ReminderPreferencesSection() {
             {m.settings_reminders_title()}
           </p>
           <p className="text-sm leading-6 text-muted-foreground">
-            {m.settings_reminders_description()}
+            {m.settings_reminders_summary_description()}
           </p>
         </div>
 
@@ -102,7 +106,7 @@ export function ReminderPreferencesSection() {
             {m.settings_reminders_title()}
           </p>
           <p className="text-sm leading-6 text-muted-foreground">
-            {m.settings_reminders_description()}
+            {m.settings_reminders_summary_description()}
           </p>
         </div>
 
@@ -138,7 +142,7 @@ export function ReminderPreferencesSection() {
             {m.settings_reminders_title()}
           </p>
           <p className="text-sm leading-6 text-muted-foreground">
-            {m.settings_reminders_description()}
+            {m.settings_reminders_summary_description()}
           </p>
         </div>
 
@@ -156,19 +160,65 @@ export function ReminderPreferencesSection() {
 
   return (
     <Surface rounded="xl" padding="lg" className="space-y-4">
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-foreground">
-          {m.settings_reminders_title()}
-        </p>
-        <p className="text-sm leading-6 text-muted-foreground">
-          {m.settings_reminders_description()}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-foreground">
+            {m.settings_reminders_title()}
+          </p>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {m.settings_reminders_summary_description()}
+          </p>
+        </div>
+
+        <Link
+          to="/app/settings/reminders"
+          className="inline-flex size-8 shrink-0 items-center justify-center rounded-4xl border border-transparent bg-secondary text-secondary-foreground transition-all outline-none hover:bg-secondary/80 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          aria-label={m.common_edit()}
+          title={m.common_edit()}
+        >
+          <HugeiconsIcon icon={CursorEdit02Icon} strokeWidth={2} className="size-4" />
+        </Link>
       </div>
 
-      <ReminderPreferencesForm
-        key={activeProfile.id}
-        initialValues={getReminderPreferenceInitialValues(reminderPreference)}
-      />
+      <dl className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1">
+          <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            {m.settings_reminders_balance_cadence_label()}
+          </dt>
+          <dd className="text-sm leading-6 text-foreground">
+            {getReminderCadenceLabel(reminderPreference.balanceUpdateCadence)}
+          </dd>
+        </div>
+
+        <div className="space-y-1">
+          <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            {m.settings_reminders_timezone_label()}
+          </dt>
+          <dd className="text-sm leading-6 text-foreground">
+            {reminderPreference.timezone}
+          </dd>
+        </div>
+
+        <div className="space-y-1">
+          <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            {m.settings_reminders_quiet_hours_label()}
+          </dt>
+          <dd className="text-sm leading-6 text-foreground">
+            {getQuietHoursValue(reminderPreference)}
+          </dd>
+        </div>
+
+        <div className="space-y-1">
+          <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            {m.settings_reminders_follow_up_label()}
+          </dt>
+          <dd className="text-sm leading-6 text-foreground">
+            {reminderPreference.zakatDueFollowUpEnabled
+              ? m.settings_reminders_follow_up_enabled()
+              : m.settings_reminders_follow_up_disabled()}
+          </dd>
+        </div>
+      </dl>
     </Surface>
   )
 }

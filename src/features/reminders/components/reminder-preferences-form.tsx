@@ -4,12 +4,14 @@ import { useForm } from "@tanstack/react-form"
 import { m } from "@/paraglide/messages"
 import {
   type ReminderCadence,
-  type ReminderPreference,
+  reminderCadenceValues,
+} from "../lib/reminders.constants"
+import {
   createReminderPreferenceFormSchema,
   reminderPreferenceSchema,
-  reminderCadenceValues,
-  useUpdateReminderPreferenceMutation,
-} from "@/features/reminders"
+} from "../lib/reminders.schemas"
+import { useUpdateReminderPreferenceMutation } from "../lib/reminders.mutations"
+import type { ReminderPreference } from "../lib/reminders.types"
 import { Button } from "@/shared/ui/button"
 import {
   Field,

@@ -1,4 +1,5 @@
 export { RemindersPage } from "./pages/reminders.page"
+export { ReminderPreferencesPage } from "./pages/reminder-preferences.page"
 export {
   defaultReminderCadence,
   reminderCadenceValues,

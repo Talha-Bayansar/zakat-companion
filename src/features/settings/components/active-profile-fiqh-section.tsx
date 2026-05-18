@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { CursorEdit02Icon } from "@hugeicons/core-free-icons"
 
 import { m } from "@/paraglide/messages"
 
@@ -7,7 +9,6 @@ import {
   getFiqhNisabBenchmarkLabel,
 } from "@/features/fiqh-calculation"
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
-import { buttonVariants } from "@/shared/ui/button"
 import {
   Empty,
   EmptyContent,
@@ -63,9 +64,11 @@ export function ActiveProfileFiqhSection() {
           <Link
             to="/app/settings/profiles/$profileId"
             params={{ profileId: activeProfile.id }}
-            className={buttonVariants({ variant: "secondary", size: "sm" })}
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-4xl border border-transparent bg-secondary text-secondary-foreground transition-all outline-none hover:bg-secondary/80 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            aria-label={m.common_edit()}
+            title={m.common_edit()}
           >
-            {m.settings_active_profile_fiqh_edit_profile()}
+            <HugeiconsIcon icon={CursorEdit02Icon} strokeWidth={2} className="size-4" />
           </Link>
         ) : null}
       </div>
