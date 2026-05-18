@@ -2,8 +2,8 @@
 
 ## Status
 
-- Overall: in progress
-- Current step: step 6
+- Overall: done
+- Current step: step 6 complete
 
 ## Goal
 
@@ -47,7 +47,7 @@ Implement browser web push subscription management and delivery so reminder jobs
    - If a dedicated browser permission step is needed, wire it into the existing PWA-friendly app shell rather than a separate flow.
 
 6. Add tests.
-   - Status: pending
+   - Status: done
    - Verify subscription registration and removal.
    - Verify reminder payload generation for balance update and zakat due notifications.
    - Verify push send success, failure handling, and inactive subscription behavior.

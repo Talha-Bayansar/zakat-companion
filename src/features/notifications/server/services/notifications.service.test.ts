@@ -11,6 +11,9 @@ const expireNotificationSubscriptionRecord = vi.fn()
 const failNotificationSubscriptionRecord = vi.fn()
 const recordNotificationDeliveryAttemptRecord = vi.fn()
 const sendWebPushNotification = vi.fn()
+const getWebPushErrorMessage = vi.fn(() => "push failed")
+const isNotificationSubscriptionExpiredError = vi.fn(() => false)
+const isNotificationSubscriptionPermanentFailure = vi.fn(() => false)
 
 vi.mock("@/features/profiles/server/services/profile-access.service", () => ({
   resolveCurrentActiveProfile,
@@ -29,9 +32,9 @@ vi.mock("../repositories/notifications.repository", () => ({
 }))
 
 vi.mock("./web-push-delivery.service", () => ({
-  getWebPushErrorMessage: vi.fn(() => "push failed"),
-  isNotificationSubscriptionExpiredError: vi.fn(() => false),
-  isNotificationSubscriptionPermanentFailure: vi.fn(() => false),
+  getWebPushErrorMessage,
+  isNotificationSubscriptionExpiredError,
+  isNotificationSubscriptionPermanentFailure,
   sendWebPushNotification,
   WebPushDeliveryError: class WebPushDeliveryError extends Error {
     readonly code: "NOT_CONFIGURED" | "SEND_FAILED"
@@ -82,6 +85,9 @@ const subscription = {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  getWebPushErrorMessage.mockReturnValue("push failed")
+  isNotificationSubscriptionExpiredError.mockReturnValue(false)
+  isNotificationSubscriptionPermanentFailure.mockReturnValue(false)
   resolveCurrentActiveProfile.mockResolvedValue({
     id: "profile-1",
     ownerId: "user-1",
@@ -241,6 +247,119 @@ describe("notifications service", () => {
       succeededCount: 1,
       failedCount: 0,
       expiredCount: 0,
+    })
+  })
+
+  it("skips inactive subscriptions when there are no active records", async () => {
+    listActiveNotificationSubscriptionRecordsByProfileId.mockResolvedValue([])
+    listNotificationDeliveryAttemptRecordsByReminderJobId.mockResolvedValue([])
+
+    const result = await sendNotificationPayloadToProfile(
+      "profile-1",
+      "reminder-job-1",
+      {
+        channel: "web_push",
+        kind: "balance_update",
+        profileId: "profile-1",
+        title: "Balance update",
+        body: "Refresh your wealth snapshot.",
+        url: "/settings",
+        tag: "balance-update:profile-1",
+      },
+      new Date("2026-05-17T09:15:00.000Z"),
+    )
+
+    expect(sendWebPushNotification).not.toHaveBeenCalled()
+    expect(recordNotificationDeliveryAttemptRecord).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      attemptedCount: 0,
+      succeededCount: 0,
+      failedCount: 0,
+      expiredCount: 0,
+    })
+  })
+
+  it("expires subscriptions after a push delivery returns a 410 error", async () => {
+    listActiveNotificationSubscriptionRecordsByProfileId.mockResolvedValue([
+      subscription,
+    ])
+    listNotificationDeliveryAttemptRecordsByReminderJobId.mockResolvedValue([])
+    isNotificationSubscriptionExpiredError.mockReturnValue(true)
+    isNotificationSubscriptionPermanentFailure.mockReturnValue(false)
+    getWebPushErrorMessage.mockReturnValue("subscription expired")
+    sendWebPushNotification.mockRejectedValue({
+      statusCode: 410,
+    })
+
+    const result = await sendNotificationPayloadToProfile(
+      "profile-1",
+      "reminder-job-1",
+      {
+        channel: "web_push",
+        kind: "balance_update",
+        profileId: "profile-1",
+        title: "Balance update",
+        body: "Refresh your wealth snapshot.",
+        url: "/settings",
+        tag: "balance-update:profile-1",
+      },
+      new Date("2026-05-17T09:15:00.000Z"),
+    )
+
+    expect(expireNotificationSubscriptionRecord).toHaveBeenCalledWith(
+      "subscription-1",
+      new Date("2026-05-17T09:15:00.000Z"),
+      "subscription expired",
+    )
+    expect(failNotificationSubscriptionRecord).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      attemptedCount: 1,
+      succeededCount: 0,
+      failedCount: 0,
+      expiredCount: 1,
+      firstFailureMessage: "subscription expired",
+    })
+  })
+
+  it("marks subscriptions failed after a permanent push delivery error", async () => {
+    listActiveNotificationSubscriptionRecordsByProfileId.mockResolvedValue([
+      subscription,
+    ])
+    listNotificationDeliveryAttemptRecordsByReminderJobId.mockResolvedValue([])
+    isNotificationSubscriptionExpiredError.mockReturnValue(false)
+    isNotificationSubscriptionPermanentFailure.mockReturnValue(true)
+    getWebPushErrorMessage.mockReturnValue("permission revoked")
+    sendWebPushNotification.mockRejectedValue({
+      statusCode: 403,
+    })
+
+    const result = await sendNotificationPayloadToProfile(
+      "profile-1",
+      "reminder-job-1",
+      {
+        channel: "web_push",
+        kind: "balance_update",
+        profileId: "profile-1",
+        title: "Balance update",
+        body: "Refresh your wealth snapshot.",
+        url: "/settings",
+        tag: "balance-update:profile-1",
+      },
+      new Date("2026-05-17T09:15:00.000Z"),
+    )
+
+    expect(failNotificationSubscriptionRecord).toHaveBeenCalledWith(
+      "subscription-1",
+      new Date("2026-05-17T09:15:00.000Z"),
+      "permission revoked",
+    )
+    expect(expireNotificationSubscriptionRecord).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      attemptedCount: 1,
+      succeededCount: 0,
+      failedCount: 1,
+      expiredCount: 0,
+      firstFailureMessage: "permission revoked",
     })
   })
 })
