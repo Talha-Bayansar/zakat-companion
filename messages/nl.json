@@ -31,6 +31,8 @@
   "history_title": "Bekijk eerdere cycli later",
   "history_description": "Dit tabblad toont later eerdere berekeningen, betalingsstatus en herinneringspogingen voor elk profiel.",
   "history_surface": "Historische items volgen dezelfde ruimte- en oppervlakregels als de rest van de app.",
+  "history_mark_cycle_paid_no_active_profile": "Kies eerst een actief profiel voordat je een cyclus als betaald markeert.",
+  "history_mark_cycle_paid_not_found": "De geselecteerde cyclus kon niet worden gevonden.",
   "settings_eyebrow": "Instellingen",
   "settings_title": "Houd accountinstellingen op één plek",
   "settings_description": "Profiel aanmaken, wisselen, gedeelde toegang en herinneringsvoorkeuren komen hier te staan.",

@@ -3,7 +3,10 @@ import { getRequest } from "@tanstack/react-start/server"
 
 import { m } from "@/paraglide/messages"
 
-import { listHistoryCyclesInputSchema } from "../schemas/history.schema"
+import {
+  historyMarkCyclePaidInputSchema,
+  listHistoryCyclesInputSchema,
+} from "../schemas/history.schema"
 
 async function requireActor() {
   const { auth } = await import("@/server/auth")
@@ -43,4 +46,13 @@ export const listHistoryCyclesFn = createServerFn({ method: "GET" })
     const { listHistoryCycles } = await import("../services/history.service")
 
     return listHistoryCycles(actor, data)
+  })
+
+export const markCyclePaidFn = createServerFn({ method: "POST" })
+  .inputValidator(historyMarkCyclePaidInputSchema)
+  .handler(async ({ data }) => {
+    const actor = await requireActor()
+    const { markCyclePaid } = await import("../services/history.service")
+
+    return markCyclePaid(actor, data)
   })

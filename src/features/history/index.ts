@@ -2,6 +2,8 @@ export { HistoryPage } from "./pages/history.page"
 export {
   listHistoryCyclesFn,
   listHistoryCyclesInputSchema,
+  markCyclePaidFn,
+  historyMarkCyclePaidInputSchema,
 } from "./server"
 export {
   historyBalanceUpdateReminderJobSchema,

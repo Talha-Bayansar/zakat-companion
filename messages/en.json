@@ -31,6 +31,8 @@
   "history_title": "Review prior cycles later",
   "history_description": "This tab will eventually show previous calculations, payment state, and reminder attempts for each profile.",
   "history_surface": "Historical entries will follow the same spacing and surface rules as the rest of the app.",
+  "history_mark_cycle_paid_no_active_profile": "Select an active profile before marking a cycle as paid.",
+  "history_mark_cycle_paid_not_found": "The selected cycle could not be found.",
   "settings_eyebrow": "Settings",
   "settings_title": "Keep account setup in one place",
   "settings_description": "Profile creation, switching, delegated access, and reminder preferences will live here.",

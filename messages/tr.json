@@ -31,6 +31,8 @@
   "history_title": "Önceki döngüleri daha sonra inceleyin",
   "history_description": "Bu sekme zamanla her profil için önceki hesaplamaları, ödeme durumunu ve hatırlatıcı denemelerini gösterecek.",
   "history_surface": "Geçmiş kayıtlar, uygulamanın geri kalanıyla aynı boşluk ve yüzey kurallarını izleyecek.",
+  "history_mark_cycle_paid_no_active_profile": "Bir döngüyü ödenmiş olarak işaretlemeden önce etkin bir profil seçin.",
+  "history_mark_cycle_paid_not_found": "Seçilen döngü bulunamadı.",
   "settings_eyebrow": "Ayarlar",
   "settings_title": "Hesap kurulumunu tek yerde tutun",
   "settings_description": "Profil oluşturma, profil değiştirme, devredilmiş erişim ve hatırlatıcı tercihleri burada olacak.",

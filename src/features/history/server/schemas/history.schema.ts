@@ -10,3 +10,11 @@ export const listHistoryCyclesInputSchema = z.object({
 export type ListHistoryCyclesInput = z.infer<
   typeof listHistoryCyclesInputSchema
 >
+
+export const historyMarkCyclePaidInputSchema = z.object({
+  zakatCycleId: z.string().trim().min(1),
+})
+
+export type MarkHistoryCyclePaidInput = z.infer<
+  typeof historyMarkCyclePaidInputSchema
+>

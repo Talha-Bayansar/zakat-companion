@@ -3,7 +3,7 @@
 ## Status
 
 - Overall: planned
-- Current step: step 1
+- Current step: step 4
 
 ## Goal
 
@@ -24,13 +24,13 @@ Implement a cycle-centric history surface for the selected profile where users c
    - Keep route files thin and expose the feature through a narrow public `index.ts` barrel.
 
 3. Add the cycle-paid mutation.
-   - Status: in progress
+   - Status: completed
    - Add a `markCyclePaid` server function in the history feature.
    - Reuse the existing `zakat_cycle.state` and `paidAt` columns instead of introducing a new payment model.
    - Make the mutation idempotent so repeated submits do not corrupt history.
 
 4. Build the history page UI.
-   - Status: pending
+   - Status: in progress
    - Replace the empty `/app/history` surface with a real cycle timeline.
    - Show one row per cycle with cycle state, payment state, due date, snapshot summary, and reminder attempts.
    - Use the repo's standard loading, empty-state, and destructive-action patterns.

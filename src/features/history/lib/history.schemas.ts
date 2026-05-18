@@ -96,3 +96,11 @@ export const historyCycleHistoryPageSchema = z.object({
   pageSize: z.number().int().positive(),
   hasMore: z.boolean(),
 })
+
+export const historyMarkCyclePaidInputSchema = z.object({
+  zakatCycleId: z.string().trim().min(1),
+})
+
+export type MarkHistoryCyclePaidInput = z.infer<
+  typeof historyMarkCyclePaidInputSchema
+>

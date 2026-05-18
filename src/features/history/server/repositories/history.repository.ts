@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from "drizzle-orm"
+import { and, desc, eq, inArray, isNull, ne, or } from "drizzle-orm"
 
 import { db } from "@/server/db/client"
 import {
@@ -352,4 +352,63 @@ export async function listHistoryCycleRecordsByProfileId(
     pageSize: input.pageSize,
     hasMore,
   }
+}
+
+export async function markHistoryCyclePaidRecord(
+  profileId: string,
+  zakatCycleId: string,
+  paidAt = new Date(),
+): Promise<HistoryCycleRecord | null> {
+  const updatedRows = (await db
+    .update(zakatCycle)
+    .set({
+      state: "paid",
+      paidAt,
+      updatedAt: paidAt,
+    })
+    .where(
+      and(
+        eq(zakatCycle.id, zakatCycleId),
+        eq(zakatCycle.profileId, profileId),
+        or(ne(zakatCycle.state, "paid"), isNull(zakatCycle.paidAt)),
+      ),
+    )
+    .returning({
+      id: zakatCycle.id,
+      profileId: zakatCycle.profileId,
+      sourceSnapshotId: zakatCycle.sourceSnapshotId,
+      state: zakatCycle.state,
+      dueAt: zakatCycle.dueAt,
+      paidAt: zakatCycle.paidAt,
+      createdAt: zakatCycle.createdAt,
+      updatedAt: zakatCycle.updatedAt,
+    })) as HistoryCycleDbRecord[]
+
+  const updated = updatedRows[0]
+
+  if (updated) {
+    return toHistoryCycleRecord(updated, null, [])
+  }
+
+  const [existing] = (await db
+    .select({
+      id: zakatCycle.id,
+      profileId: zakatCycle.profileId,
+      sourceSnapshotId: zakatCycle.sourceSnapshotId,
+      state: zakatCycle.state,
+      dueAt: zakatCycle.dueAt,
+      paidAt: zakatCycle.paidAt,
+      createdAt: zakatCycle.createdAt,
+      updatedAt: zakatCycle.updatedAt,
+    })
+    .from(zakatCycle)
+    .where(
+      and(
+        eq(zakatCycle.id, zakatCycleId),
+        eq(zakatCycle.profileId, profileId),
+      ),
+    )
+    .limit(1)) as HistoryCycleDbRecord[]
+
+  return existing ? toHistoryCycleRecord(existing, null, []) : null
 }
