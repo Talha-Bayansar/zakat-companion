@@ -41,6 +41,8 @@
   "history_empty_title": "Henüz döngü yok",
   "history_empty_description": "Bir servet özeti bir döngü oluşturduğunda, ödeme durumu ve hatırlatıcı etkinliğiyle birlikte burada görünecek.",
   "history_cycle_snapshot_title": "Kaynak özeti",
+  "history_cycle_expand_details": "Döngü özetini göster",
+  "history_cycle_collapse_details": "Döngü özetini gizle",
   "history_cycle_reminders_title": "Hatırlatıcı etkinliği",
   "history_cycle_snapshot_unavailable": "Kaynak özeti kullanılamıyor",
   "history_cycle_reminders_empty": "Bu döngü için henüz kaydedilmiş bir hatırlatıcı etkinliği yok.",

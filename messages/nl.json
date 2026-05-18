@@ -41,6 +41,8 @@
   "history_empty_title": "Nog geen cycli",
   "history_empty_description": "Zodra een vermogenssnapshot een cyclus aanmaakt, verschijnt die hier met de betalingsstatus en herinneringsactiviteit.",
   "history_cycle_snapshot_title": "Bronoverzicht",
+  "history_cycle_expand_details": "Cyclusoverzicht tonen",
+  "history_cycle_collapse_details": "Cyclusoverzicht verbergen",
   "history_cycle_reminders_title": "Herinneringsactiviteit",
   "history_cycle_snapshot_unavailable": "Bronoverzicht niet beschikbaar",
   "history_cycle_reminders_empty": "Voor deze cyclus is nog geen herinneringsactiviteit vastgelegd.",

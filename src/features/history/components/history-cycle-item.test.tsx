@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 
 import { m } from "@/paraglide/messages"
 
@@ -17,7 +17,7 @@ beforeEach(() => {
 })
 
 describe("HistoryCycleItem", () => {
-  it("renders the source snapshot summary and reminder activity", () => {
+  it("collapses the cycle summary until expanded", () => {
     render(
       <HistoryCycleItem
         cycle={{
@@ -78,18 +78,19 @@ describe("HistoryCycleItem", () => {
     )
 
     expect(screen.getByText("2026-05-16T09:00:00.000Z")).toBeDefined()
+    expect(screen.getByRole("button", { name: m.history_cycle_expand_details() })).toBeDefined()
+    expect(screen.queryByText(m.history_cycle_snapshot_title())).toBeNull()
+    expect(screen.queryByText("Hanafi")).toBeNull()
+    expect(screen.queryByText("Gold")).toBeNull()
+    expect(screen.queryByText(m.history_cycle_state_due())).toBeDefined()
+    expect(screen.queryByText(m.history_cycle_payment_unpaid())).toBeDefined()
+    expect(screen.getByRole("button", { name: m.history_cycle_mark_paid() })).toBeDefined()
+
+    fireEvent.click(screen.getByRole("button", { name: m.history_cycle_expand_details() }))
+
     expect(screen.getByText(m.history_cycle_snapshot_title())).toBeDefined()
-    expect(screen.getByText(m.history_cycle_reminders_title())).toBeDefined()
-    expect(screen.getByText(/Attempts: 1/)).toBeDefined()
     expect(screen.getByText("Hanafi")).toBeDefined()
     expect(screen.getByText("Gold")).toBeDefined()
-    expect(screen.getByText(m.history_cycle_state_due())).toBeDefined()
-    expect(screen.getByText(m.history_cycle_payment_unpaid())).toBeDefined()
-    expect(screen.getAllByText(m.history_reminder_kind_zakat_due()).length).toBeGreaterThan(0)
-    expect(screen.getByText(m.history_reminder_job_status_claimed())).toBeDefined()
-    expect(screen.getByText(m.history_reminder_job_status_failed())).toBeDefined()
-    expect(screen.getByText(m.history_reminder_job_status_suppressed())).toBeDefined()
-    expect(screen.getByText("temporary failure")).toBeDefined()
-    expect(screen.getByRole("button", { name: m.history_cycle_mark_paid() })).toBeDefined()
+    expect(screen.getByText(m.wealth_snapshot_current_nisab_status_label())).toBeDefined()
   })
 })

@@ -41,6 +41,8 @@
   "history_empty_title": "No cycles yet",
   "history_empty_description": "Once a wealth snapshot creates a cycle, it will appear here with its payment state and reminder activity.",
   "history_cycle_snapshot_title": "Source snapshot",
+  "history_cycle_expand_details": "Show cycle overview",
+  "history_cycle_collapse_details": "Hide cycle overview",
   "history_cycle_reminders_title": "Reminder activity",
   "history_cycle_snapshot_unavailable": "Source snapshot unavailable",
   "history_cycle_reminders_empty": "No reminder activity has been recorded for this cycle yet.",
