@@ -5,6 +5,8 @@
 - Overall: completed
 - Current step: completed
 
+> MVP note: the reminder job slice is implemented, but production still needs an explicit cron trigger in `wrangler.jsonc` so the Worker's scheduled entrypoint runs.
+
 ## Goal
 
 Implement profile-level reminder preferences and database-backed reminder jobs that can be executed by cron now and a queue later, covering balance update reminders, zakat due reminders, cadence, timezone, quiet hours, and follow-up behavior.

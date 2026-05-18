@@ -5,6 +5,8 @@
 - Overall: done
 - Current step: complete
 
+> MVP note: the core fiqh engine slice is implemented, but the tracker still keeps the benchmark-driven nisab shortcut in wealth snapshot capture open until that path is wired to the selected benchmark everywhere.
+
 ## Goal
 
 Implement a versioned, madhab-aware fiqh calculation engine that reads the active profile's madhab and nisab benchmark preferences, determines nisab status and hawl behavior, calculates zakat due timing and amount, and preserves historical results when rules evolve later.

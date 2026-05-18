@@ -6,12 +6,12 @@ Users need a secure way to sign up and sign in before they can create profiles, 
 
 ## Solution
 
-Implement Better Auth with email and password only, mounted inside the TanStack Start app. Protect authenticated routes and provide the lightweight account shell and responsive navigation needed to lead into profile-aware product areas.
+Implement Better Auth with Google social sign-in, mounted inside the TanStack Start app. Protect authenticated routes and provide the lightweight account shell and responsive navigation needed to lead into profile-aware product areas.
 
 ## User Stories
 
-1. As a user, I want to sign up with email and password, so that I can securely use the app.
-2. As a returning user, I want to sign in with email and password, so that I can access my saved profiles and settings.
+1. As a user, I want to continue with Google, so that I can securely use the app.
+2. As a returning user, I want to sign in with Google, so that I can access my saved profiles and settings.
 3. As a user, I want the app to stay in a single full-stack TypeScript codebase, so that the system remains easier to maintain.
 4. As a user, I want the backend to live inside the same app, so that auth, data, and reminders share one implementation model.
 5. As a mobile user, I want the primary navigation to stay compact and native-feeling, so that the app is easy to use with one hand.
@@ -20,7 +20,7 @@ Implement Better Auth with email and password only, mounted inside the TanStack 
 
 ## Implementation Decisions
 
-- Use Better Auth for email/password sign-up and sign-in.
+- Use Better Auth for Google social sign-in.
 - Keep auth inside the TanStack Start app.
 - Separate auth identity from zakat profile ownership.
 - Use Zod to validate auth inputs and shared session-aware payloads.
@@ -32,12 +32,12 @@ Implement Better Auth with email and password only, mounted inside the TanStack 
 
 ## Testing Decisions
 
-- Verify sign-up, sign-in, session persistence, protected route access, and sign-out behavior.
+- Verify Google sign-in, session persistence, protected route access, and sign-out behavior.
 - Test only external auth behavior, not internal auth wiring.
 
 ## Out of Scope
 
-- Social sign-in.
+- Email/password auth.
 - Profile management.
 - Reminder delivery.
 
