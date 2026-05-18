@@ -63,6 +63,45 @@ export function WealthSnapshotFiqhExplanation({
           />
         </Section>
 
+        {explanation.benchmark ? (
+          <Section title={m.wealth_snapshot_explanation_benchmark_title()}>
+            <KeyValueList
+              items={[
+                {
+                  label: m.wealth_snapshot_explanation_benchmark_currency_label(),
+                  value: explanation.benchmark.currency,
+                },
+                {
+                  label: m.wealth_snapshot_explanation_benchmark_provider_label(),
+                  value: explanation.benchmark.provider,
+                },
+                {
+                  label: m.wealth_snapshot_current_nisab_benchmark_label(),
+                  value: getFiqhNisabBenchmarkLabel(
+                    explanation.benchmark.selectedBenchmark,
+                  ),
+                },
+                {
+                  label: m.wealth_snapshot_explanation_benchmark_price_label(),
+                  value: formatAmount(explanation.benchmark.selectedBenchmarkPrice),
+                },
+                {
+                  label: m.wealth_snapshot_explanation_threshold_label(),
+                  value: formatAmount(explanation.benchmark.nisabThreshold),
+                },
+                {
+                  label: m.settings_active_profile_fiqh_benchmark_freshness_label(),
+                  value: getBenchmarkFreshnessValue(explanation),
+                },
+                {
+                  label: m.wealth_snapshot_explanation_benchmark_source_timestamp_label(),
+                  value: formatDate(explanation.benchmark.sourceTimestamp),
+                },
+              ]}
+            />
+          </Section>
+        ) : null}
+
         <Section title={m.wealth_snapshot_explanation_nisab_title()}>
           <KeyValueList
             items={[
@@ -173,6 +212,18 @@ function formatDate(value: string) {
   const date = new Date(value)
 
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+}
+
+function getBenchmarkFreshnessValue(
+  explanation: NonNullable<
+    WealthSnapshotRecord["fiqhExplanation"]
+  >,
+) {
+  if (!explanation.benchmark) {
+    return m.wealth_snapshot_current_value_unavailable()
+  }
+
+  return explanation.benchmark.freshness.label
 }
 
 function getNisabStatusLabel(isAboveNisab: boolean) {

@@ -8,6 +8,10 @@
 - Keep reminder delivery simple at first while preserving a clean path to queues later.
 - Make the data model explicit enough to support future fiqh expansion without redesign.
 
+### MVP Readiness Note
+
+The current codebase already includes Google sign-in, reminder job orchestration, and a versioned fiqh engine. The remaining MVP blockers are benchmark-driven nisab wiring in wealth snapshot capture and explicit cron configuration in `wrangler.jsonc` for reminder execution.
+
 ## Tech Stack
 
 - Frontend and server runtime: TanStack Start + React + TypeScript
@@ -196,6 +200,7 @@ This design can later be swapped to a queue without changing the job model or th
 - Cloudflare Workers runs the app.
 - Neon hosts PostgreSQL.
 - Cloudflare Cron Triggers run periodic reminder execution.
+- The deployment config must declare the cron schedule explicitly; a `scheduled` handler alone is not enough to run reminders in production.
 - Web Push delivery is handled from the Worker runtime.
 
 Because Cloudflare cron executes in UTC, timezone-aware scheduling must be handled in application logic.

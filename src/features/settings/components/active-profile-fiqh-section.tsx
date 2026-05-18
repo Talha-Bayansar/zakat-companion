@@ -5,6 +5,10 @@ import { CursorEdit02Icon } from "@hugeicons/core-free-icons"
 import { m } from "@/paraglide/messages"
 
 import {
+  getBenchmarkPricingFreshnessLabel,
+  useCurrentBenchmarkPricingQuery,
+} from "@/features/benchmark-pricing"
+import {
   getFiqhMadhabLabel,
   getFiqhNisabBenchmarkLabel,
 } from "@/features/fiqh-calculation"
@@ -20,6 +24,7 @@ import { Surface } from "@/shared/ui/surface"
 
 export function ActiveProfileFiqhSection() {
   const currentActiveProfileQuery = useCurrentActiveProfileQuery()
+  const benchmarkPricingQuery = useCurrentBenchmarkPricingQuery()
 
   if (currentActiveProfileQuery.isLoading) {
     return (
@@ -108,6 +113,21 @@ export function ActiveProfileFiqhSection() {
               </dt>
               <dd className="text-sm leading-6 text-foreground">
                 {getFiqhNisabBenchmarkLabel(activeProfile.nisabBenchmark)}
+              </dd>
+            </div>
+
+            <div className="space-y-1">
+              <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                {m.settings_active_profile_fiqh_benchmark_freshness_label()}
+              </dt>
+              <dd className="text-sm leading-6 text-foreground">
+                {benchmarkPricingQuery.isLoading
+                  ? m.settings_active_profile_fiqh_benchmark_loading()
+                  : benchmarkPricingQuery.data
+                    ? getBenchmarkPricingFreshnessLabel(
+                        benchmarkPricingQuery.data,
+                      )
+                    : m.wealth_snapshot_current_value_unavailable()}
               </dd>
             </div>
           </dl>

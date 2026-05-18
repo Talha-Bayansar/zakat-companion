@@ -1,6 +1,9 @@
 import { m } from "@/paraglide/messages"
+import { getBenchmarkPricingFreshnessLabel, isBenchmarkPricingStale } from "@/features/benchmark-pricing"
+import { getCurrentBenchmarkPricing } from "@/features/benchmark-pricing/server"
 import {
   calculateFiqhCalculation,
+  type FiqhCalculationBenchmarkExplanation,
   type FiqhCalculationOutcome,
   type FiqhMadhabCode,
   type FiqhNisabBenchmarkCode,
@@ -37,7 +40,7 @@ type ActiveProfileFiqhPreferences = {
 }
 
 export const WEALTH_SNAPSHOT_CALCULATION_VERSION = "wealth-snapshot-v1"
-const SNAPSHOT_NISAB_THRESHOLD_CENTS = 1
+const SNAPSHOT_FALLBACK_NISAB_THRESHOLD_CENTS = 1
 
 const ASSET_CATEGORIES: WealthCategory[] = wealthCategoryValues.filter(
   (category) => category !== "debts_liabilities",
@@ -68,6 +71,46 @@ function formatCents(value: number) {
   return `${value < 0 ? "-" : ""}${whole}.${fraction}`
 }
 
+function getBenchmarkThreshold(
+  benchmarkPricing: Awaited<ReturnType<typeof getCurrentBenchmarkPricing>>,
+  benchmark: FiqhNisabBenchmarkCode,
+) {
+  if (!benchmarkPricing) {
+    return null
+  }
+
+  return benchmark === "gold"
+    ? benchmarkPricing.goldPrice
+    : benchmarkPricing.silverPrice
+}
+
+function toBenchmarkExplanation(
+  benchmarkPricing: NonNullable<
+    Awaited<ReturnType<typeof getCurrentBenchmarkPricing>>
+  >,
+  benchmark: FiqhNisabBenchmarkCode,
+  nisabThreshold: string,
+  asOf: Date,
+): FiqhCalculationBenchmarkExplanation {
+  const selectedBenchmarkPrice = getBenchmarkThreshold(benchmarkPricing, benchmark)
+
+  return {
+    currency: benchmarkPricing.currency,
+    provider: benchmarkPricing.provider,
+    goldPrice: benchmarkPricing.goldPrice,
+    silverPrice: benchmarkPricing.silverPrice,
+    sourceTimestamp: benchmarkPricing.sourceTimestamp.toISOString(),
+    lastSuccessfulAt: benchmarkPricing.lastSuccessfulAt.toISOString(),
+    selectedBenchmark: benchmark,
+    selectedBenchmarkPrice: selectedBenchmarkPrice ?? nisabThreshold,
+    nisabThreshold,
+    freshness: {
+      isStale: isBenchmarkPricingStale(benchmarkPricing, asOf),
+      label: getBenchmarkPricingFreshnessLabel(benchmarkPricing, asOf),
+    },
+  }
+}
+
 export function normalizeWealthSnapshotEntries(entries: WealthSnapshotEntryInput[]) {
   const entriesByCategory = new Map<WealthCategory, string>()
 
@@ -92,7 +135,8 @@ export function calculateWealthSnapshotWriteContext(
     .filter((entry) => entry.category === "debts_liabilities")
     .reduce((total, entry) => total + parseAmountToCents(entry.amount), 0)
   const netZakatableBase = assetTotal - liabilityTotal
-  const isAboveNisab = netZakatableBase > SNAPSHOT_NISAB_THRESHOLD_CENTS
+  const isAboveNisab =
+    netZakatableBase > SNAPSHOT_FALLBACK_NISAB_THRESHOLD_CENTS
 
   return {
     madhab: null,
@@ -105,29 +149,66 @@ export function calculateWealthSnapshotWriteContext(
   }
 }
 
-function calculateFiqhWealthSnapshotOutcome(
+type BenchmarkAwareFiqhCalculationOutcome = FiqhCalculationOutcome & {
+  explanation: FiqhCalculationOutcome["explanation"] & {
+    benchmark: FiqhCalculationBenchmarkExplanation
+  }
+}
+
+async function calculateFiqhWealthSnapshotOutcome(
   entries: WealthSnapshotEntryInput[],
   activeProfile: ActiveProfileFiqhPreferences | null,
-): FiqhCalculationOutcome | WealthSnapshotWriteContext {
+  benchmarkPricing: Awaited<ReturnType<typeof getCurrentBenchmarkPricing>> | null,
+  asOf: Date,
+): Promise<BenchmarkAwareFiqhCalculationOutcome | WealthSnapshotWriteContext> {
   const snapshot = calculateWealthSnapshotWriteContext(entries)
 
   if (!activeProfile) {
     return snapshot
   }
 
-  return calculateFiqhCalculation({
+  if (!benchmarkPricing) {
+    throw new Error(m.wealth_snapshot_benchmark_unavailable())
+  }
+
+  const nisabThreshold = getBenchmarkThreshold(
+    benchmarkPricing,
+    activeProfile.nisabBenchmark,
+  )
+
+  if (!nisabThreshold) {
+    throw new Error(m.wealth_snapshot_benchmark_unavailable())
+  }
+
+  const outcome = calculateFiqhCalculation({
     madhab: activeProfile.madhab,
     nisabBenchmark: activeProfile.nisabBenchmark,
     netZakatableBase: snapshot.netZakatableBase ?? "0.00",
-    nisabThreshold: formatCents(SNAPSHOT_NISAB_THRESHOLD_CENTS),
+    nisabThreshold,
     hawlStartedAt: null,
-    asOf: new Date(),
+    asOf,
     calculationVersion: fiqhCalculationVersion,
   })
+
+  return {
+    ...outcome,
+    explanation: {
+      ...outcome.explanation,
+      benchmark: toBenchmarkExplanation(
+        benchmarkPricing,
+        activeProfile.nisabBenchmark,
+        nisabThreshold,
+        asOf,
+      ),
+    },
+  }
 }
 
 function toWealthSnapshotWriteContext(
-  outcome: FiqhCalculationOutcome | WealthSnapshotWriteContext,
+  outcome:
+    | BenchmarkAwareFiqhCalculationOutcome
+    | FiqhCalculationOutcome
+    | WealthSnapshotWriteContext,
 ): WealthSnapshotWriteContext {
   if ("snapshot" in outcome) {
     return {
@@ -150,10 +231,17 @@ async function saveWealthSnapshotRevision(
     throw new Error(m.wealth_snapshot_no_active_profile())
   }
 
-  const outcome = calculateFiqhWealthSnapshotOutcome(input.entries, {
-    madhab: activeProfile.madhab,
-    nisabBenchmark: activeProfile.nisabBenchmark,
-  })
+  const benchmarkPricing = await getCurrentBenchmarkPricing()
+  const capturedAt = new Date()
+  const outcome = await calculateFiqhWealthSnapshotOutcome(
+    input.entries,
+    {
+      madhab: activeProfile.madhab,
+      nisabBenchmark: activeProfile.nisabBenchmark,
+    },
+    benchmarkPricing,
+    capturedAt,
+  )
   const snapshot = toWealthSnapshotWriteContext(outcome)
   const entries = normalizeWealthSnapshotEntries(input.entries)
 
@@ -161,6 +249,7 @@ async function saveWealthSnapshotRevision(
     profileId,
     entries,
     snapshot,
+    capturedAt,
   })
 }
 

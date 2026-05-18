@@ -53,6 +53,24 @@ export const profile = pgTable(
   (table) => [index("profile_ownerId_idx").on(table.ownerId)]
 )
 
+export const nisabBenchmarkPrice = pgTable(
+  "nisab_benchmark_price",
+  {
+    currency: text("currency").primaryKey(),
+    provider: text("provider").notNull().default("metals.dev"),
+    goldPrice: text("gold_price").notNull(),
+    silverPrice: text("silver_price").notNull(),
+    sourceTimestamp: timestamp("source_timestamp").notNull(),
+    lastSuccessfulAt: timestamp("last_successful_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("nisab_benchmark_price_currency_idx").on(table.currency)]
+)
+
 export const profilePermission = pgTable(
   "profile_permission",
   {

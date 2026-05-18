@@ -14,6 +14,8 @@
 - `wealth snapshot explanation sections`: the separate explanation blocks for nisab, hawl, due amount, and frozen inputs.
 - `zakatable categories`: the asset and liability types the app includes in the wealth snapshot by default.
 - `nisab benchmark`: the threshold reference used to determine whether zakat is due; gold is the default benchmark, with silver as a selectable alternative.
+- `benchmark pricing cache`: the current EUR gold and silver price record fetched from Metals.dev and reused between refreshes.
+- `benchmark freshness`: the neutral age label shown for the cached benchmark pricing record.
 - `madhab`: the user's chosen school of Islamic jurisprudence that governs how the app calculates zakat rules.
 - `multi-madhab support`: the app allows the user to select among multiple madhabs for zakat calculation rules.
 - `zakat date rule`: the app's hawl and reset behavior must follow the user's selected madhab.
