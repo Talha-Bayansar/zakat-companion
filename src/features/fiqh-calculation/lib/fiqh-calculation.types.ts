@@ -73,12 +73,31 @@ export type FiqhCalculationDueAmountExplanation = {
   isZakatDue: boolean
 }
 
+export type FiqhCalculationBenchmarkFreshnessExplanation = {
+  isStale: boolean
+  label: string
+}
+
+export type FiqhCalculationBenchmarkExplanation = {
+  currency: string
+  provider: string
+  goldPrice: string
+  silverPrice: string
+  sourceTimestamp: string
+  lastSuccessfulAt: string
+  selectedBenchmark: FiqhNisabBenchmarkCode
+  selectedBenchmarkPrice: string
+  nisabThreshold: string
+  freshness: FiqhCalculationBenchmarkFreshnessExplanation
+}
+
 export type FiqhCalculationExplanation = {
   inputs: FiqhCalculationExplanationInputs
   nisab: FiqhCalculationNisabExplanation
   hawl: FiqhCalculationHawlExplanation
   dueAmount: FiqhCalculationDueAmountExplanation
   dateRule: FiqhDateRule
+  benchmark?: FiqhCalculationBenchmarkExplanation
 }
 
 export type FiqhHawlProgress = {

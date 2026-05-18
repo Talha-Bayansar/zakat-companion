@@ -14,8 +14,10 @@ import { PageHeaderWithBack, PageSection } from "@/shared/ui/page"
 import { Spinner } from "@/shared/ui/spinner"
 import { Surface } from "@/shared/ui/surface"
 
+import { useCurrentBenchmarkPricingQuery } from "@/features/benchmark-pricing"
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
 
+import { WealthSnapshotBenchmarkBanner } from "../components/wealth-snapshot-benchmark-banner"
 import { WealthSnapshotForm } from "../components/wealth-snapshot-form"
 import { useRefreshWealthSnapshotMutation } from "../lib/wealth-snapshot.mutations"
 import { useWealthSnapshotQuery } from "../lib/wealth-snapshot.query"
@@ -23,6 +25,7 @@ import { useWealthSnapshotQuery } from "../lib/wealth-snapshot.query"
 export function WealthSnapshotEditPage() {
   const navigate = useNavigate()
   const activeProfileQuery = useCurrentActiveProfileQuery()
+  const benchmarkPricingQuery = useCurrentBenchmarkPricingQuery()
   const activeProfileId = activeProfileQuery.data?.id ?? null
   const currentSnapshotQuery = useWealthSnapshotQuery(activeProfileId)
   const refreshWealthSnapshotMutation = useRefreshWealthSnapshotMutation()
@@ -58,6 +61,11 @@ export function WealthSnapshotEditPage() {
             <p className="text-sm leading-6 text-muted-foreground">
               {m.wealth_surface()}
             </p>
+
+            <WealthSnapshotBenchmarkBanner
+              benchmarkPricing={benchmarkPricingQuery.data ?? null}
+              isLoading={benchmarkPricingQuery.isLoading}
+            />
 
             <WealthSnapshotForm
               initialEntries={currentSnapshotQuery.data.entries}

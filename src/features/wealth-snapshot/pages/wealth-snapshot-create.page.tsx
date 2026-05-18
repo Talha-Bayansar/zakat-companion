@@ -10,8 +10,10 @@ import {
 } from "@/shared/ui/empty"
 import { PageHeaderWithBack, PageSection } from "@/shared/ui/page"
 
+import { useCurrentBenchmarkPricingQuery } from "@/features/benchmark-pricing"
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
 
+import { WealthSnapshotBenchmarkBanner } from "../components/wealth-snapshot-benchmark-banner"
 import { WealthSnapshotForm } from "../components/wealth-snapshot-form"
 import { useReplaceWealthSnapshotMutation } from "../lib/wealth-snapshot.mutations"
 import type { WealthSnapshotEntryInput } from "../lib/wealth-snapshot.schemas"
@@ -19,6 +21,7 @@ import type { WealthSnapshotEntryInput } from "../lib/wealth-snapshot.schemas"
 export function WealthSnapshotCreatePage() {
   const navigate = useNavigate()
   const activeProfileQuery = useCurrentActiveProfileQuery()
+  const benchmarkPricingQuery = useCurrentBenchmarkPricingQuery()
   const activeProfileId = activeProfileQuery.data?.id ?? null
   const replaceWealthSnapshotMutation = useReplaceWealthSnapshotMutation()
   const isActiveProfileLoading =
@@ -43,6 +46,13 @@ export function WealthSnapshotCreatePage() {
           <p className="text-sm leading-6 text-muted-foreground">
             {m.wealth_surface()}
           </p>
+
+          <div className="pt-5">
+            <WealthSnapshotBenchmarkBanner
+              benchmarkPricing={benchmarkPricingQuery.data ?? null}
+              isLoading={benchmarkPricingQuery.isLoading}
+            />
+          </div>
 
           <div className="pt-5">
             <WealthSnapshotForm

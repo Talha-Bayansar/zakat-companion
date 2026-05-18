@@ -1,6 +1,7 @@
 import { getLocale } from "@/paraglide/runtime"
 import { m } from "@/paraglide/messages"
 
+import { benchmarkPricingFreshnessThresholdMs } from "./benchmark-pricing.constants"
 import type { BenchmarkPricingRecord } from "./benchmark-pricing.types"
 
 function getRelativeTimeLabel(from: Date | string, to = new Date()) {
@@ -27,9 +28,22 @@ function getRelativeTimeLabel(from: Date | string, to = new Date()) {
 
 export function getBenchmarkPricingFreshnessLabel(
   benchmarkPricing: Pick<BenchmarkPricingRecord, "lastSuccessfulAt">,
+  referenceTime = new Date(),
 ) {
   return m.settings_active_profile_fiqh_benchmark_freshness_value({
-    relativeTime: getRelativeTimeLabel(benchmarkPricing.lastSuccessfulAt),
+    relativeTime: getRelativeTimeLabel(
+      benchmarkPricing.lastSuccessfulAt,
+      referenceTime,
+    ),
   })
 }
 
+export function isBenchmarkPricingStale(
+  benchmarkPricing: Pick<BenchmarkPricingRecord, "lastSuccessfulAt">,
+  referenceTime = new Date(),
+) {
+  return (
+    referenceTime.getTime() - benchmarkPricing.lastSuccessfulAt.getTime() >
+    benchmarkPricingFreshnessThresholdMs
+  )
+}

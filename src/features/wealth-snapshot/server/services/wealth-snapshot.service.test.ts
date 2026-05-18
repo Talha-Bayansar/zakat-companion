@@ -2,6 +2,36 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { fiqhCalculationVersion } from "@/features/fiqh-calculation"
 
+const benchmarkPricingMocks = vi.hoisted(() => ({
+  getCurrentBenchmarkPricing: vi.fn(),
+  getBenchmarkPricingFreshnessLabel: vi.fn(
+    (benchmarkPricing: { lastSuccessfulAt: Date | string }, referenceTime = new Date()) => {
+      const lastSuccessfulAt =
+        benchmarkPricing.lastSuccessfulAt instanceof Date
+          ? benchmarkPricing.lastSuccessfulAt
+          : new Date(benchmarkPricing.lastSuccessfulAt)
+      const elapsedHours = Math.floor(
+        (referenceTime.getTime() - lastSuccessfulAt.getTime()) / (60 * 60 * 1000),
+      )
+
+      return `Updated ${Math.max(0, elapsedHours)} hours ago`
+    },
+  ),
+  isBenchmarkPricingStale: vi.fn(
+    (benchmarkPricing: { lastSuccessfulAt: Date | string }, referenceTime = new Date()) => {
+      const lastSuccessfulAt =
+        benchmarkPricing.lastSuccessfulAt instanceof Date
+          ? benchmarkPricing.lastSuccessfulAt
+          : new Date(benchmarkPricing.lastSuccessfulAt)
+
+      return (
+        referenceTime.getTime() - lastSuccessfulAt.getTime() >
+        24 * 60 * 60 * 1000
+      )
+    },
+  ),
+}))
+
 const profileServiceMocks = vi.hoisted(() => ({
   resolveCurrentActiveProfile: vi.fn(),
 }))
@@ -15,8 +45,11 @@ const repositoryMocks = vi.hoisted(() => ({
 vi.mock("@/paraglide/messages", () => ({
   m: {
     wealth_snapshot_no_active_profile: () => "No active profile",
+    wealth_snapshot_benchmark_unavailable: () => "Benchmark pricing unavailable",
   },
 }))
+vi.mock("@/features/benchmark-pricing", () => benchmarkPricingMocks)
+vi.mock("@/features/benchmark-pricing/server", () => benchmarkPricingMocks)
 vi.mock("@/features/profiles/server/services/profile-access.service", () => profileServiceMocks)
 vi.mock("../repositories/wealth-snapshot.repository", () => repositoryMocks)
 
@@ -98,6 +131,16 @@ describe("wealth snapshot service", () => {
       madhab: "hanafi",
       nisabBenchmark: "gold",
     })
+    benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue({
+      currency: "EUR",
+      provider: "metals.dev",
+      goldPrice: "87.50",
+      silverPrice: "75.00",
+      sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
+      lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
+      createdAt: new Date("2026-05-18T12:00:00.000Z"),
+      updatedAt: new Date("2026-05-18T12:00:00.000Z"),
+    })
     repositoryMocks.replaceWealthSnapshotRecord.mockResolvedValue({
       id: "snapshot-1",
       profileId: "profile-1",
@@ -121,37 +164,51 @@ describe("wealth snapshot service", () => {
       ],
     })
 
-    expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenCalledWith({
-      profileId: "profile-1",
-      entries: [
-        { category: "cash", amount: "100.50" },
-        { category: "gold", amount: "0" },
-        { category: "silver", amount: "0" },
-        { category: "trade_inventory", amount: "0" },
-        { category: "receivables", amount: "2.00" },
-        { category: "debts_liabilities", amount: "15.00" },
-      ],
-      snapshot: {
-        madhab: "hanafi",
-        nisabBenchmark: "gold",
-        calculationVersion: fiqhCalculationVersion,
-        netZakatableBase: "87.50",
-        isAboveNisab: true,
-        isZakatDue: false,
-        fiqhExplanation: expect.objectContaining({
-          inputs: expect.objectContaining({
-            madhab: "hanafi",
-            nisabBenchmark: "gold",
-          }),
-          nisab: expect.objectContaining({
-            isAboveNisab: true,
-          }),
-          dueAmount: expect.objectContaining({
-            isZakatDue: false,
+    expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenCalledWith(
+      expect.objectContaining({
+        profileId: "profile-1",
+        capturedAt: expect.any(Date),
+        entries: [
+          { category: "cash", amount: "100.50" },
+          { category: "gold", amount: "0" },
+          { category: "silver", amount: "0" },
+          { category: "trade_inventory", amount: "0" },
+          { category: "receivables", amount: "2.00" },
+          { category: "debts_liabilities", amount: "15.00" },
+        ],
+        snapshot: expect.objectContaining({
+          madhab: "hanafi",
+          nisabBenchmark: "gold",
+          calculationVersion: fiqhCalculationVersion,
+          netZakatableBase: "87.50",
+          isAboveNisab: true,
+          isZakatDue: false,
+          fiqhExplanation: expect.objectContaining({
+            inputs: expect.objectContaining({
+              madhab: "hanafi",
+              nisabBenchmark: "gold",
+            }),
+            benchmark: expect.objectContaining({
+              currency: "EUR",
+              provider: "metals.dev",
+              selectedBenchmark: "gold",
+              selectedBenchmarkPrice: "87.50",
+              nisabThreshold: "87.50",
+              freshness: expect.objectContaining({
+                isStale: false,
+                label: expect.any(String),
+              }),
+            }),
+            nisab: expect.objectContaining({
+              isAboveNisab: true,
+            }),
+            dueAmount: expect.objectContaining({
+              isZakatDue: false,
+            }),
           }),
         }),
-      },
-    })
+      }),
+    )
   })
 
   it("freezes the captured fiqh output even if profile preferences change later", async () => {
@@ -195,6 +252,16 @@ describe("wealth snapshot service", () => {
         updatedAt: new Date("2026-05-14T00:00:00Z"),
         entries: [],
       })
+    benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue({
+      currency: "EUR",
+      provider: "metals.dev",
+      goldPrice: "87.50",
+      silverPrice: "75.00",
+      sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
+      lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
+      createdAt: new Date("2026-05-18T12:00:00.000Z"),
+      updatedAt: new Date("2026-05-18T12:00:00.000Z"),
+    })
 
     const firstCapture = await replaceWealthSnapshot(actor, {
       entries: [
@@ -232,10 +299,16 @@ describe("wealth snapshot service", () => {
       1,
       expect.objectContaining({
         profileId: "profile-1",
+        capturedAt: expect.any(Date),
         snapshot: expect.objectContaining({
           madhab: "hanafi",
           nisabBenchmark: "gold",
           calculationVersion: fiqhCalculationVersion,
+          fiqhExplanation: expect.objectContaining({
+            benchmark: expect.objectContaining({
+              selectedBenchmark: "gold",
+            }),
+          }),
         }),
       }),
     )
@@ -243,10 +316,71 @@ describe("wealth snapshot service", () => {
       2,
       expect.objectContaining({
         profileId: "profile-1",
+        capturedAt: expect.any(Date),
         snapshot: expect.objectContaining({
           madhab: "maliki",
           nisabBenchmark: "silver",
           calculationVersion: fiqhCalculationVersion,
+          fiqhExplanation: expect.objectContaining({
+            benchmark: expect.objectContaining({
+              selectedBenchmark: "silver",
+            }),
+          }),
+        }),
+      }),
+    )
+  })
+
+  it("allows stale benchmark pricing and freezes its freshness state", async () => {
+    profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
+      id: "profile-1",
+      madhab: "hanafi",
+      nisabBenchmark: "silver",
+    })
+    benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue({
+      currency: "EUR",
+      provider: "metals.dev",
+      goldPrice: "87.50",
+      silverPrice: "75.00",
+      sourceTimestamp: new Date("2026-05-15T12:00:00.000Z"),
+      lastSuccessfulAt: new Date("2026-05-15T12:00:00.000Z"),
+      createdAt: new Date("2026-05-15T12:00:00.000Z"),
+      updatedAt: new Date("2026-05-15T12:00:00.000Z"),
+    })
+    repositoryMocks.replaceWealthSnapshotRecord.mockResolvedValue({
+      id: "snapshot-1",
+      profileId: "profile-1",
+      capturedAt: new Date("2026-05-18T12:00:00.000Z"),
+      madhab: "hanafi",
+      nisabBenchmark: "silver",
+      calculationVersion: fiqhCalculationVersion,
+      netZakatableBase: "87.50",
+      isAboveNisab: true,
+      isZakatDue: false,
+      createdAt: new Date("2026-05-18T12:00:00.000Z"),
+      updatedAt: new Date("2026-05-18T12:00:00.000Z"),
+      entries: [],
+    })
+
+    await replaceWealthSnapshot(actor, {
+      entries: [
+        { category: "cash", amount: "100.50" },
+        { category: "receivables", amount: "2.00" },
+        { category: "debts_liabilities", amount: "15.00" },
+      ],
+    })
+
+    expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenCalledWith(
+      expect.objectContaining({
+        snapshot: expect.objectContaining({
+          fiqhExplanation: expect.objectContaining({
+            benchmark: expect.objectContaining({
+              selectedBenchmark: "silver",
+              freshness: expect.objectContaining({
+                isStale: true,
+              }),
+            }),
+          }),
         }),
       }),
     )

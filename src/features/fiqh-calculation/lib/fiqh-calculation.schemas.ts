@@ -77,12 +77,31 @@ export const fiqhCalculationDueAmountExplanationSchema = z.object({
   isZakatDue: z.boolean(),
 })
 
+export const fiqhCalculationBenchmarkFreshnessExplanationSchema = z.object({
+  isStale: z.boolean(),
+  label: z.string().trim().min(1),
+})
+
+export const fiqhCalculationBenchmarkExplanationSchema = z.object({
+  currency: z.string().trim().min(1),
+  provider: z.string().trim().min(1),
+  goldPrice: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  silverPrice: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  sourceTimestamp: z.string().trim().min(1),
+  lastSuccessfulAt: z.string().trim().min(1),
+  selectedBenchmark: z.enum(fiqhNisabBenchmarkCodeValues),
+  selectedBenchmarkPrice: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  nisabThreshold: z.string().trim().regex(/^-?\d+(?:\.\d{1,2})?$/),
+  freshness: fiqhCalculationBenchmarkFreshnessExplanationSchema,
+})
+
 export const fiqhCalculationExplanationSchema = z.object({
   inputs: fiqhCalculationExplanationInputsSchema,
   nisab: fiqhCalculationNisabExplanationSchema,
   hawl: fiqhCalculationHawlExplanationSchema,
   dueAmount: fiqhCalculationDueAmountExplanationSchema,
   dateRule: fiqhDateRuleSchema,
+  benchmark: fiqhCalculationBenchmarkExplanationSchema.optional(),
 })
 
 export const fiqhHawlProgressSchema = z.object({

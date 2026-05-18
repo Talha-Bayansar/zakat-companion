@@ -12,10 +12,10 @@ export type {
 } from "./lib/benchmark-pricing.types"
 export {
   getBenchmarkPricingFreshnessLabel,
+  isBenchmarkPricingStale,
 } from "./lib/benchmark-pricing.labels"
 export {
   currentBenchmarkPricingQueryKey,
   currentBenchmarkPricingQueryOptions,
   useCurrentBenchmarkPricingQuery,
 } from "./lib/benchmark-pricing.query"
-

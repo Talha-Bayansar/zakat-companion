@@ -60,6 +60,7 @@ export type ReplaceWealthSnapshotInput = {
   profileId: string
   entries: WealthSnapshotEntryInput[]
   snapshot: WealthSnapshotWriteContext
+  capturedAt?: Date
 }
 
 type WealthSnapshotDbRecord = {
@@ -264,12 +265,14 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
 export async function replaceWealthSnapshotRecord(
   input: ReplaceWealthSnapshotInput,
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
+  const capturedAt = input.capturedAt ?? new Date()
+
   const [snapshotRecord] = (await db
     .insert(wealthSnapshot)
     .values({
       id: crypto.randomUUID(),
       profileId: input.profileId,
-      capturedAt: new Date(),
+      capturedAt,
       madhab: input.snapshot.madhab,
       nisabBenchmark: input.snapshot.nisabBenchmark,
       calculationVersion: input.snapshot.calculationVersion,

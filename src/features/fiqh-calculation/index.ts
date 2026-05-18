@@ -13,6 +13,8 @@ export {
 } from "./lib/fiqh-calculation.constants"
 export {
   fiqhCalculationDueAmountExplanationSchema,
+  fiqhCalculationBenchmarkExplanationSchema,
+  fiqhCalculationBenchmarkFreshnessExplanationSchema,
   fiqhCalculationExplanationSchema,
   fiqhCalculationExplanationInputsSchema,
   fiqhCalculationHawlExplanationSchema,
@@ -32,6 +34,8 @@ export {
   type FiqhCalculationOutcome,
   type FiqhCalculationContext,
   type FiqhCalculationExplanation,
+  type FiqhCalculationBenchmarkExplanation,
+  type FiqhCalculationBenchmarkFreshnessExplanation,
   type FiqhCalculationExplanationInputs,
   type FiqhCalculationHawlExplanation,
   type FiqhCalculationNisabExplanation,
