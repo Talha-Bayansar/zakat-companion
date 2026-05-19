@@ -93,38 +93,6 @@ describe("history service", () => {
             isZakatDue: true,
             fiqhExplanation: null,
           },
-          reminderJobs: [
-            {
-              id: "job-1",
-              profileId: "profile-1",
-              dedupeKey: "zakat_due:profile-1:cycle-1:due",
-              kind: "zakat_due",
-              zakatCycleId: "cycle-1",
-              phase: "due",
-              scheduledFor: new Date("2026-05-16T09:00:00.000Z"),
-              status: "claimed",
-              attemptCount: 1,
-              claimedAt: new Date("2026-05-16T09:01:00.000Z"),
-              completedAt: null,
-              lastAttemptAt: new Date("2026-05-16T09:01:00.000Z"),
-              lastError: null,
-              createdAt: new Date("2026-05-16T09:00:00.000Z"),
-              updatedAt: new Date("2026-05-16T09:01:00.000Z"),
-              deliveryAttempts: [
-                {
-                  id: "attempt-1",
-                  reminderJobId: "job-1",
-                  subscriptionId: "subscription-1",
-                  channel: "web_push",
-                  kind: "zakat_due",
-                  status: "failed",
-                  attemptedAt: new Date("2026-05-16T09:01:30.000Z"),
-                  deliveredAt: null,
-                  errorMessage: "temporary failure",
-                },
-              ],
-            },
-          ],
         },
       ],
       page: 1,
@@ -152,17 +120,6 @@ describe("history service", () => {
             id: "snapshot-1",
             madhab: "hanafi",
           },
-          reminderJobs: [
-            {
-              kind: "zakat_due",
-              deliveryAttempts: [
-                {
-                  status: "failed",
-                  channel: "web_push",
-                },
-              ],
-            },
-          ],
         },
       ],
       page: 1,
@@ -192,7 +149,6 @@ describe("history service", () => {
       createdAt: new Date("2026-05-15T09:00:00.000Z"),
       updatedAt: new Date("2026-05-17T09:00:00.000Z"),
       sourceSnapshot: null,
-      reminderJobs: [],
     })
 
     await expect(
