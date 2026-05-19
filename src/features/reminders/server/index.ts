@@ -24,6 +24,7 @@ export {
   suppressPendingZakatDueReminderJobRecords,
   upsertReminderPreferenceRecord,
 } from "./repositories/reminders.repository"
+export { reminderJobsCron } from "../lib/reminders.constants"
 export {
   getReminderPreferenceFn,
   updateReminderPreferenceFn,

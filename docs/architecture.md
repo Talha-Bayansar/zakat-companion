@@ -10,7 +10,7 @@
 
 ### MVP Readiness Note
 
-The current codebase already includes Google sign-in, reminder job orchestration, a versioned fiqh engine, and explicit cron configuration in `wrangler.jsonc` for scheduled execution. Benchmark pricing now bootstraps on demand during snapshot capture when no cached nisab pricing exists, profile settings can store an optional hawl start date for users who already track their cycle elsewhere, and snapshot saves now suppress pending zakat reminders below nisab while seeding balance-update reminders plus zakat-cycle reminder sequences on the next above-nisab snapshot.
+The current codebase already includes Google sign-in, reminder job orchestration, a versioned fiqh engine, and explicit cron configuration in `wrangler.jsonc` for scheduled execution. Benchmark pricing now bootstraps on demand during snapshot capture when no cached nisab pricing exists, profile settings can store an optional hawl start date for users who already track their cycle elsewhere, and snapshot saves now suppress pending zakat reminders below nisab while seeding balance-update reminders plus zakat-cycle reminder sequences on the next above-nisab snapshot. Benchmark refresh runs daily and reminder execution runs on a separate hourly cron so the two scheduled flows remain independent.
 
 ## Tech Stack
 
@@ -202,7 +202,7 @@ This design can later be swapped to a queue without changing the job model or th
 - Cloudflare Workers runs the app.
 - Neon hosts PostgreSQL.
 - Cloudflare Cron Triggers run periodic reminder execution.
-- The deployment config already declares the cron schedule explicitly, and the Worker `scheduled` handler routes benchmark refresh and reminder execution.
+- The deployment config already declares the cron schedules explicitly, and the Worker `scheduled` handler routes benchmark refresh and reminder execution on separate cron events.
 - Web Push delivery is handled from the Worker runtime.
 
 Because Cloudflare cron executes in UTC, timezone-aware scheduling must be handled in application logic.

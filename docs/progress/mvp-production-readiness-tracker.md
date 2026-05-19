@@ -23,8 +23,8 @@ Google auth is accepted for now and is not part of the current blocker list.
 ### 2. Reminder execution
 
 - Status: wired
-- Current risk: the runner and cron trigger exist, and snapshot saves now persist explicit reset state below nisab while seeding reminder sequences when the next above-nisab snapshot starts a new cycle.
-- Impact: reminders are now scheduled automatically from the current snapshot save flow and cycle payment flow, with reset semantics preserved in history.
+- Current risk: reminder execution is now on its own hourly cron, while benchmark refresh uses a separate daily cron. Snapshot saves still persist explicit reset state below nisab while seeding reminder sequences when the next above-nisab snapshot starts a new cycle.
+- Impact: reminders are now scheduled automatically from the current snapshot save flow and cycle payment flow, with reset semantics preserved in history, and the scheduled flows no longer contend for the same cron event.
 
 ### 3. Documentation
 

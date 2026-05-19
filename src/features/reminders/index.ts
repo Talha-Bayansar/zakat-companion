@@ -6,6 +6,7 @@ export {
   reminderJobKindValues,
   reminderJobPhaseValues,
   reminderJobStatusValues,
+  reminderJobsCron,
   type ReminderCadence,
   type ReminderJobKind,
   type ReminderJobPhase,
