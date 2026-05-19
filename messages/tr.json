@@ -284,6 +284,7 @@
   "wealth_snapshot_explanation_threshold_label": "Eşik",
   "wealth_snapshot_explanation_difference_label": "Fark",
   "wealth_snapshot_explanation_elapsed_days_label": "Geçen gün",
+  "wealth_snapshot_explanation_hawl_due_at_label": "Hawl vadesi",
   "wealth_snapshot_explanation_required_days_label": "Hicrî yıl uzunluğu",
   "wealth_snapshot_explanation_captured_at_label": "Kaydedilme zamanı",
   "wealth_snapshot_history_title": "Özet geçmişi",

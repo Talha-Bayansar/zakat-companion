@@ -66,7 +66,8 @@ export const fiqhCalculationHawlExplanationSchema = z.object({
   startedAt: z.string().trim().min(1).nullable(),
   asOf: z.string().trim().min(1),
   elapsedDays: z.number().int().nonnegative().nullable(),
-  requiredDays: z.number().int().positive(),
+  dueAt: z.string().trim().min(1).nullable(),
+  hijriYearLengthDays: z.number().int().positive().nullable(),
   isComplete: z.boolean(),
   resetRequired: z.boolean(),
 })
@@ -108,7 +109,8 @@ export const fiqhHawlProgressSchema = z.object({
   startedAt: z.date().nullable(),
   asOf: z.date(),
   elapsedDays: z.number().int().nonnegative().nullable(),
-  requiredDays: z.number().int().positive(),
+  dueAt: z.date().nullable(),
+  hijriYearLengthDays: z.number().int().positive().nullable(),
   isComplete: z.boolean(),
   resetRequired: z.boolean(),
 })

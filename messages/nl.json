@@ -284,6 +284,7 @@
   "wealth_snapshot_explanation_threshold_label": "Drempel",
   "wealth_snapshot_explanation_difference_label": "Verschil",
   "wealth_snapshot_explanation_elapsed_days_label": "Verstreken dagen",
+  "wealth_snapshot_explanation_hawl_due_at_label": "Hawl-vervaldatum",
   "wealth_snapshot_explanation_required_days_label": "Lengte van het hijri-jaar",
   "wealth_snapshot_explanation_captured_at_label": "Vastgelegd op",
   "wealth_snapshot_history_title": "Overzichtsgeschiedenis",

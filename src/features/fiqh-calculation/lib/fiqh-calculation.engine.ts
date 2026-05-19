@@ -14,7 +14,6 @@ import type {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const ZAKAT_RATE_BASIS_POINTS = 250
-const DEFAULT_HAWL_REQUIRED_DAYS = 354
 
 function parseAmountToCents(amount: string) {
   const normalized = amount.trim()
@@ -87,10 +86,9 @@ export function calculateFiqhCalculation(
     startedAt: hawlStartedAt,
     asOf: input.asOf,
     elapsedDays,
-    requiredDays:
-      hawlStartedAt === null
-        ? DEFAULT_HAWL_REQUIRED_DAYS
-        : getHijriYearLengthDays(hawlStartedAt),
+    dueAt: hawlDueAt,
+    hijriYearLengthDays:
+      hawlStartedAt === null ? null : getHijriYearLengthDays(hawlStartedAt),
     isComplete:
       hawlDueAt !== null ? input.asOf.getTime() >= hawlDueAt.getTime() : false,
     resetRequired: dateRule.policy === "reset" && !isAboveNisab,
@@ -134,7 +132,8 @@ export function calculateFiqhCalculation(
         startedAt: hawlStartedAt?.toISOString() ?? null,
         asOf: input.asOf.toISOString(),
         elapsedDays,
-        requiredDays: hawl.requiredDays,
+        dueAt: hawl.dueAt?.toISOString() ?? null,
+        hijriYearLengthDays: hawl.hijriYearLengthDays,
         isComplete: hawl.isComplete,
         resetRequired: hawl.resetRequired,
       },

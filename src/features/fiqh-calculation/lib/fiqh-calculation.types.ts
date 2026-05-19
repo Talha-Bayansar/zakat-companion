@@ -62,7 +62,8 @@ export type FiqhCalculationHawlExplanation = {
   startedAt: string | null
   asOf: string
   elapsedDays: number | null
-  requiredDays: number
+  dueAt: string | null
+  hijriYearLengthDays: number | null
   isComplete: boolean
   resetRequired: boolean
 }
@@ -104,7 +105,8 @@ export type FiqhHawlProgress = {
   startedAt: Date | null
   asOf: Date
   elapsedDays: number | null
-  requiredDays: number
+  dueAt: Date | null
+  hijriYearLengthDays: number | null
   isComplete: boolean
   resetRequired: boolean
 }
