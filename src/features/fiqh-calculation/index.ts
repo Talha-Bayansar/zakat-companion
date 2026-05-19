@@ -2,9 +2,10 @@ export {
   fiqhCycleStateValues,
   fiqhCalculationVersion,
   fiqhDateRulePolicyValues,
-  fiqhHawlLengthDays,
+  fiqhGoldNisabGrams,
   fiqhMadhabCodeValues,
   fiqhNisabBenchmarkCodeValues,
+  fiqhSilverNisabGrams,
   fiqhZakatRate,
   type FiqhCycleState,
   type FiqhDateRulePolicy,
@@ -52,3 +53,10 @@ export {
   getFiqhNisabBenchmarkLabel,
 } from "./lib/fiqh-calculation.labels"
 export { calculateFiqhCalculation } from "./lib/fiqh-calculation.engine"
+export {
+  addHijriYears,
+  hijriToGregorianDateParts,
+  getHijriYearLengthDays,
+  toHijriDateParts,
+  type HijriDateParts,
+} from "./lib/hijri-calendar"

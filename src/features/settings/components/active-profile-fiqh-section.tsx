@@ -22,6 +22,16 @@ import {
 import { Spinner } from "@/shared/ui/spinner"
 import { Surface } from "@/shared/ui/surface"
 
+function formatDateDisplay(value: Date | null) {
+  if (!value) {
+    return m.wealth_snapshot_current_value_unavailable()
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+  }).format(value)
+}
+
 export function ActiveProfileFiqhSection() {
   const currentActiveProfileQuery = useCurrentActiveProfileQuery()
   const benchmarkPricingQuery = useCurrentBenchmarkPricingQuery()
@@ -113,6 +123,15 @@ export function ActiveProfileFiqhSection() {
               </dt>
               <dd className="text-sm leading-6 text-foreground">
                 {getFiqhNisabBenchmarkLabel(activeProfile.nisabBenchmark)}
+              </dd>
+            </div>
+
+            <div className="space-y-1">
+              <dt className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                {m.settings_active_profile_fiqh_hawl_started_at_label()}
+              </dt>
+              <dd className="text-sm leading-6 text-foreground">
+                {formatDateDisplay(activeProfile.hawlStartedAt)}
               </dd>
             </div>
 

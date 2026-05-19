@@ -5,7 +5,7 @@
 - Overall: done
 - Current step: complete
 
-> MVP note: the core fiqh engine slice is implemented, but the tracker still keeps the benchmark-driven nisab shortcut in wealth snapshot capture open until that path is wired to the selected benchmark everywhere.
+> MVP note: the core fiqh engine slice is implemented, and wealth snapshot capture now bootstraps benchmark pricing on cache miss so a fresh deployment can still save a snapshot. The remaining open work is the reminder job wiring tracked elsewhere.
 
 ## Goal
 

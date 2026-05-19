@@ -23,6 +23,7 @@ import {
   getZakatCycleRecordById,
   upsertReminderPreferenceRecord,
 } from "../repositories/reminders.repository"
+import { orchestrateZakatCycleCreation } from "./reminder-orchestration.service"
 
 type ActiveProfile = {
   id: string
@@ -178,7 +179,9 @@ export async function createReminderJob(actor: Actor, input: ReminderJobInput) {
 export async function createZakatCycle(input: CreateZakatCycleInput) {
   const parsed = createZakatCycleInputSchema.parse(input)
 
-  return createZakatCycleRecord(parsed)
+  return orchestrateZakatCycleCreation(async (database) =>
+    createZakatCycleRecord(parsed, database),
+  )
 }
 
 export async function claimDueReminderJobs(now = new Date()) {

@@ -5,7 +5,7 @@
 - Overall: completed
 - Current step: completed
 
-> MVP note: the reminder job slice is implemented, but production still needs an explicit cron trigger in `wrangler.jsonc` so the Worker's scheduled entrypoint runs.
+> MVP note: the reminder job slice is implemented, `wrangler.jsonc` already declares the cron trigger, and the remaining product gap is wiring the higher-level job creation flows that turn snapshot and cycle events into scheduled reminder records.
 
 ## Goal
 

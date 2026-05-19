@@ -4,6 +4,7 @@ import { fiqhCalculationVersion } from "@/features/fiqh-calculation"
 
 const benchmarkPricingMocks = vi.hoisted(() => ({
   getCurrentBenchmarkPricing: vi.fn(),
+  refreshCurrentBenchmarkPricing: vi.fn(),
   getBenchmarkPricingFreshnessLabel: vi.fn(
     (benchmarkPricing: { lastSuccessfulAt: Date | string }, referenceTime = new Date()) => {
       const lastSuccessfulAt =
@@ -36,6 +37,12 @@ const profileServiceMocks = vi.hoisted(() => ({
   resolveCurrentActiveProfile: vi.fn(),
 }))
 
+const reminderOrchestrationMocks = vi.hoisted(() => ({
+  orchestrateWealthSnapshotSave: vi.fn(
+    async (work: (database: unknown) => Promise<unknown>) => work({}),
+  ),
+}))
+
 const repositoryMocks = vi.hoisted(() => ({
   getWealthSnapshotWithEntriesRecordByProfileId: vi.fn(),
   listWealthSnapshotHistoryRecordsByProfileId: vi.fn(),
@@ -51,6 +58,10 @@ vi.mock("@/paraglide/messages", () => ({
 vi.mock("@/features/benchmark-pricing", () => benchmarkPricingMocks)
 vi.mock("@/features/benchmark-pricing/server", () => benchmarkPricingMocks)
 vi.mock("@/features/profiles/server/services/profile-access.service", () => profileServiceMocks)
+vi.mock(
+  "@/features/reminders/server/services/reminder-orchestration.service",
+  () => reminderOrchestrationMocks,
+)
 vi.mock("../repositories/wealth-snapshot.repository", () => repositoryMocks)
 
 import {
@@ -130,12 +141,13 @@ describe("wealth snapshot service", () => {
       id: "profile-1",
       madhab: "hanafi",
       nisabBenchmark: "gold",
+      hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
     })
     benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue({
       currency: "EUR",
       provider: "metals.dev",
-      goldPrice: "87.50",
-      silverPrice: "75.00",
+      goldPrice: "1.0294117647",
+      silverPrice: "0.12605042",
       sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
       lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
       createdAt: new Date("2026-05-18T12:00:00.000Z"),
@@ -187,6 +199,7 @@ describe("wealth snapshot service", () => {
             inputs: expect.objectContaining({
               madhab: "hanafi",
               nisabBenchmark: "gold",
+              hawlStartedAt: "2025-05-01T00:00:00.000Z",
             }),
             benchmark: expect.objectContaining({
               currency: "EUR",
@@ -208,6 +221,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
   })
 
@@ -217,18 +231,20 @@ describe("wealth snapshot service", () => {
         id: "profile-1",
         madhab: "hanafi",
         nisabBenchmark: "gold",
+        hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
       })
       .mockResolvedValueOnce({
         id: "profile-1",
         madhab: "maliki",
         nisabBenchmark: "silver",
+        hawlStartedAt: new Date("2025-05-02T00:00:00Z"),
       })
     benchmarkPricingMocks.getCurrentBenchmarkPricing
       .mockResolvedValueOnce({
         currency: "EUR",
         provider: "metals.dev",
-        goldPrice: "87.50",
-        silverPrice: "75.00",
+        goldPrice: "1.0294117647",
+        silverPrice: "0.12605042",
         sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
         lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
         createdAt: new Date("2026-05-18T12:00:00.000Z"),
@@ -237,8 +253,8 @@ describe("wealth snapshot service", () => {
       .mockResolvedValueOnce({
         currency: "EUR",
         provider: "metals.dev",
-        goldPrice: "99.99",
-        silverPrice: "77.77",
+        goldPrice: "1.1763529412",
+        silverPrice: "0.1307058824",
         sourceTimestamp: new Date("2026-05-19T12:00:00.000Z"),
         lastSuccessfulAt: new Date("2026-05-19T12:00:00.000Z"),
         createdAt: new Date("2026-05-19T12:00:00.000Z"),
@@ -276,8 +292,8 @@ describe("wealth snapshot service", () => {
     benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue({
       currency: "EUR",
       provider: "metals.dev",
-      goldPrice: "87.50",
-      silverPrice: "75.00",
+      goldPrice: "1.0294117647",
+      silverPrice: "0.12605042",
       sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
       lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
       createdAt: new Date("2026-05-18T12:00:00.000Z"),
@@ -333,6 +349,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
     expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenNthCalledWith(
       2,
@@ -351,6 +368,7 @@ describe("wealth snapshot service", () => {
           }),
         }),
       }),
+      expect.anything(),
     )
   })
 
@@ -359,12 +377,13 @@ describe("wealth snapshot service", () => {
       id: "profile-1",
       madhab: "hanafi",
       nisabBenchmark: "silver",
+      hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
     })
     benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue({
       currency: "EUR",
       provider: "metals.dev",
-      goldPrice: "87.50",
-      silverPrice: "75.00",
+      goldPrice: "1.0294117647",
+      silverPrice: "0.12605042",
       sourceTimestamp: new Date("2026-05-15T12:00:00.000Z"),
       lastSuccessfulAt: new Date("2026-05-15T12:00:00.000Z"),
       createdAt: new Date("2026-05-15T12:00:00.000Z"),
@@ -409,6 +428,78 @@ describe("wealth snapshot service", () => {
     )
   })
 
+  it("bootstraps benchmark pricing on a fresh deployment before saving", async () => {
+    profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue({
+      id: "profile-1",
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
+      hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
+    })
+    benchmarkPricingMocks.getCurrentBenchmarkPricing.mockResolvedValue(null)
+    benchmarkPricingMocks.refreshCurrentBenchmarkPricing.mockResolvedValue({
+      record: {
+        currency: "EUR",
+        provider: "metals.dev",
+        goldPrice: "1.0294117647",
+        silverPrice: "0.12605042",
+        sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
+        lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
+        createdAt: new Date("2026-05-18T12:00:00.000Z"),
+        updatedAt: new Date("2026-05-18T12:00:00.000Z"),
+      },
+      refreshed: true,
+      error: null,
+    })
+    repositoryMocks.replaceWealthSnapshotRecord.mockResolvedValue({
+      id: "snapshot-1",
+      profileId: "profile-1",
+      capturedAt: new Date("2026-05-18T12:00:00.000Z"),
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
+      calculationVersion: fiqhCalculationVersion,
+      netZakatableBase: "87.50",
+      isAboveNisab: true,
+      isZakatDue: false,
+      createdAt: new Date("2026-05-18T12:00:00.000Z"),
+      updatedAt: new Date("2026-05-18T12:00:00.000Z"),
+      entries: [],
+    })
+
+    await replaceWealthSnapshot(
+      actor,
+      {
+        entries: [
+          { category: "cash", amount: "100.50" },
+          { category: "receivables", amount: "2.00" },
+          { category: "debts_liabilities", amount: "15.00" },
+        ],
+      },
+      {
+        benchmarkPricingApiKey: "test-key",
+      },
+    )
+
+    expect(benchmarkPricingMocks.getCurrentBenchmarkPricing).toHaveBeenCalled()
+    expect(benchmarkPricingMocks.refreshCurrentBenchmarkPricing).toHaveBeenCalledWith(
+      expect.objectContaining({
+        apiKey: "test-key",
+        now: expect.any(Date),
+      }),
+    )
+    expect(repositoryMocks.replaceWealthSnapshotRecord).toHaveBeenCalledWith(
+      expect.objectContaining({
+        snapshot: expect.objectContaining({
+          fiqhExplanation: expect.objectContaining({
+            benchmark: expect.objectContaining({
+              selectedBenchmarkPrice: "87.50",
+            }),
+          }),
+        }),
+      }),
+      expect.anything(),
+    )
+  })
+
   it("returns an empty history page when no profile is active", async () => {
     profileServiceMocks.resolveCurrentActiveProfile.mockResolvedValue(null)
 
@@ -431,6 +522,7 @@ describe("wealth snapshot service", () => {
       id: "profile-1",
       madhab: "maliki",
       nisabBenchmark: "silver",
+      hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
     })
     repositoryMocks.listWealthSnapshotHistoryRecordsByProfileId.mockResolvedValue({
       items: [
@@ -534,6 +626,7 @@ describe("wealth snapshot service", () => {
       id: "profile-1",
       madhab: "hanafi",
       nisabBenchmark: "gold",
+      hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
     })
     repositoryMocks.getWealthSnapshotWithEntriesRecordByProfileId.mockResolvedValue({
       id: "snapshot-1",

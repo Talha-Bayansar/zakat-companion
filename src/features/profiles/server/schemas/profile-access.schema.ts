@@ -4,13 +4,26 @@ import {
   fiqhPreferenceSchema,
 } from "@/features/fiqh-calculation"
 
+const hawlStartedAtSchema = z
+  .preprocess(
+    (value) => (value === "" ? null : value),
+    z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullable()
+      .optional(),
+  )
+
 export const createProfileInputSchema = z.object({
   name: z.string().trim().min(1).max(120),
+  hawlStartedAt: hawlStartedAtSchema,
 }).merge(fiqhPreferenceSchema)
 
 export const updateProfileInputSchema = z.object({
   profileId: z.string().trim().min(1),
   name: z.string().trim().min(1).max(120),
+  hawlStartedAt: hawlStartedAtSchema,
 }).merge(fiqhPreferenceSchema)
 
 export const deleteProfileInputSchema = z.object({

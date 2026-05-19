@@ -1,6 +1,6 @@
 import { asc, desc, eq, inArray } from "drizzle-orm"
 
-import { db } from "@/server/db/client"
+import { db, type Database } from "@/server/db/client"
 import { wealthSnapshot, wealthSnapshotEntry } from "@/server/db/schema"
 import type { InfiniteListPage } from "@/shared/lib/infinite-list"
 import type {
@@ -15,6 +15,11 @@ import type {
   WealthCategory,
   WealthSnapshotEntryInput,
 } from "../schemas/wealth-snapshot.schema"
+
+type DatabaseLike = Pick<
+  Database,
+  "select" | "insert" | "update" | "delete"
+>
 
 export type WealthSnapshotRecord = {
   id: string
@@ -264,10 +269,11 @@ export async function listWealthSnapshotHistoryRecordsByProfileId(
 
 export async function replaceWealthSnapshotRecord(
   input: ReplaceWealthSnapshotInput,
+  database: DatabaseLike = db,
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
   const capturedAt = input.capturedAt ?? new Date()
 
-  const [snapshotRecord] = (await db
+  const [snapshotRecord] = (await database
     .insert(wealthSnapshot)
     .values({
       id: crypto.randomUUID(),
@@ -304,7 +310,7 @@ export async function replaceWealthSnapshotRecord(
 
   try {
     if (input.entries.length > 0) {
-      await db.insert(wealthSnapshotEntry).values(
+      await database.insert(wealthSnapshotEntry).values(
         input.entries.map((entry) => ({
           id: crypto.randomUUID(),
           snapshotId: snapshotRecord.id,
@@ -314,7 +320,7 @@ export async function replaceWealthSnapshotRecord(
       )
     }
 
-    const entries = await db
+    const entries = await database
       .select({
         id: wealthSnapshotEntry.id,
         snapshotId: wealthSnapshotEntry.snapshotId,
@@ -332,7 +338,7 @@ export async function replaceWealthSnapshotRecord(
       entries,
     }
   } catch (error) {
-    await db.delete(wealthSnapshot).where(eq(wealthSnapshot.id, snapshotRecord.id))
+    await database.delete(wealthSnapshot).where(eq(wealthSnapshot.id, snapshotRecord.id))
 
     throw error
   }

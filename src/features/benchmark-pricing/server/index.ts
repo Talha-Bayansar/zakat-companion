@@ -1,4 +1,5 @@
 export {
+  getBootstrapBenchmarkPricing,
   fetchLatestBenchmarkPricing,
   getCurrentBenchmarkPricing,
   refreshCurrentBenchmarkPricing,

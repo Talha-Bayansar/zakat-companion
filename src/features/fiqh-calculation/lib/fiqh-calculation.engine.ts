@@ -1,8 +1,11 @@
 import {
   fiqhCalculationVersion,
-  fiqhHawlLengthDays,
   fiqhZakatRate,
 } from "./fiqh-calculation.constants"
+import {
+  addHijriYears,
+  getHijriYearLengthDays,
+} from "./hijri-calendar"
 import type {
   FiqhCalculationInput,
   FiqhCalculationOutcome,
@@ -77,12 +80,17 @@ export function calculateFiqhCalculation(
   const hawlStartedAt = input.hawlStartedAt
   const elapsedDays =
     hawlStartedAt === null ? null : diffInWholeDays(hawlStartedAt, input.asOf)
+  const hawlDueAt =
+    hawlStartedAt === null ? null : addHijriYears(hawlStartedAt, 1)
   const hawl = {
     startedAt: hawlStartedAt,
     asOf: input.asOf,
     elapsedDays,
-    requiredDays: fiqhHawlLengthDays,
-    isComplete: elapsedDays !== null ? elapsedDays >= fiqhHawlLengthDays : false,
+    dueAt: hawlDueAt,
+    hijriYearLengthDays:
+      hawlStartedAt === null ? null : getHijriYearLengthDays(hawlStartedAt),
+    isComplete:
+      hawlDueAt !== null ? input.asOf.getTime() >= hawlDueAt.getTime() : false,
     resetRequired: dateRule.policy === "reset" && !isAboveNisab,
   }
   const isZakatDue = isAboveNisab && hawl.isComplete
@@ -124,7 +132,8 @@ export function calculateFiqhCalculation(
         startedAt: hawlStartedAt?.toISOString() ?? null,
         asOf: input.asOf.toISOString(),
         elapsedDays,
-        requiredDays: fiqhHawlLengthDays,
+        dueAt: hawl.dueAt?.toISOString() ?? null,
+        hijriYearLengthDays: hawl.hijriYearLengthDays,
         isComplete: hawl.isComplete,
         resetRequired: hawl.resetRequired,
       },

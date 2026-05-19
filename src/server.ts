@@ -6,7 +6,10 @@ import {
 import {
   refreshCurrentBenchmarkPricing,
 } from "@/features/benchmark-pricing/server"
-import { runDueReminderJobs } from "@/features/reminders/server"
+import {
+  reminderJobsCron,
+  runDueReminderJobs,
+} from "@/features/reminders/server"
 import { paraglideMiddleware } from "./paraglide/server.js"
 
 export default {
@@ -28,7 +31,9 @@ export default {
           return
         }
 
-        await runDueReminderJobs(new Date(event.scheduledTime))
+        if (event.cron === reminderJobsCron) {
+          await runDueReminderJobs(new Date(event.scheduledTime))
+        }
       })(),
     )
   },

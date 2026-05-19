@@ -38,6 +38,7 @@ const ownedProfile = {
   id: "profile-1",
   name: "Family",
   ownerId: "user-1",
+  hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
   madhab: "hanafi",
   nisabBenchmark: "gold",
   createdAt: new Date("2026-05-01T00:00:00Z"),
@@ -118,6 +119,7 @@ describe("profile access active selection", () => {
       },
       {
         name: "Family",
+        hawlStartedAt: null,
         madhab: "hanafi",
         nisabBenchmark: "gold",
       },
@@ -146,6 +148,7 @@ describe("profile access active selection", () => {
       {
         profileId: ownedProfile.id,
         name: "Family",
+        hawlStartedAt: null,
         madhab: "maliki",
         nisabBenchmark: "silver",
       },
@@ -155,6 +158,7 @@ describe("profile access active selection", () => {
     expect(repoMocks.updateProfileRecord).toHaveBeenCalledWith(
       ownedProfile.id,
       "Family",
+      null,
       "maliki",
       "silver",
     )

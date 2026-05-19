@@ -9,6 +9,9 @@ const createBalanceUpdateReminderJobRecord = vi.fn()
 const createZakatDueReminderJobRecord = vi.fn()
 const createZakatCycleRecord = vi.fn()
 const claimDueReminderJobRecords = vi.fn()
+const orchestrateZakatCycleCreation = vi.fn(async (work: (database: unknown) => Promise<unknown>) =>
+  work({}),
+)
 
 vi.mock(
   "@/features/profiles/server/services/profile-access.service",
@@ -34,6 +37,13 @@ vi.mock("../repositories/reminders.repository", () => ({
   getZakatCycleRecordById,
   upsertReminderPreferenceRecord,
 }))
+
+vi.mock(
+  "./reminder-orchestration.service",
+  () => ({
+    orchestrateZakatCycleCreation,
+  }),
+)
 
 import {
   claimDueReminderJobs,

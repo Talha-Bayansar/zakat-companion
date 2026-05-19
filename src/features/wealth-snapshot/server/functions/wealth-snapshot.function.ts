@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
+import { env } from "cloudflare:workers"
 
 import { m } from "@/paraglide/messages"
 import {
@@ -72,7 +73,9 @@ export const replaceWealthSnapshotFn = createServerFn({ method: "POST" })
       "../services/wealth-snapshot.service"
     )
 
-    return replaceWealthSnapshot(actor, data)
+    return replaceWealthSnapshot(actor, data, {
+      benchmarkPricingApiKey: env.METALS_DEV_API_KEY,
+    })
   })
 
 export const refreshWealthSnapshotFn = createServerFn({ method: "POST" })
@@ -83,5 +86,7 @@ export const refreshWealthSnapshotFn = createServerFn({ method: "POST" })
       "../services/wealth-snapshot.service"
     )
 
-    return refreshWealthSnapshot(actor, data)
+    return refreshWealthSnapshot(actor, data, {
+      benchmarkPricingApiKey: env.METALS_DEV_API_KEY,
+    })
   })

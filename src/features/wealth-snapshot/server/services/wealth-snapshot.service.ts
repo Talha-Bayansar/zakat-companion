@@ -1,7 +1,12 @@
 import { m } from "@/paraglide/messages"
 import { getBenchmarkPricingFreshnessLabel, isBenchmarkPricingStale } from "@/features/benchmark-pricing"
-import { getCurrentBenchmarkPricing } from "@/features/benchmark-pricing/server"
 import {
+  getBootstrapBenchmarkPricing,
+  getCurrentBenchmarkPricing,
+} from "@/features/benchmark-pricing/server"
+import {
+  fiqhGoldNisabGrams,
+  fiqhSilverNisabGrams,
   calculateFiqhCalculation,
   type FiqhCalculationBenchmarkExplanation,
   type FiqhCalculationOutcome,
@@ -11,6 +16,7 @@ import {
 } from "@/features/fiqh-calculation"
 
 import { wealthCategoryValues } from "../../lib/wealth-snapshot.constants"
+import { orchestrateWealthSnapshotSave } from "@/features/reminders/server/services/reminder-orchestration.service"
 import {
   getWealthSnapshotWithEntriesRecordByProfileId,
   listWealthSnapshotHistoryRecordsByProfileId,
@@ -37,6 +43,7 @@ type ReplaceWealthSnapshotInput = {
 type ActiveProfileFiqhPreferences = {
   madhab: FiqhMadhabCode
   nisabBenchmark: FiqhNisabBenchmarkCode
+  hawlStartedAt: Date | null
 }
 
 export const WEALTH_SNAPSHOT_CALCULATION_VERSION = "wealth-snapshot-v1"
@@ -79,9 +86,21 @@ function getBenchmarkThreshold(
     return null
   }
 
-  return benchmark === "gold"
-    ? benchmarkPricing.goldPrice
-    : benchmarkPricing.silverPrice
+  const benchmarkPrice =
+    benchmark === "gold"
+      ? benchmarkPricing.goldPrice
+      : benchmarkPricing.silverPrice
+  const benchmarkGrams =
+    benchmark === "gold" ? fiqhGoldNisabGrams : fiqhSilverNisabGrams
+  const benchmarkPricePerGram = Number(benchmarkPrice)
+
+  if (!Number.isFinite(benchmarkPricePerGram)) {
+    return null
+  }
+
+  return formatCents(
+    Math.round(benchmarkPricePerGram * benchmarkGrams * 100),
+  )
 }
 
 function toBenchmarkExplanation(
@@ -185,7 +204,7 @@ async function calculateFiqhWealthSnapshotOutcome(
     nisabBenchmark: activeProfile.nisabBenchmark,
     netZakatableBase: snapshot.netZakatableBase ?? "0.00",
     nisabThreshold,
-    hawlStartedAt: null,
+    hawlStartedAt: activeProfile.hawlStartedAt,
     asOf,
     calculationVersion: fiqhCalculationVersion,
   })
@@ -223,6 +242,9 @@ function toWealthSnapshotWriteContext(
 async function saveWealthSnapshotRevision(
   actor: Actor,
   input: ReplaceWealthSnapshotInput,
+  options: {
+    benchmarkPricingApiKey?: string
+  } = {},
 ) {
   const activeProfile = await requireCurrentActiveProfile(actor)
   const profileId = activeProfile?.id ?? null
@@ -231,13 +253,22 @@ async function saveWealthSnapshotRevision(
     throw new Error(m.wealth_snapshot_no_active_profile())
   }
 
-  const benchmarkPricing = await getCurrentBenchmarkPricing()
   const capturedAt = new Date()
+  const benchmarkPricing = await getBootstrapBenchmarkPricing({
+    apiKey: options.benchmarkPricingApiKey,
+    now: capturedAt,
+  })
+
+  if (!benchmarkPricing) {
+    throw new Error(m.wealth_snapshot_benchmark_unavailable())
+  }
+
   const outcome = await calculateFiqhWealthSnapshotOutcome(
     input.entries,
     {
       madhab: activeProfile.madhab,
       nisabBenchmark: activeProfile.nisabBenchmark,
+      hawlStartedAt: activeProfile.hawlStartedAt,
     },
     benchmarkPricing,
     capturedAt,
@@ -245,12 +276,17 @@ async function saveWealthSnapshotRevision(
   const snapshot = toWealthSnapshotWriteContext(outcome)
   const entries = normalizeWealthSnapshotEntries(input.entries)
 
-  return replaceWealthSnapshotRecord({
-    profileId,
-    entries,
-    snapshot,
-    capturedAt,
-  })
+  return orchestrateWealthSnapshotSave(async (database) =>
+    replaceWealthSnapshotRecord(
+      {
+        profileId,
+        entries,
+        snapshot,
+        capturedAt,
+      },
+      database,
+    ),
+  )
 }
 
 async function requireCurrentActiveProfile(actor: Actor) {
@@ -298,13 +334,19 @@ export async function listWealthSnapshotHistory(
 export async function replaceWealthSnapshot(
   actor: Actor,
   input: ReplaceWealthSnapshotInput,
+  options: {
+    benchmarkPricingApiKey?: string
+  } = {},
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
-  return saveWealthSnapshotRevision(actor, input)
+  return saveWealthSnapshotRevision(actor, input, options)
 }
 
 export async function refreshWealthSnapshot(
   actor: Actor,
   input: ReplaceWealthSnapshotInput,
+  options: {
+    benchmarkPricingApiKey?: string
+  } = {},
 ): Promise<WealthSnapshotWithEntriesRecord | null> {
-  return saveWealthSnapshotRevision(actor, input)
+  return saveWealthSnapshotRevision(actor, input, options)
 }

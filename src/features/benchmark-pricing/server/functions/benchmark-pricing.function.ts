@@ -1,10 +1,13 @@
 import { createServerFn } from "@tanstack/react-start"
+import { env } from "cloudflare:workers"
 
-import { getCurrentBenchmarkPricing } from "../services/benchmark-pricing.service"
+import { getBootstrapBenchmarkPricing } from "../services/benchmark-pricing.service"
 
 export const getCurrentBenchmarkPricingFn = createServerFn({ method: "GET" }).handler(
   async () => {
-    return getCurrentBenchmarkPricing()
+    return getBootstrapBenchmarkPricing({
+      apiKey: env.METALS_DEV_API_KEY,
+    })
   },
 )
 

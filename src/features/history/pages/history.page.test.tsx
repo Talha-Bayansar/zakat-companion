@@ -44,7 +44,6 @@ const unpaidCycle = {
   createdAt: new Date("2026-05-15T09:00:00.000Z"),
   updatedAt: new Date("2026-05-15T09:00:00.000Z"),
   sourceSnapshot: null,
-  reminderJobs: [],
 }
 
 beforeEach(() => {

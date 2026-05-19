@@ -27,6 +27,7 @@ export const reminderJobStatusValues = [
   "claimed",
   "succeeded",
   "failed",
+  "suppressed",
 ] as const
 
 export type ReminderJobStatus = (typeof reminderJobStatusValues)[number]
@@ -34,3 +35,5 @@ export type ReminderJobStatus = (typeof reminderJobStatusValues)[number]
 export const defaultReminderCadence = "monthly" as const
 
 export const reminderJobClaimLeaseMs = 5 * 60 * 1000
+
+export const reminderJobsCron = "15 * * * *" as const

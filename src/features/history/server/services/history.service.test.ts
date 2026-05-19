@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const resolveCurrentActiveProfile = vi.fn()
 const listHistoryCycleRecordsByProfileId = vi.fn()
 const markHistoryCyclePaidRecord = vi.fn()
+const orchestrateCyclePayment = vi.fn(async (work: (database: unknown) => Promise<unknown>) =>
+  work({}),
+)
 
 vi.mock("@/features/profiles/server/services/profile-access.service", () => ({
   resolveCurrentActiveProfile,
@@ -12,6 +15,13 @@ vi.mock("../repositories/history.repository", () => ({
   listHistoryCycleRecordsByProfileId,
   markHistoryCyclePaidRecord,
 }))
+
+vi.mock(
+  "@/features/reminders/server/services/reminder-orchestration.service",
+  () => ({
+    orchestrateCyclePayment,
+  }),
+)
 
 vi.mock("@/paraglide/messages", () => ({
   m: {
@@ -83,38 +93,6 @@ describe("history service", () => {
             isZakatDue: true,
             fiqhExplanation: null,
           },
-          reminderJobs: [
-            {
-              id: "job-1",
-              profileId: "profile-1",
-              dedupeKey: "zakat_due:profile-1:cycle-1:due",
-              kind: "zakat_due",
-              zakatCycleId: "cycle-1",
-              phase: "due",
-              scheduledFor: new Date("2026-05-16T09:00:00.000Z"),
-              status: "claimed",
-              attemptCount: 1,
-              claimedAt: new Date("2026-05-16T09:01:00.000Z"),
-              completedAt: null,
-              lastAttemptAt: new Date("2026-05-16T09:01:00.000Z"),
-              lastError: null,
-              createdAt: new Date("2026-05-16T09:00:00.000Z"),
-              updatedAt: new Date("2026-05-16T09:01:00.000Z"),
-              deliveryAttempts: [
-                {
-                  id: "attempt-1",
-                  reminderJobId: "job-1",
-                  subscriptionId: "subscription-1",
-                  channel: "web_push",
-                  kind: "zakat_due",
-                  status: "failed",
-                  attemptedAt: new Date("2026-05-16T09:01:30.000Z"),
-                  deliveredAt: null,
-                  errorMessage: "temporary failure",
-                },
-              ],
-            },
-          ],
         },
       ],
       page: 1,
@@ -142,17 +120,6 @@ describe("history service", () => {
             id: "snapshot-1",
             madhab: "hanafi",
           },
-          reminderJobs: [
-            {
-              kind: "zakat_due",
-              deliveryAttempts: [
-                {
-                  status: "failed",
-                  channel: "web_push",
-                },
-              ],
-            },
-          ],
         },
       ],
       page: 1,
@@ -182,7 +149,6 @@ describe("history service", () => {
       createdAt: new Date("2026-05-15T09:00:00.000Z"),
       updatedAt: new Date("2026-05-17T09:00:00.000Z"),
       sourceSnapshot: null,
-      reminderJobs: [],
     })
 
     await expect(
@@ -198,6 +164,8 @@ describe("history service", () => {
     expect(markHistoryCyclePaidRecord).toHaveBeenCalledWith(
       "profile-1",
       "cycle-1",
+      expect.any(Date),
+      expect.anything(),
     )
   })
 

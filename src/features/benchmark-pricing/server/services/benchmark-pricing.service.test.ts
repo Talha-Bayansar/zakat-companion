@@ -13,6 +13,7 @@ vi.mock("../repositories/benchmark-pricing.repository", () => ({
 
 import {
   fetchLatestBenchmarkPricing,
+  getBootstrapBenchmarkPricing,
   refreshCurrentBenchmarkPricing,
 } from "./benchmark-pricing.service"
 
@@ -27,12 +28,15 @@ describe("benchmark pricing service", () => {
       return new Response(
         JSON.stringify({
           status: "success",
-          timestamp: "2026-05-18T12:00:00.000Z",
           currency: "EUR",
-          unit: "toz",
+          unit: "g",
           metals: {
             gold: 3000.12,
             silver: 35.45,
+          },
+          timestamps: {
+            metal: "2026-05-18T12:00:00.000Z",
+            currency: "2026-05-18T12:00:10.000Z",
           },
         }),
         {
@@ -52,8 +56,8 @@ describe("benchmark pricing service", () => {
       provider: "metals.dev",
       goldPrice: "3000.12",
       silverPrice: "35.45",
-      sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
-      lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
+      sourceTimestamp: new Date("2026-05-18T12:00:10.000Z"),
+      lastSuccessfulAt: new Date("2026-05-18T12:00:10.000Z"),
     })
     expect(fetchImpl).toHaveBeenCalledTimes(1)
     const request = fetchImpl.mock.calls.at(0)?.[0]
@@ -61,7 +65,7 @@ describe("benchmark pricing service", () => {
     expect(request).toBeInstanceOf(URL)
     expect(String(request)).toContain("https://api.metals.dev/v1/latest")
     expect(String(request)).toContain("currency=EUR")
-    expect(String(request)).toContain("unit=toz")
+    expect(String(request)).toContain("unit=g")
   })
 
   it("stores the fetched benchmark and updates freshness metadata", async () => {
@@ -81,12 +85,15 @@ describe("benchmark pricing service", () => {
       return new Response(
         JSON.stringify({
           status: "success",
-          timestamp: "2026-05-18T12:00:00.000Z",
           currency: "EUR",
-          unit: "toz",
+          unit: "g",
           metals: {
             gold: 2999.88,
             silver: 35.01,
+          },
+          timestamps: {
+            metal: "2026-05-18T12:00:00.000Z",
+            currency: "2026-05-18T12:00:10.000Z",
           },
         }),
         {
@@ -108,13 +115,13 @@ describe("benchmark pricing service", () => {
     })
 
     expect(upsertCurrentBenchmarkPricingRecord).toHaveBeenCalledWith(
-      {
+        {
         currency: "EUR",
         provider: "metals.dev",
         goldPrice: "2999.88",
         silverPrice: "35.01",
-        sourceTimestamp: new Date("2026-05-18T12:00:00.000Z"),
-        lastSuccessfulAt: new Date("2026-05-18T12:00:00.000Z"),
+        sourceTimestamp: new Date("2026-05-18T12:00:10.000Z"),
+        lastSuccessfulAt: new Date("2026-05-18T12:00:10.000Z"),
       },
       now,
     )
@@ -159,5 +166,53 @@ describe("benchmark pricing service", () => {
       refreshed: false,
       error: "Metals.dev request failed with HTTP 503.",
     })
+  })
+
+  it("bootsraps benchmark pricing when no cache exists yet", async () => {
+    const now = new Date("2026-05-18T12:30:00.000Z")
+    const existingRecord = {
+      currency: "EUR",
+      provider: "metals.dev",
+      goldPrice: "2800.00",
+      silverPrice: "34.00",
+      sourceTimestamp: new Date("2026-05-17T12:00:00.000Z"),
+      lastSuccessfulAt: new Date("2026-05-17T12:00:00.000Z"),
+      createdAt: new Date("2026-05-17T12:00:00.000Z"),
+      updatedAt: new Date("2026-05-17T12:00:00.000Z"),
+    } satisfies BenchmarkPricingRecord
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return new Response(
+        JSON.stringify({
+          status: "success",
+          timestamp: "2026-05-18T12:00:00.000Z",
+          currency: "EUR",
+          unit: "g",
+          metals: {
+            gold: 3000.12,
+            silver: 35.45,
+          },
+        }),
+        {
+          status: 200,
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      )
+    })
+
+    getCurrentBenchmarkPricingRecord.mockResolvedValueOnce(null)
+    upsertCurrentBenchmarkPricingRecord.mockResolvedValue(existingRecord)
+
+    const record = await getBootstrapBenchmarkPricing({
+      fetchImpl,
+      apiKey: "test-key",
+      now,
+    })
+
+    expect(record).toEqual(existingRecord)
+    expect(getCurrentBenchmarkPricingRecord).toHaveBeenCalledWith("EUR")
+    expect(upsertCurrentBenchmarkPricingRecord).toHaveBeenCalled()
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
   })
 })

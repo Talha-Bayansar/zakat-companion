@@ -132,8 +132,18 @@ export function WealthSnapshotFiqhExplanation({
                     : String(explanation.hawl.elapsedDays),
               },
               {
+                label: m.wealth_snapshot_explanation_hawl_due_at_label(),
+                value:
+                  explanation.hawl.dueAt === null
+                    ? m.wealth_snapshot_current_value_unavailable()
+                    : formatDate(explanation.hawl.dueAt),
+              },
+              {
                 label: m.wealth_snapshot_explanation_required_days_label(),
-                value: String(explanation.hawl.requiredDays),
+                value:
+                  explanation.hawl.hijriYearLengthDays === null
+                    ? m.wealth_snapshot_current_value_unavailable()
+                    : String(explanation.hawl.hijriYearLengthDays),
               },
             ]}
           />

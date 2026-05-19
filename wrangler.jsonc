@@ -24,6 +24,6 @@
     "enabled": true,
   },
   "triggers": {
-    "crons": ["0 2 * * *"],
+    "crons": ["0 2 * * *", "15 * * * *"],
   },
 }
