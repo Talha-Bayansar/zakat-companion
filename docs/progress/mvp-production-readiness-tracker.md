@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Use this file as the working reference for the remaining pre-production work on the MVP.
+Use this file as the working reference for the MVP readiness state and any new pre-production gaps that appear later.
 
 Current focus areas:
 
@@ -10,7 +10,7 @@ Current focus areas:
 - reminder job creation flows that connect product events to scheduled jobs
 - docs alignment with the codebase
 
-Google auth is accepted for now and is not part of the current blocker list.
+Google auth is accepted for now and is not part of the blocker list.
 
 ## Current Status
 
@@ -18,25 +18,31 @@ Google auth is accepted for now and is not part of the current blocker list.
 
 - Status: resolved
 - Current risk: none on the fresh-deployment benchmark path; snapshot capture now bootstraps benchmark pricing on cache miss and falls back to the translated benchmark-unavailable error only if Metals.dev cannot provide data.
-- Impact: the app should no longer block snapshot capture just because the benchmark cache has not been seeded yet.
+- Impact: the app no longer blocks snapshot capture just because the benchmark cache has not been seeded yet.
 
 ### 2. Reminder execution
 
-- Status: wired
-- Current risk: reminder execution is now on its own hourly cron, while benchmark refresh uses a separate daily cron. Snapshot saves still persist explicit reset state below nisab while seeding reminder sequences when the next above-nisab snapshot starts a new cycle.
-- Impact: reminders are now scheduled automatically from the current snapshot save flow and cycle payment flow, with reset semantics preserved in history, and the scheduled flows no longer contend for the same cron event.
+- Status: resolved
+- Current risk: none for the implemented reminder orchestration path; reminder execution now runs on its own hourly cron, while benchmark refresh uses a separate daily cron. Snapshot saves persist explicit reset state below nisab while seeding reminder sequences when the next above-nisab snapshot starts a new cycle.
+- Impact: reminders are scheduled automatically from the snapshot save and cycle payment flows, with reset semantics preserved in history, and the scheduled flows no longer contend for the same cron event.
 
 ### 3. Documentation
 
-- Status: needs work
-- Current risk: some architecture and issue-plan docs still describe older blocker states or omit the current bootstrap and wiring gaps.
-- Impact: future work will be mis-scoped unless the docs are updated first.
+- Status: resolved
+- Current risk: none for the MVP readiness docs; the architecture and tracker now describe the current bootstrap, orchestration, and scheduling state.
+- Impact: future work can be scoped against the current implementation rather than older blocker states.
+
+### 4. Overall readiness
+
+- Status: ready for MVP closeout
+- Current risk: only routine maintenance items remain, unless a new product gap appears.
+- Impact: the current MVP slice is functionally complete for the tracked blocker set.
 
 ## Execution Order
 
-1. Update docs so the scope is explicit and current.
-2. Add or update tests for the corrected behavior.
-3. Re-run verification and mark remaining gaps clearly.
+1. Keep docs aligned with future product changes.
+2. Add or update tests when new gaps are introduced.
+3. Re-run verification if the MVP scope changes again.
 
 ## Workstreams
 
@@ -44,13 +50,13 @@ Google auth is accepted for now and is not part of the current blocker list.
 
 Goal:
 
-- bring `docs/architecture.md`, PRDs, and issue plans in line with the actual code
-- record the current MVP scope and the remaining gaps
+- keep `docs/architecture.md`, PRDs, and issue plans in line with the actual code
+- record the current MVP scope and any newly discovered gaps
 
 Exit criteria:
 
 - docs state Google auth is acceptable for now
-- docs describe the benchmark bootstrap and reminder wiring gaps accurately
+- docs describe the benchmark bootstrap and reminder wiring accurately
 - docs no longer imply stale blocker states that the code has already resolved
 
 ### Workstream B: Benchmark pricing
@@ -102,6 +108,6 @@ Exit criteria:
 
 ## Notes
 
-- This tracker is intentionally narrow: it focuses only on the remaining MVP blockers.
-- When a workstream is completed, update the status here and the related docs in the same change.
+- This tracker is intentionally narrow: it focuses on the current MVP readiness state and any newly discovered gaps.
+- When a workstream changes status, update the tracker and the related docs in the same change.
 - If a new blocker appears, add it here before starting implementation so the scope stays visible.
