@@ -32,6 +32,4 @@ export const fiqhDateRulePolicyValues = ["reset", "preserve"] as const
 export type FiqhDateRulePolicy =
   (typeof fiqhDateRulePolicyValues)[number]
 
-export const fiqhHawlLengthDays = 354 as const
-
 export const fiqhZakatRate = "0.025" as const

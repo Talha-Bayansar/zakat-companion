@@ -29,6 +29,7 @@
     "@hugeicons/core-free-icons": "^4.1.1",
     "@hugeicons/react": "^1.1.6",
     "@neondatabase/serverless": "^1.1.0",
+    "@tabby_ai/hijri-converter": "^1.0.5",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-devtools": "^0.10.0",
     "@tanstack/react-form": "^1.29.1",

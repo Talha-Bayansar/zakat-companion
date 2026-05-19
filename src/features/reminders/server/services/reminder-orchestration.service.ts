@@ -5,7 +5,7 @@ import {
   type ReminderCadence,
   type ReminderJobPhase,
 } from "../../lib/reminders.constants"
-import { fiqhHawlLengthDays } from "@/features/fiqh-calculation"
+import { addHijriYears } from "@/features/fiqh-calculation"
 import {
   createBalanceUpdateReminderJobRecord,
   createZakatDueReminderJobRecord,
@@ -63,7 +63,7 @@ function addDays(date: Date, days: number) {
 }
 
 function calculateZakatCycleDueAt(capturedAt: Date) {
-  return addDays(capturedAt, fiqhHawlLengthDays)
+  return addHijriYears(capturedAt, 1)
 }
 
 async function seedZakatDueReminderSequence(

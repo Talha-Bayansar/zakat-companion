@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { fiqhHawlLengthDays } from "@/features/fiqh-calculation"
+import { addHijriYears } from "@/features/fiqh-calculation"
 
 const dbMock = {}
 
@@ -125,7 +125,7 @@ describe("reminder orchestration", () => {
         profileId: "profile-1",
         sourceSnapshotId: "snapshot-1",
         state: "open",
-        dueAt: new Date(capturedAt.getTime() + fiqhHawlLengthDays * 24 * 60 * 60 * 1000),
+        dueAt: addHijriYears(capturedAt, 1),
         paidAt: null,
       }),
       dbMock,
@@ -137,7 +137,7 @@ describe("reminder orchestration", () => {
         zakatCycleId: "cycle-1",
         phase: "before_due",
         scheduledFor: calculateZakatDueReminderScheduledFor(
-          new Date(capturedAt.getTime() + fiqhHawlLengthDays * 24 * 60 * 60 * 1000),
+          addHijriYears(capturedAt, 1),
           "before_due",
         ),
       }),
