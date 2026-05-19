@@ -318,7 +318,7 @@
   "wealth_snapshot_explanation_threshold_label": "Threshold",
   "wealth_snapshot_explanation_difference_label": "Difference",
   "wealth_snapshot_explanation_elapsed_days_label": "Elapsed days",
-  "wealth_snapshot_explanation_required_days_label": "Required days",
+  "wealth_snapshot_explanation_required_days_label": "Hijri year length",
   "wealth_snapshot_explanation_captured_at_label": "Captured at",
   "wealth_snapshot_history_title": "Snapshot history",
   "wealth_snapshot_history_description": "Saved snapshots appear here in reverse chronological order.",
