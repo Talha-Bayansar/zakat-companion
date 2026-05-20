@@ -7,6 +7,7 @@ import { m } from "@/paraglide/messages"
 
 const mocks = vi.hoisted(() => ({
   useCurrentActiveProfileQuery: vi.fn(),
+  useWealthSnapshotQuery: vi.fn(),
   useHistoryCyclesInfiniteQuery: vi.fn(),
   useMarkCyclePaidMutation: vi.fn(),
   mutateAsync: vi.fn(),
@@ -22,6 +23,10 @@ vi.mock("@tanstack/react-router", () => ({
 
 vi.mock("@/features/profiles", () => ({
   useCurrentActiveProfileQuery: mocks.useCurrentActiveProfileQuery,
+}))
+
+vi.mock("@/features/wealth-snapshot", () => ({
+  useWealthSnapshotQuery: mocks.useWealthSnapshotQuery,
 }))
 
 vi.mock("../lib/history.query", () => ({
@@ -50,6 +55,12 @@ beforeEach(() => {
   vi.clearAllMocks()
   mocks.useCurrentActiveProfileQuery.mockReturnValue({
     data: { id: "profile-1" },
+    isLoading: false,
+  })
+  mocks.useWealthSnapshotQuery.mockReturnValue({
+    data: {
+      isAboveNisab: true,
+    },
     isLoading: false,
   })
   mocks.useHistoryCyclesInfiniteQuery.mockReturnValue({
@@ -83,6 +94,10 @@ describe("HistoryPage", () => {
       data: null,
       isLoading: true,
     })
+    mocks.useWealthSnapshotQuery.mockReturnValue({
+      data: null,
+      isLoading: true,
+    })
     mocks.useHistoryCyclesInfiniteQuery.mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -104,6 +119,10 @@ describe("HistoryPage", () => {
       data: null,
       isLoading: false,
     })
+    mocks.useWealthSnapshotQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+    })
     mocks.useHistoryCyclesInfiniteQuery.mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -121,6 +140,35 @@ describe("HistoryPage", () => {
     expect(
       (screen.getByRole("link", { name: m.nav_settings_label() }) as HTMLAnchorElement).getAttribute("href"),
     ).toBe("/app/settings")
+  })
+
+  it("shows the below-nisab empty state when no cycles exist but the snapshot is below nisab", () => {
+    mocks.useCurrentActiveProfileQuery.mockReturnValue({
+      data: { id: "profile-1" },
+      isLoading: false,
+    })
+    mocks.useWealthSnapshotQuery.mockReturnValue({
+      data: { isAboveNisab: false },
+      isLoading: false,
+    })
+    mocks.useHistoryCyclesInfiniteQuery.mockReturnValue({
+      data: {
+        pages: [],
+      },
+      isLoading: false,
+      isError: false,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      fetchNextPage: vi.fn(),
+      error: null,
+    })
+
+    render(<HistoryPage />)
+
+    expect(screen.getByText(m.cycle_status_below_nisab_title())).toBeDefined()
+    expect(
+      screen.getByText(m.cycle_status_below_nisab_description()),
+    ).toBeDefined()
   })
 
   it("submits cycle payments and shows a translated fallback error", async () => {

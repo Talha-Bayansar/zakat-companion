@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router"
 import { m } from "@/paraglide/messages"
 
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
+import { useWealthSnapshotQuery } from "@/features/wealth-snapshot"
 import { buttonVariants } from "@/shared/ui/button"
 import {
   Empty,
@@ -22,6 +23,8 @@ import { useMarkCyclePaidMutation } from "../lib/history.mutations"
 export function HistoryPage() {
   const activeProfileQuery = useCurrentActiveProfileQuery()
   const activeProfileId = activeProfileQuery.data?.id ?? null
+  const currentSnapshotQuery = useWealthSnapshotQuery(activeProfileId)
+  const currentSnapshot = currentSnapshotQuery.data
   const historyQuery = useHistoryCyclesInfiniteQuery(activeProfileId)
   const markCyclePaidMutation = useMarkCyclePaidMutation()
   const [markingCycleId, setMarkingCycleId] = useState<string | null>(null)
@@ -66,7 +69,11 @@ export function HistoryPage() {
         <InfiniteList
           items={cycles}
           hasMore={historyQuery.hasNextPage}
-          isLoading={isActiveProfileLoading || historyQuery.isLoading}
+          isLoading={
+            isActiveProfileLoading ||
+            historyQuery.isLoading ||
+            currentSnapshotQuery.isLoading
+          }
           isFetchingNextPage={historyQuery.isFetchingNextPage}
           onLoadMore={() => void historyQuery.fetchNextPage()}
           getItemKey={(cycle) => cycle.id}
@@ -102,11 +109,45 @@ export function HistoryPage() {
                   </Link>
                 </EmptyContent>
               </Empty>
+            ) : currentSnapshot == null ? (
+              <Empty className="border-border/70 bg-background/80">
+                <EmptyContent>
+                  <EmptyTitle>
+                    {m.wealth_snapshot_current_empty_title()}
+                  </EmptyTitle>
+                  <EmptyDescription>
+                    {m.wealth_snapshot_current_empty_description()}
+                  </EmptyDescription>
+                  <Link
+                    to="/app/wealth-snapshot/new"
+                    className={buttonVariants({ variant: "default", size: "sm" })}
+                  >
+                    {m.wealth_snapshot_create_button_label()}
+                  </Link>
+                </EmptyContent>
+              </Empty>
+            ) : currentSnapshot.isAboveNisab === false ? (
+              <Empty className="border-border/70 bg-background/80">
+                <EmptyContent>
+                  <EmptyTitle>{m.cycle_status_below_nisab_title()}</EmptyTitle>
+                  <EmptyDescription>
+                    {m.cycle_status_below_nisab_description()}
+                  </EmptyDescription>
+                  <Link
+                    to="/app/wealth-snapshot/new"
+                    className={buttonVariants({ variant: "default", size: "sm" })}
+                  >
+                    {m.wealth_snapshot_create_button_label()}
+                  </Link>
+                </EmptyContent>
+              </Empty>
             ) : (
               <Empty className="border-border/70 bg-background/80">
                 <EmptyContent>
-                  <EmptyTitle>{m.history_empty_title()}</EmptyTitle>
-                  <EmptyDescription>{m.history_empty_description()}</EmptyDescription>
+                  <EmptyTitle>{m.cycle_status_no_active_cycle_title()}</EmptyTitle>
+                  <EmptyDescription>
+                    {m.cycle_status_no_active_cycle_description()}
+                  </EmptyDescription>
                   <Link
                     to="/app/wealth-snapshot/new"
                     className={buttonVariants({ variant: "default", size: "sm" })}

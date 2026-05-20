@@ -6,6 +6,8 @@ export type { WealthCategory } from "./lib/wealth-snapshot.constants"
 export {
   wealthSnapshotHistoryQueryKey,
   wealthSnapshotQueryKey,
+  useWealthSnapshotHistoryInfiniteQuery,
+  useWealthSnapshotQuery,
 } from "./lib/wealth-snapshot.query"
 export {
   wealthSnapshotAmountSchema,
