@@ -9,6 +9,7 @@ const createBalanceUpdateReminderJobRecord = vi.fn()
 const getZakatCycleRecordBySourceSnapshotId = vi.fn()
 const getLatestUnpaidZakatCycleRecordByProfileId = vi.fn()
 const createZakatCycleRecord = vi.fn()
+const markZakatCycleResetRecord = vi.fn()
 const createZakatDueReminderJobRecord = vi.fn()
 const suppressPendingZakatDueReminderJobRecords = vi.fn()
 const suppressFutureZakatDueReminderJobRecords = vi.fn()
@@ -24,6 +25,7 @@ vi.mock("../repositories/reminders.repository", () => ({
   getZakatCycleRecordBySourceSnapshotId,
   getLatestUnpaidZakatCycleRecordByProfileId,
   createZakatCycleRecord,
+  markZakatCycleResetRecord,
   suppressPendingZakatDueReminderJobRecords,
   suppressFutureZakatDueReminderJobRecords,
 }))
@@ -242,6 +244,14 @@ describe("reminder orchestration", () => {
       "profile-1",
       dbMock,
     )
+    expect(markZakatCycleResetRecord).toHaveBeenCalledWith(
+      {
+        profileId: "profile-1",
+        zakatCycleId: "cycle-active",
+        resetAt: capturedAt,
+      },
+      dbMock,
+    )
     expect(createZakatCycleRecord).not.toHaveBeenCalled()
     expect(suppressPendingZakatDueReminderJobRecords).toHaveBeenCalledWith(
       {
@@ -283,6 +293,7 @@ describe("reminder orchestration", () => {
     await orchestrateWealthSnapshotSave(writeSnapshot)
 
     expect(getLatestUnpaidZakatCycleRecordByProfileId).not.toHaveBeenCalled()
+    expect(markZakatCycleResetRecord).not.toHaveBeenCalled()
     expect(suppressPendingZakatDueReminderJobRecords).not.toHaveBeenCalled()
     expect(createZakatCycleRecord).not.toHaveBeenCalled()
   })

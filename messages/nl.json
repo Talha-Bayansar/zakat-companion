@@ -52,6 +52,7 @@
   "history_cycle_state_due": "Verschuldigd",
   "history_cycle_state_paid": "Betaald",
   "history_cycle_state_followed_up": "Opgevolgd",
+  "history_cycle_state_reset": "Gereset",
   "history_cycle_payment_paid": "Betaald",
   "history_cycle_payment_unpaid": "Niet betaald",
   "history_reminder_kind_balance_update": "Saldo-update",

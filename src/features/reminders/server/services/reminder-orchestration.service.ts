@@ -13,6 +13,7 @@ import {
   getLatestUnpaidZakatCycleRecordByProfileId,
   getZakatCycleRecordBySourceSnapshotId,
   createZakatCycleRecord,
+  markZakatCycleResetRecord,
   suppressPendingZakatDueReminderJobRecords,
   suppressFutureZakatDueReminderJobRecords,
 } from "../repositories/reminders.repository"
@@ -174,6 +175,15 @@ export async function orchestrateWealthSnapshotSave<T extends WealthSnapshotEven
       )
 
       if (activeCycle) {
+        await markZakatCycleResetRecord(
+          {
+            profileId: snapshot.profileId,
+            zakatCycleId: activeCycle.id,
+            resetAt: snapshot.capturedAt,
+          },
+          database,
+        )
+
         await suppressPendingZakatDueReminderJobRecords(
           {
             profileId: snapshot.profileId,

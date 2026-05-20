@@ -31,6 +31,8 @@ export function getHistoryCycleStateMeta(
       return { label: m.history_cycle_state_paid(), className: pillToneClasses.emerald }
     case "followed_up":
       return { label: m.history_cycle_state_followed_up(), className: pillToneClasses.sky }
+    case "reset":
+      return { label: m.history_cycle_state_reset(), className: pillToneClasses.slate }
     default:
       return { label: String(state), className: pillToneClasses.neutral }
   }

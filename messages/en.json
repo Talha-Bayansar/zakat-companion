@@ -52,6 +52,7 @@
   "history_cycle_state_due": "Due",
   "history_cycle_state_paid": "Paid",
   "history_cycle_state_followed_up": "Followed up",
+  "history_cycle_state_reset": "Reset",
   "history_cycle_payment_paid": "Paid",
   "history_cycle_payment_unpaid": "Not paid",
   "history_reminder_kind_balance_update": "Balance update",

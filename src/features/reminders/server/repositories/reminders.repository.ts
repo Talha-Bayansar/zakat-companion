@@ -256,6 +256,31 @@ export async function createZakatCycleRecord(input: {
   return toZakatCycleRecord(record)
 }
 
+export async function markZakatCycleResetRecord(
+  input: {
+    profileId: string
+    zakatCycleId: string
+    resetAt: Date
+  },
+  database: DatabaseLike = db,
+) {
+  const [record] = await database
+    .update(zakatCycle)
+    .set({
+      state: "reset",
+      updatedAt: input.resetAt,
+    })
+    .where(
+      and(
+        eq(zakatCycle.id, input.zakatCycleId),
+        eq(zakatCycle.profileId, input.profileId),
+      ),
+    )
+    .returning()
+
+  return record ? toZakatCycleRecord(record) : null
+}
+
 export async function createBalanceUpdateReminderJobRecord(input: {
   profileId: string
   scheduledFor: Date

@@ -32,6 +32,7 @@ export function HistoryCycleItem({
   const paymentState = getHistoryPaymentStateMeta(cycle.paidAt)
   const sourceSnapshot = cycle.sourceSnapshot
   const detailsId = `history-cycle-${cycle.id}-details`
+  const canMarkPaid = cycle.paidAt === null && cycle.state !== "reset"
 
   return (
     <Item variant="outline" size="default" className="items-start">
@@ -58,7 +59,7 @@ export function HistoryCycleItem({
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                {cycle.paidAt ? null : (
+                {canMarkPaid ? (
                   <Button
                     type="button"
                     variant="secondary"
@@ -68,17 +69,17 @@ export function HistoryCycleItem({
                     onClick={() => {
                       void onMarkPaid(cycle.id)
                     }}
-                  >
-                    {isMarkingPaid ? (
+                    >
+                      {isMarkingPaid ? (
                       <>
                         <Spinner label={m.history_cycle_marking_paid()} className="size-4" />
                         <span>{m.history_cycle_marking_paid()}</span>
                       </>
-                    ) : (
-                      m.history_cycle_mark_paid()
-                    )}
-                  </Button>
-                )}
+                      ) : (
+                        m.history_cycle_mark_paid()
+                      )}
+                    </Button>
+                ) : null}
 
                 <Button
                   type="button"

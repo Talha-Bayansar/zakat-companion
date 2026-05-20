@@ -19,6 +19,7 @@ export {
   getZakatCycleRecordById,
   getZakatCycleRecordBySourceSnapshotId,
   getLatestUnpaidZakatCycleRecordByProfileId,
+  markZakatCycleResetRecord,
   markReminderJobSucceededRecord,
   recordReminderJobDispatchFailureRecord,
   suppressPendingZakatDueReminderJobRecords,

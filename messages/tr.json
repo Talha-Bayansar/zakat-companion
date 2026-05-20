@@ -52,6 +52,7 @@
   "history_cycle_state_due": "Vadesi geldi",
   "history_cycle_state_paid": "Ödendi",
   "history_cycle_state_followed_up": "Takip edildi",
+  "history_cycle_state_reset": "Sıfırlandı",
   "history_cycle_payment_paid": "Ödendi",
   "history_cycle_payment_unpaid": "Ödenmedi",
   "history_reminder_kind_balance_update": "Bakiye güncellemesi",
