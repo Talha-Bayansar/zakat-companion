@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { addHijriYears } from "@/features/fiqh-calculation"
-
 const dbMock = {}
 
 const getReminderPreferenceRecordByProfileId = vi.fn()
@@ -45,11 +43,18 @@ beforeEach(() => {
 describe("reminder orchestration", () => {
   it("saves a snapshot, seeds the balance reminder, and creates a cycle when above nisab", async () => {
     const capturedAt = new Date("2026-05-18T09:00:00.000Z")
+    const hawlDueAt = new Date("2027-05-10T09:00:00.000Z")
     const snapshot = {
       id: "snapshot-1",
       profileId: "profile-1",
       capturedAt,
       isAboveNisab: true as const,
+      fiqhExplanation: {
+        hawl: {
+          isComplete: false,
+          dueAt: hawlDueAt.toISOString(),
+        },
+      },
     }
     const writeSnapshot = vi.fn(async () => snapshot)
 
@@ -127,7 +132,7 @@ describe("reminder orchestration", () => {
         profileId: "profile-1",
         sourceSnapshotId: "snapshot-1",
         state: "open",
-        dueAt: addHijriYears(capturedAt, 1),
+        dueAt: hawlDueAt,
         paidAt: null,
       }),
       dbMock,
@@ -139,7 +144,7 @@ describe("reminder orchestration", () => {
         zakatCycleId: "cycle-1",
         phase: "before_due",
         scheduledFor: calculateZakatDueReminderScheduledFor(
-          addHijriYears(capturedAt, 1),
+          hawlDueAt,
           "before_due",
         ),
       }),

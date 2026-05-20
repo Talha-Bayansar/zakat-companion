@@ -34,6 +34,7 @@ type WealthSnapshotEvent = {
     } | null
     hawl?: {
       isComplete: boolean
+      dueAt?: string | null
     } | null
   } | null
 }
@@ -65,8 +66,18 @@ function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * MS_PER_DAY)
 }
 
-function calculateZakatCycleDueAt(capturedAt: Date) {
-  return addHijriYears(capturedAt, 1)
+function calculateZakatCycleDueAt(snapshot: WealthSnapshotEvent) {
+  const dueAt = snapshot.fiqhExplanation?.hawl?.dueAt
+
+  if (dueAt) {
+    const parsedDueAt = new Date(dueAt)
+
+    if (!Number.isNaN(parsedDueAt.getTime())) {
+      return parsedDueAt
+    }
+  }
+
+  return addHijriYears(snapshot.capturedAt, 1)
 }
 
 async function seedZakatDueReminderSequence(
@@ -210,7 +221,7 @@ export async function orchestrateWealthSnapshotSave<T extends WealthSnapshotEven
             profileId: snapshot.profileId,
             sourceSnapshotId: snapshot.id,
             state: "open",
-            dueAt: calculateZakatCycleDueAt(snapshot.capturedAt),
+            dueAt: calculateZakatCycleDueAt(snapshot),
             paidAt: null,
           },
           database,
