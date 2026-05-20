@@ -13,6 +13,7 @@ import {
   getFiqhNisabBenchmarkLabel,
 } from "@/features/fiqh-calculation"
 import { useCurrentActiveProfileQuery } from "@/features/profiles"
+import { formatHawlStartedAtDisplayValue } from "@/features/profiles/lib/profile-hawl-started-at"
 import {
   Empty,
   EmptyContent,
@@ -21,16 +22,6 @@ import {
 } from "@/shared/ui/empty"
 import { Spinner } from "@/shared/ui/spinner"
 import { Surface } from "@/shared/ui/surface"
-
-function formatDateDisplay(value: Date | null) {
-  if (!value) {
-    return m.wealth_snapshot_current_value_unavailable()
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-  }).format(value)
-}
 
 export function ActiveProfileFiqhSection() {
   const currentActiveProfileQuery = useCurrentActiveProfileQuery()
@@ -128,7 +119,8 @@ export function ActiveProfileFiqhSection() {
                 {m.settings_active_profile_fiqh_hawl_started_at_label()}
               </dt>
               <dd className="text-sm leading-6 text-foreground">
-                {formatDateDisplay(activeProfile.hawlStartedAt)}
+                {formatHawlStartedAtDisplayValue(activeProfile.hawlStartedAt) ??
+                  m.wealth_snapshot_current_value_unavailable()}
               </dd>
             </div>
 

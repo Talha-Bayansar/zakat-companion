@@ -1,6 +1,5 @@
-import {
-  m,
-} from "@/paraglide/messages"
+import { m } from "@/paraglide/messages"
+import { parseHawlStartedAtInputValue } from "@/features/profiles/lib/profile-hawl-started-at"
 import {
   createProfileRecord,
   deleteProfileRecord,
@@ -131,16 +130,6 @@ async function requireOwnerAccess(actor: Actor, profileId: string) {
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase()
-}
-
-function parseProfileHawlStartedAt(value: string | null | undefined) {
-  if (!value) {
-    return null
-  }
-
-  const parsed = new Date(`${value}T00:00:00.000Z`)
-
-  return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
 function combineAccessibleProfiles(
@@ -283,7 +272,7 @@ export async function createProfile(actor: Actor, input: CreateProfileInput) {
   const record = await createProfileRecord(
     actor.userId,
     input.name.trim(),
-    parseProfileHawlStartedAt(input.hawlStartedAt),
+    parseHawlStartedAtInputValue(input.hawlStartedAt),
     input.madhab,
     input.nisabBenchmark,
   )
@@ -307,7 +296,7 @@ export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
   const updated = await updateProfileRecord(
     record.id,
     input.name.trim(),
-    parseProfileHawlStartedAt(input.hawlStartedAt),
+    parseHawlStartedAtInputValue(input.hawlStartedAt),
     input.madhab,
     input.nisabBenchmark,
   )

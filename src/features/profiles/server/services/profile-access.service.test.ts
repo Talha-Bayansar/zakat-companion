@@ -177,6 +177,34 @@ describe("profile access active selection", () => {
     )
   })
 
+  it("stores a hawl start date as a UTC midnight timestamp", async () => {
+    repoMocks.getProfileRecordById.mockResolvedValue(ownedProfile)
+    repoMocks.getProfileAccessGrantRecord.mockResolvedValue(null)
+    repoMocks.updateProfileRecord.mockResolvedValue(ownedProfile)
+
+    await updateProfile(
+      {
+        userId: "user-1",
+        activeProfileId: ownedProfile.id,
+      },
+      {
+        profileId: ownedProfile.id,
+        name: "Family",
+        hawlStartedAt: "2025-05-01",
+        madhab: "maliki",
+        nisabBenchmark: "silver",
+      },
+    )
+
+    expect(repoMocks.updateProfileRecord).toHaveBeenCalledWith(
+      ownedProfile.id,
+      "Family",
+      new Date("2025-05-01T00:00:00.000Z"),
+      "maliki",
+      "silver",
+    )
+  })
+
   it("persists an explicit profile switch", async () => {
     repoMocks.getProfileRecordById.mockResolvedValue(ownedProfile)
     repoMocks.getProfileAccessGrantRecord.mockResolvedValue(null)

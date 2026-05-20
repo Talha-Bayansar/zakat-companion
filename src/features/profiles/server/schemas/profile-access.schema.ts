@@ -3,6 +3,7 @@ import { z } from "zod"
 import {
   fiqhPreferenceSchema,
 } from "@/features/fiqh-calculation"
+import { hawlStartedAtInputPattern } from "@/features/profiles/lib/profile-hawl-started-at"
 
 const hawlStartedAtSchema = z
   .preprocess(
@@ -10,7 +11,7 @@ const hawlStartedAtSchema = z
     z
       .string()
       .trim()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .regex(hawlStartedAtInputPattern)
       .nullable()
       .optional(),
   )

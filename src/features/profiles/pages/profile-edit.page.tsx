@@ -11,10 +11,7 @@ import { Surface } from "@/shared/ui/surface"
 
 import { ProfileAccessCard } from "../components/profile-access-card"
 import { ProfileDetailsForm } from "../components/profile-details-form"
-
-function formatDateInputValue(value: Date | null) {
-  return value ? value.toISOString().slice(0, 10) : ""
-}
+import { formatHawlStartedAtInputValue } from "../lib/profile-hawl-started-at"
 
 type ProfileEditPageProps = {
   profileId: string
@@ -86,7 +83,9 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
             <ProfileDetailsForm
               initialValues={{
                 name: profileQuery.data.name,
-                hawlStartedAt: formatDateInputValue(profileQuery.data.hawlStartedAt),
+                hawlStartedAt: formatHawlStartedAtInputValue(
+                  profileQuery.data.hawlStartedAt,
+                ),
                 madhab: profileQuery.data.madhab,
                 nisabBenchmark: profileQuery.data.nisabBenchmark,
               }}

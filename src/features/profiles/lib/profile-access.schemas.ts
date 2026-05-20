@@ -7,6 +7,7 @@ import {
   type FiqhMadhabCode,
   type FiqhNisabBenchmarkCode,
 } from "@/features/fiqh-calculation"
+import { hawlStartedAtInputPattern } from "./profile-hawl-started-at"
 
 type CreateProfileSchemaMessages = {
   requiredName: string
@@ -30,12 +31,7 @@ export function createProfileSchema(messages: CreateProfileSchemaMessages) {
     hawlStartedAt: z
       .preprocess(
         (value) => (value === "" ? null : value),
-        z
-          .string()
-          .trim()
-          .regex(/^\d{4}-\d{2}-\d{2}$/)
-          .nullable()
-          .optional(),
+        z.string().trim().regex(hawlStartedAtInputPattern).nullable().optional(),
       ),
     madhab: z
       .string()
@@ -65,12 +61,7 @@ export const profileDetailsInputSchema = z.object({
   hawlStartedAt: z
     .preprocess(
       (value) => (value === "" ? null : value),
-      z
-        .string()
-        .trim()
-        .regex(/^\d{4}-\d{2}-\d{2}$/)
-        .nullable()
-        .optional(),
+      z.string().trim().regex(hawlStartedAtInputPattern).nullable().optional(),
     ),
 }).merge(fiqhPreferenceSchema)
 
