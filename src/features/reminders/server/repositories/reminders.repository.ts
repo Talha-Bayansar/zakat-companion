@@ -221,7 +221,9 @@ export async function getLatestUnpaidZakatCycleRecordByProfileId(
     .where(
       and(
         eq(zakatCycle.profileId, profileId),
-        or(ne(zakatCycle.state, "paid"), isNull(zakatCycle.paidAt)),
+        ne(zakatCycle.state, "paid"),
+        ne(zakatCycle.state, "reset"),
+        isNull(zakatCycle.paidAt),
       ),
     )
     .orderBy(

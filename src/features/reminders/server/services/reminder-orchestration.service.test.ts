@@ -201,6 +201,42 @@ describe("reminder orchestration", () => {
     expect(createZakatDueReminderJobRecord).not.toHaveBeenCalled()
   })
 
+  it("does not create a second cycle when the profile already has an active cycle", async () => {
+    const capturedAt = new Date("2026-05-18T09:00:00.000Z")
+    const snapshot = {
+      id: "snapshot-2",
+      profileId: "profile-1",
+      capturedAt,
+      isAboveNisab: true as const,
+    }
+    const writeSnapshot = vi.fn(async () => snapshot)
+
+    getReminderPreferenceRecordByProfileId.mockResolvedValue({
+      profileId: "profile-1",
+      balanceUpdateCadence: "monthly",
+      timezone: "UTC",
+      quietHours: null,
+      zakatDueFollowUpEnabled: true,
+      createdAt: capturedAt,
+      updatedAt: capturedAt,
+    })
+    getLatestUnpaidZakatCycleRecordByProfileId.mockResolvedValue({
+      id: "cycle-active",
+      profileId: "profile-1",
+      sourceSnapshotId: "snapshot-previous",
+      state: "open",
+      dueAt: new Date("2027-05-07T09:00:00.000Z"),
+      paidAt: null,
+      createdAt: capturedAt,
+      updatedAt: capturedAt,
+    })
+
+    await orchestrateWealthSnapshotSave(writeSnapshot)
+
+    expect(createZakatCycleRecord).not.toHaveBeenCalled()
+    expect(createZakatDueReminderJobRecord).not.toHaveBeenCalled()
+  })
+
   it("suppresses the active cycle's zakat reminders when a reset madhab drops below nisab", async () => {
     const capturedAt = new Date("2026-05-18T09:00:00.000Z")
     const snapshot = {

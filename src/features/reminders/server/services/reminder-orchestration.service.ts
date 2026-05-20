@@ -11,7 +11,6 @@ import {
   createZakatDueReminderJobRecord,
   getReminderPreferenceRecordByProfileId,
   getLatestUnpaidZakatCycleRecordByProfileId,
-  getZakatCycleRecordBySourceSnapshotId,
   createZakatCycleRecord,
   markZakatCycleResetRecord,
   suppressPendingZakatDueReminderJobRecords,
@@ -200,12 +199,12 @@ export async function orchestrateWealthSnapshotSave<T extends WealthSnapshotEven
     }
 
     if (snapshot.isAboveNisab === true) {
-      const existingCycle = await getZakatCycleRecordBySourceSnapshotId(
-        snapshot.id,
+      const activeCycle = await getLatestUnpaidZakatCycleRecordByProfileId(
+        snapshot.profileId,
         database,
       )
 
-      if (!existingCycle) {
+      if (!activeCycle) {
         const cycle = await createZakatCycleRecord(
           {
             profileId: snapshot.profileId,
