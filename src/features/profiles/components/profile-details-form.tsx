@@ -137,13 +137,28 @@ export function ProfileDetailsForm({
                 <FieldLabel htmlFor={field.name}>
                   {m.settings_profile_create_hawl_started_at_label()}
                 </FieldLabel>
-                <Input
-                  id={field.name}
-                  type="date"
-                  value={field.state.value}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  aria-invalid={isInvalid}
-                />
+                <div className="flex flex-col gap-2">
+                  <Input
+                    id={field.name}
+                    type="date"
+                    value={field.state.value}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    aria-invalid={isInvalid}
+                  />
+                  {field.state.value ? (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 rounded-2xl px-3 text-xs"
+                        onClick={() => field.handleChange("")}
+                      >
+                        {m.settings_profile_create_hawl_started_at_clear()}
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
                 <FieldDescription>
                   {m.settings_profile_create_hawl_started_at_description()}
                 </FieldDescription>

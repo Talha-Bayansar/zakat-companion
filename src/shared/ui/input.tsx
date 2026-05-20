@@ -7,11 +7,18 @@ export function Input({
   type = "text",
   ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
+  const isTemporalInput =
+    type === "date" ||
+    type === "time" ||
+    type === "datetime-local" ||
+    type === "month"
+
   return (
     <input
       type={type}
       className={cn(
-        "flex h-11 w-full rounded-2xl border border-border bg-background px-4 py-2 text-sm text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50",
+        "block h-11 w-full max-w-full min-w-0 rounded-2xl border border-border bg-background px-4 py-2 text-sm text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50",
+        isTemporalInput && "appearance-none",
         className,
       )}
       {...props}

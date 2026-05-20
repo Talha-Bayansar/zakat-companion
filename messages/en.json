@@ -379,6 +379,7 @@
   "settings_profile_create_nisab_benchmark_description": "Choose the benchmark used to determine nisab.",
   "settings_profile_create_nisab_benchmark_required": "Select a nisab benchmark.",
   "settings_profile_create_hawl_started_at_label": "Hawl start date",
+  "settings_profile_create_hawl_started_at_clear": "Clear date",
   "settings_profile_create_hawl_started_at_description": "Optional. Set the date your current hawl started so the app can continue from the right reference point.",
   "settings_profile_create_cta": "Create profile",
   "settings_profile_creating": "Creating profile…",
