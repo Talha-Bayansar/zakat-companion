@@ -38,9 +38,7 @@ export function ProfilesListPage() {
 
       {profilesQuery.isError ? (
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {profilesQuery.error instanceof Error && profilesQuery.error.message
-            ? profilesQuery.error.message
-            : m.profiles_list_load_error()}
+          {m.profiles_list_load_error()}
         </p>
       ) : (
         <InfiniteList

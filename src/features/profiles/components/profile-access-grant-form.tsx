@@ -47,11 +47,7 @@ export function ProfileAccessGrantForm({ profileId }: ProfileAccessGrantFormProp
         })
         form.reset()
       } catch (error) {
-        setAccessError(
-          error instanceof Error && error.message
-            ? error.message
-            : m.settings_profile_access_grant_error(),
-        )
+        setAccessError(m.settings_profile_access_grant_error())
       }
     },
   })

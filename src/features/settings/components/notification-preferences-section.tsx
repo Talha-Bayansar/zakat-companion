@@ -90,10 +90,7 @@ export function NotificationPreferencesSection() {
   if (currentActiveProfileQuery.isError) {
     return (
       <p className="rounded-[1.75rem] border border-destructive/20 bg-destructive/5 px-5 py-4 text-sm leading-6 text-destructive">
-        {currentActiveProfileQuery.error instanceof Error &&
-        currentActiveProfileQuery.error.message
-          ? currentActiveProfileQuery.error.message
-          : m.settings_notifications_load_error()}
+        {m.settings_notifications_load_error()}
       </p>
     )
   }
@@ -156,11 +153,7 @@ export function NotificationPreferencesSection() {
       setCurrentBrowserEndpoint(subscription.endpoint)
       setActionSuccess(m.settings_notifications_register_success())
     } catch (error) {
-      setActionError(
-        error instanceof Error && error.message
-          ? error.message
-          : m.settings_notifications_register_error()
-      )
+      setActionError(m.settings_notifications_register_error())
     } finally {
       setIsConnecting(false)
     }

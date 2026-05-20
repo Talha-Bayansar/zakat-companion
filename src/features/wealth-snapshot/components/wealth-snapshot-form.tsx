@@ -79,9 +79,7 @@ export function WealthSnapshotForm({
           })),
         )
       } catch (error) {
-        setSubmitError(
-          error instanceof Error && error.message ? error.message : errorLabel,
-        )
+        setSubmitError(errorLabel)
       }
     },
   })

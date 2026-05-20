@@ -53,12 +53,7 @@ export function ActiveProfileSelectorSection() {
         </div>
 
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {currentActiveProfileQuery.error instanceof Error &&
-          currentActiveProfileQuery.error.message
-            ? currentActiveProfileQuery.error.message
-            : profilesQuery.error instanceof Error && profilesQuery.error.message
-              ? profilesQuery.error.message
-              : m.settings_active_profile_load_error()}
+          {m.settings_active_profile_load_error()}
         </p>
       </Surface>
     )

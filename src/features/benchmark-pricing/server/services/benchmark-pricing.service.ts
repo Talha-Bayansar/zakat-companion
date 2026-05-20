@@ -1,3 +1,4 @@
+import { m } from "@/paraglide/messages"
 import {
   benchmarkPricingCurrencyValues,
   benchmarkPricingProvider,
@@ -152,10 +153,7 @@ export async function refreshCurrentBenchmarkPricing(
     return {
       record,
       refreshed: false,
-      error:
-        error instanceof Error && error.message
-          ? error.message
-          : "Unable to refresh benchmark pricing.",
+      error: m.benchmark_pricing_refresh_failed(),
     }
   }
 }

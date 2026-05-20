@@ -84,11 +84,7 @@ export function ProfileRowMenu({ profile }: ProfileRowMenuProps) {
           try {
             await deleteProfileMutation.mutateAsync(profile.id)
           } catch (error) {
-            setDeleteError(
-              error instanceof Error && error.message
-                ? error.message
-                : m.profiles_delete_error(),
-            )
+            setDeleteError(m.profiles_delete_error())
           }
         }}
       />

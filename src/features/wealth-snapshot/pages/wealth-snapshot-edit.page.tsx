@@ -51,9 +51,7 @@ export function WealthSnapshotEditPage() {
         </Surface>
       ) : currentSnapshotQuery.isError ? (
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {currentSnapshotQuery.error instanceof Error && currentSnapshotQuery.error.message
-            ? currentSnapshotQuery.error.message
-            : m.wealth_snapshot_edit_load_error()}
+          {m.wealth_snapshot_edit_load_error()}
         </p>
       ) : currentSnapshotQuery.data ? (
         <Surface rounded="xl" padding="lg">

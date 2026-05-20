@@ -101,11 +101,7 @@ export function ReminderPreferencesForm({
         const reminderPreference = toReminderPreference(value)
         await updateReminderPreferenceMutation.mutateAsync(reminderPreference)
       } catch (error) {
-        setSubmitError(
-          error instanceof Error && error.message
-            ? error.message
-            : m.settings_reminders_save_error(),
-        )
+        setSubmitError(m.settings_reminders_save_error())
       }
     },
   })

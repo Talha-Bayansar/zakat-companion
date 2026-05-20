@@ -73,10 +73,7 @@ export function ReminderPreferencesPage() {
         />
 
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {currentActiveProfileQuery.error instanceof Error &&
-          currentActiveProfileQuery.error.message
-            ? currentActiveProfileQuery.error.message
-            : m.settings_reminders_load_error()}
+          {m.settings_reminders_load_error()}
         </p>
       </PageSection>
     )
@@ -161,10 +158,7 @@ export function ReminderPreferencesPage() {
         />
 
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {reminderPreferenceQuery.error instanceof Error &&
-          reminderPreferenceQuery.error.message
-            ? reminderPreferenceQuery.error.message
-            : m.settings_reminders_load_error()}
+          {m.settings_reminders_load_error()}
         </p>
       </PageSection>
     )

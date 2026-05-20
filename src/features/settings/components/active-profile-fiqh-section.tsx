@@ -53,10 +53,7 @@ export function ActiveProfileFiqhSection() {
   if (currentActiveProfileQuery.isError) {
     return (
       <p className="rounded-[1.75rem] border border-destructive/20 bg-destructive/5 px-5 py-4 text-sm leading-6 text-destructive">
-        {currentActiveProfileQuery.error instanceof Error &&
-        currentActiveProfileQuery.error.message
-          ? currentActiveProfileQuery.error.message
-          : m.settings_active_profile_fiqh_load_error()}
+        {m.settings_active_profile_fiqh_load_error()}
       </p>
     )
   }

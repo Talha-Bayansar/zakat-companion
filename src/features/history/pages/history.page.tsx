@@ -38,11 +38,7 @@ export function HistoryPage() {
     try {
       await markCyclePaidMutation.mutateAsync(zakatCycleId)
     } catch (error) {
-      setMarkCyclePaidError(
-        error instanceof Error && error.message
-          ? error.message
-          : m.history_mark_cycle_paid_error(),
-      )
+      setMarkCyclePaidError(m.history_mark_cycle_paid_error())
     } finally {
       setMarkingCycleId(null)
     }
@@ -64,9 +60,7 @@ export function HistoryPage() {
 
       {historyQuery.isError ? (
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {historyQuery.error instanceof Error && historyQuery.error.message
-            ? historyQuery.error.message
-            : m.history_list_load_error()}
+          {m.history_list_load_error()}
         </p>
       ) : (
         <InfiniteList

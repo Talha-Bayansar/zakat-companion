@@ -71,10 +71,6 @@ export function getWebPushErrorMessage(error: unknown) {
     })
   }
 
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
   return m.notification_delivery_failed()
 }
 

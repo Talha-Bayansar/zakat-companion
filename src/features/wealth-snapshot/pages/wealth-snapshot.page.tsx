@@ -124,9 +124,7 @@ export function WealthSnapshotPage() {
 
         {historyQuery.isError ? (
           <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-            {historyQuery.error instanceof Error && historyQuery.error.message
-              ? historyQuery.error.message
-              : m.wealth_snapshot_history_load_error()}
+            {m.wealth_snapshot_history_load_error()}
           </p>
         ) : (
           <InfiniteList

@@ -57,9 +57,7 @@ export function ProfileEditPage({ profileId }: ProfileEditPageProps) {
         />
 
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {profileQuery.error instanceof Error && profileQuery.error.message
-            ? profileQuery.error.message
-            : m.profiles_edit_load_error()}
+          {m.profiles_edit_load_error()}
         </p>
       </PageSection>
     )

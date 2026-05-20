@@ -45,9 +45,7 @@ export function ProfileAccessDelegatesList({
         </div>
       ) : managedAccessQuery.isError ? (
         <p className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-          {managedAccessQuery.error instanceof Error && managedAccessQuery.error.message
-            ? managedAccessQuery.error.message
-            : m.settings_profile_access_load_error()}
+          {m.settings_profile_access_load_error()}
         </p>
       ) : managedAccess.length > 0 ? (
         <div className="flex flex-col gap-2">
@@ -80,11 +78,7 @@ export function ProfileAccessDelegatesList({
                       email: delegate.userEmail,
                     })
                   } catch (error) {
-                    setAccessError(
-                      error instanceof Error && error.message
-                        ? error.message
-                        : m.settings_profile_access_revoke_error(),
-                    )
+                    setAccessError(m.settings_profile_access_revoke_error())
                   }
                 }}
                 trigger={

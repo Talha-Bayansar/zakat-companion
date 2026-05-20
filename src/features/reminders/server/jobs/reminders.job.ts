@@ -24,12 +24,8 @@ export type ReminderNotificationPayload = NotificationDeliveryPayload
 const appHistoryRoute = "/app/history"
 const appWealthSnapshotEditRoute = "/app/wealth-snapshot/edit"
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
-  return "Reminder job execution failed."
+function getErrorMessage(_error: unknown) {
+  return m.reminder_job_execution_failed()
 }
 
 function getStaleClaimBefore(now: Date) {

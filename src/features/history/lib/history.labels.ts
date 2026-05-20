@@ -34,7 +34,7 @@ export function getHistoryCycleStateMeta(
     case "reset":
       return { label: m.history_cycle_state_reset(), className: pillToneClasses.slate }
     default:
-      return { label: String(state), className: pillToneClasses.neutral }
+      return { label: m.history_cycle_state_unknown(), className: pillToneClasses.neutral }
   }
 }
 

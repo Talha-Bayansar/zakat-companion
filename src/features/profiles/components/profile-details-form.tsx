@@ -86,9 +86,7 @@ export function ProfileDetailsForm({
           return
         }
 
-        setSubmitError(
-          error instanceof Error && error.message ? error.message : errorLabel,
-        )
+        setSubmitError(errorLabel)
       }
     },
   })
