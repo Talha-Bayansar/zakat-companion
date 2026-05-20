@@ -39,7 +39,7 @@ export function ProfileCreatePage({ redirectTo }: ProfileCreatePageProps) {
           pendingLabel={m.profiles_creating()}
           errorLabel={m.profiles_create_error()}
           onSubmit={async (values) => {
-            const profile = await createProfileMutation.mutateAsync(values)
+            const result = await createProfileMutation.mutateAsync(values)
             if (redirectTo) {
               await navigate({
                 to: redirectTo,
@@ -49,7 +49,7 @@ export function ProfileCreatePage({ redirectTo }: ProfileCreatePageProps) {
 
             await navigate({
               to: "/app/settings/profiles/$profileId",
-              params: { profileId: profile.id },
+              params: { profileId: result.profile.id },
             })
           }}
         />

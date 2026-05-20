@@ -17,6 +17,7 @@ import {
   profileCurrentActiveQueryKey,
 } from "./profile-access.query"
 import { authSessionQueryKey } from "@/features/auth/lib/auth-session.query"
+import type { AccessibleProfile } from "./profile-access.types"
 
 function invalidateProfileQueries(queryClient: ReturnType<typeof useQueryClient>) {
   const invalidateProfileSelectionQueries = queryClient.invalidateQueries({
@@ -38,13 +39,27 @@ function invalidateProfileQueries(queryClient: ReturnType<typeof useQueryClient>
   ])
 }
 
+function getCurrentActiveProfile(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  return (
+    queryClient.getQueryData<AccessibleProfile | null>(
+      profileCurrentActiveQueryKey,
+    ) ?? null
+  )
+}
+
 export function useCreateProfileMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (values: CreateProfileValues) =>
       createProfileFn({ data: values }),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      queryClient.setQueryData(
+        profileCurrentActiveQueryKey,
+        result.activeProfile,
+      )
       await invalidateProfileQueries(queryClient)
     },
   })
@@ -56,7 +71,13 @@ export function useUpdateProfileMutation() {
   return useMutation({
     mutationFn: async (values: UpdateProfileValues) =>
       updateProfileFn({ data: values }),
-    onSuccess: async () => {
+    onSuccess: async (profile) => {
+      const currentActiveProfile = getCurrentActiveProfile(queryClient)
+
+      if (currentActiveProfile?.id === profile.id) {
+        queryClient.setQueryData(profileCurrentActiveQueryKey, profile)
+      }
+
       await invalidateProfileQueries(queryClient)
     },
   })
@@ -68,7 +89,8 @@ export function useSwitchActiveProfileMutation() {
   return useMutation({
     mutationFn: async (profileId: string) =>
       switchActiveProfileFn({ data: { profileId } }),
-    onSuccess: async () => {
+    onSuccess: async (profile) => {
+      queryClient.setQueryData(profileCurrentActiveQueryKey, profile)
       await invalidateProfileQueries(queryClient)
     },
   })
@@ -108,7 +130,12 @@ export function useDeleteProfileMutation() {
   return useMutation({
     mutationFn: async (profileId: string) =>
       deleteProfileFn({ data: { profileId } }),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      queryClient.setQueryData(
+        profileCurrentActiveQueryKey,
+        result.activeProfile,
+      )
+
       await invalidateProfileQueries(queryClient)
     },
   })

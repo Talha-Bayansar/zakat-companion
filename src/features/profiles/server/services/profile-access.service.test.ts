@@ -29,6 +29,7 @@ vi.mock(
 
 import {
   createProfile,
+  deleteProfile,
   resolveCurrentActiveProfile,
   updateProfile,
   switchActiveProfile,
@@ -43,6 +44,17 @@ const ownedProfile = {
   nisabBenchmark: "gold",
   createdAt: new Date("2026-05-01T00:00:00Z"),
   updatedAt: new Date("2026-05-01T00:00:00Z"),
+}
+
+const secondaryProfile = {
+  id: "profile-2",
+  name: "Household",
+  ownerId: "user-1",
+  hawlStartedAt: new Date("2025-06-01T00:00:00Z"),
+  madhab: "hanafi",
+  nisabBenchmark: "gold",
+  createdAt: new Date("2026-05-02T00:00:00Z"),
+  updatedAt: new Date("2026-05-02T00:00:00Z"),
 }
 
 beforeEach(() => {
@@ -125,7 +137,8 @@ describe("profile access active selection", () => {
       },
     )
 
-    expect(result.id).toBe(ownedProfile.id)
+    expect(result.profile.id).toBe(ownedProfile.id)
+    expect(result.activeProfile?.id).toBe(ownedProfile.id)
     expect(repoMocks.createDefaultReminderPreferenceRecord).toHaveBeenCalledWith(
       ownedProfile.id,
     )
@@ -183,6 +196,35 @@ describe("profile access active selection", () => {
     expect(repoMocks.updateUserActiveProfileRecord).toHaveBeenCalledWith(
       "user-1",
       ownedProfile.id,
+    )
+  })
+
+  it("resolves the next active profile after deleting the current one", async () => {
+    repoMocks.listOwnedProfileRecords
+      .mockResolvedValueOnce([ownedProfile, secondaryProfile])
+      .mockResolvedValueOnce([secondaryProfile])
+    repoMocks.listDelegatedProfileRecords
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+    repoMocks.updateUserActiveProfileRecord.mockResolvedValue(null)
+    repoMocks.getProfileRecordById.mockResolvedValue(ownedProfile)
+    repoMocks.deleteProfileRecord.mockResolvedValue({ id: ownedProfile.id })
+
+    const result = await deleteProfile(
+      {
+        userId: "user-1",
+        activeProfileId: ownedProfile.id,
+      },
+      {
+        profileId: ownedProfile.id,
+      },
+    )
+
+    expect(result.deleted).toBe(true)
+    expect(result.activeProfile?.id).toBe(secondaryProfile.id)
+    expect(repoMocks.updateUserActiveProfileRecord).toHaveBeenCalledWith(
+      "user-1",
+      secondaryProfile.id,
     )
   })
 })

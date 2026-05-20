@@ -293,7 +293,12 @@ export async function createProfile(actor: Actor, input: CreateProfileInput) {
     await persistActiveProfileSelection(actor, record.id)
   }
 
-  return toOwnerAccessibleProfile(record)
+  const profile = toOwnerAccessibleProfile(record)
+
+  return {
+    profile,
+    activeProfile: currentActiveProfile ?? profile,
+  }
 }
 
 export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
@@ -314,18 +319,14 @@ export async function updateProfile(actor: Actor, input: UpdateProfileInput) {
     )
   }
 
-  return {
-    id: updated.id,
-    name: updated.name,
-    ownerId: updated.ownerId,
-    hawlStartedAt: updated.hawlStartedAt,
-    role: record.role,
-    canManageAccess: record.canManageAccess,
-    accessGrantedAt: record.accessGrantedAt,
-    grantedByUserId: record.grantedByUserId,
-    createdAt: updated.createdAt,
-    updatedAt: updated.updatedAt,
+  if (record.role === "owner") {
+    return toOwnerAccessibleProfile(updated)
   }
+
+  return toManagerAccessibleProfile(updated, {
+    createdAt: record.accessGrantedAt ?? updated.updatedAt,
+    grantedByUserId: record.grantedByUserId ?? actor.userId,
+  })
 }
 
 export async function switchActiveProfile(
@@ -409,16 +410,20 @@ export async function deleteProfile(actor: Actor, input: DeleteProfileInput) {
   const currentActiveProfile = await resolveCurrentActiveProfile(actor)
   const profileRecord = await requireOwnerAccess(actor, input.profileId)
   const deleted = await deleteProfileRecord(profileRecord.id)
-
-  if (deleted !== null && currentActiveProfile?.id === profileRecord.id) {
-    await resolveCurrentActiveProfile({
-      ...actor,
-      activeProfileId: null,
-    })
-  }
+  const activeProfile =
+    deleted !== null
+      ? await resolveCurrentActiveProfile({
+          ...actor,
+          activeProfileId:
+            currentActiveProfile?.id === profileRecord.id
+              ? null
+              : actor.activeProfileId,
+        })
+      : currentActiveProfile
 
   return {
     deleted: deleted !== null,
+    activeProfile,
   }
 }
 
