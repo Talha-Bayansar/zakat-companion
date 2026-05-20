@@ -89,7 +89,7 @@ describe("notification contract", () => {
         profileId: "profile-1",
         title: "Zakat is due",
         body: "Your current cycle is due today.",
-        url: "/history",
+        url: "/app/history",
         tag: "zakat-due:profile-1",
       }),
     ).toMatchObject({

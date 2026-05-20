@@ -101,7 +101,7 @@ describe("reminders job runner", () => {
       profileId: "profile-1",
       title: m.notification_balance_update_title(),
       body: m.notification_balance_update_body(),
-      url: "/history",
+      url: "/app/wealth-snapshot/edit",
       tag: "balance-update:balance_update:profile-1:2026-05-15T09:00:00.000Z",
     })
   })
@@ -131,7 +131,7 @@ describe("reminders job runner", () => {
       profileId: "profile-1",
       title: m.notification_zakat_due_due_title(),
       body: m.notification_zakat_due_due_body(),
-      url: "/history",
+      url: "/app/history",
       tag: "zakat-due:zakat_due:profile-1:cycle-1:due",
     })
   })

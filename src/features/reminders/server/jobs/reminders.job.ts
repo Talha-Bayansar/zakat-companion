@@ -21,6 +21,9 @@ export type RunDueReminderJobsResult = {
 
 export type ReminderNotificationPayload = NotificationDeliveryPayload
 
+const appHistoryRoute = "/app/history"
+const appWealthSnapshotEditRoute = "/app/wealth-snapshot/edit"
+
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message
@@ -42,7 +45,7 @@ function buildBalanceUpdateNotificationPayload(
     profileId: job.profileId,
     title: m.notification_balance_update_title(),
     body: m.notification_balance_update_body(),
-    url: "/history",
+    url: appWealthSnapshotEditRoute,
     tag: `balance-update:${job.dedupeKey}`,
   }
 }
@@ -58,7 +61,7 @@ function buildZakatDueNotificationPayload(
         profileId: job.profileId,
         title: m.notification_zakat_due_before_due_title(),
         body: m.notification_zakat_due_before_due_body(),
-        url: "/history",
+        url: appHistoryRoute,
         tag: `zakat-due:${job.dedupeKey}`,
       }
     case "due":
@@ -68,7 +71,7 @@ function buildZakatDueNotificationPayload(
         profileId: job.profileId,
         title: m.notification_zakat_due_due_title(),
         body: m.notification_zakat_due_due_body(),
-        url: "/history",
+        url: appHistoryRoute,
         tag: `zakat-due:${job.dedupeKey}`,
       }
     case "follow_up":
@@ -78,7 +81,7 @@ function buildZakatDueNotificationPayload(
         profileId: job.profileId,
         title: m.notification_zakat_due_follow_up_title(),
         body: m.notification_zakat_due_follow_up_body(),
-        url: "/history",
+        url: appHistoryRoute,
         tag: `zakat-due:${job.dedupeKey}`,
       }
   }
