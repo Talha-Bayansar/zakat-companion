@@ -1,8 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { authClient } from "@/lib/auth-client"
+import { profileAccessQueryKey } from "@/features/profiles/lib/profile-access.query"
 
 import { authSessionQueryKey } from "./auth-session.query"
+
+function invalidateAuthScopedQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  return Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: authSessionQueryKey,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: profileAccessQueryKey,
+    }),
+  ])
+}
 
 export function useGoogleSignInMutation() {
   const queryClient = useQueryClient()
@@ -21,9 +35,7 @@ export function useGoogleSignInMutation() {
       return result?.data
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: authSessionQueryKey,
-      })
+      await invalidateAuthScopedQueries(queryClient)
     },
   })
 }
@@ -42,9 +54,7 @@ export function useSignOutMutation() {
       return result.data
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: authSessionQueryKey,
-      })
+      await invalidateAuthScopedQueries(queryClient)
     },
   })
 }
