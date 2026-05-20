@@ -10,6 +10,7 @@ import {
   wealthSnapshotHistoryQueryKey,
   wealthSnapshotQueryKey,
 } from "./wealth-snapshot.query"
+import { historyCyclesQueryKey } from "@/features/history/lib/history.query"
 
 export function useReplaceWealthSnapshotMutation() {
   const queryClient = useQueryClient()
@@ -23,6 +24,7 @@ export function useReplaceWealthSnapshotMutation() {
         queryClient.invalidateQueries({
           queryKey: wealthSnapshotHistoryQueryKey,
         }),
+        queryClient.invalidateQueries({ queryKey: historyCyclesQueryKey }),
       ])
     },
   })
@@ -40,6 +42,7 @@ export function useRefreshWealthSnapshotMutation() {
         queryClient.invalidateQueries({
           queryKey: wealthSnapshotHistoryQueryKey,
         }),
+        queryClient.invalidateQueries({ queryKey: historyCyclesQueryKey }),
       ])
     },
   })
