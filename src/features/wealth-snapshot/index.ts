@@ -4,6 +4,10 @@ export { WealthSnapshotEditPage } from "./pages/wealth-snapshot-edit.page"
 export { wealthCategoryValues } from "./lib/wealth-snapshot.constants"
 export type { WealthCategory } from "./lib/wealth-snapshot.constants"
 export {
+  wealthSnapshotHistoryQueryKey,
+  wealthSnapshotQueryKey,
+} from "./lib/wealth-snapshot.query"
+export {
   wealthSnapshotAmountSchema,
   wealthSnapshotEntrySchema,
   wealthSnapshotFormSchema,

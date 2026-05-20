@@ -17,6 +17,11 @@ import {
   profileCurrentActiveQueryKey,
 } from "./profile-access.query"
 import { authSessionQueryKey } from "@/features/auth/lib/auth-session.query"
+import { historyCyclesQueryKey } from "@/features/history/lib/history.query"
+import {
+  wealthSnapshotHistoryQueryKey,
+  wealthSnapshotQueryKey,
+} from "@/features/wealth-snapshot"
 import type { AccessibleProfile } from "./profile-access.types"
 
 function invalidateProfileQueries(queryClient: ReturnType<typeof useQueryClient>) {
@@ -36,6 +41,16 @@ function invalidateProfileQueries(queryClient: ReturnType<typeof useQueryClient>
     invalidateProfileSelectionQueries,
     invalidateCurrentActiveProfileQuery,
     invalidateAuthSessionQuery,
+  ])
+}
+
+function invalidateDerivedLifecycleQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: wealthSnapshotQueryKey }),
+    queryClient.invalidateQueries({ queryKey: wealthSnapshotHistoryQueryKey }),
+    queryClient.invalidateQueries({ queryKey: historyCyclesQueryKey }),
   ])
 }
 
@@ -78,7 +93,10 @@ export function useUpdateProfileMutation() {
         queryClient.setQueryData(profileCurrentActiveQueryKey, profile)
       }
 
-      await invalidateProfileQueries(queryClient)
+      await Promise.all([
+        invalidateProfileQueries(queryClient),
+        invalidateDerivedLifecycleQueries(queryClient),
+      ])
     },
   })
 }

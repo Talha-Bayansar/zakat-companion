@@ -29,11 +29,17 @@ vi.mock("../server/functions/profile-access.function", () => ({
 }))
 
 import { authSessionQueryKey } from "@/features/auth/lib/auth-session.query"
+import { historyCyclesQueryKey } from "@/features/history/lib/history.query"
+import {
+  wealthSnapshotHistoryQueryKey,
+  wealthSnapshotQueryKey,
+} from "@/features/wealth-snapshot"
 
 import { profileAccessQueryKey, profileCurrentActiveQueryKey } from "./profile-access.query"
 import {
   useCreateProfileMutation,
   useDeleteProfileMutation,
+  useUpdateProfileMutation,
   useSwitchActiveProfileMutation,
 } from "./profile-access.mutations"
 
@@ -138,6 +144,34 @@ describe("profile access mutations", () => {
     )
     expect(mocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: profileAccessQueryKey,
+    })
+  })
+
+  it("invalidates derived lifecycle queries after updating a profile", async () => {
+    useUpdateProfileMutation()
+    const options = mocks.useMutation.mock.calls.at(0)?.[0]
+
+    mocks.getQueryData.mockReturnValue({
+      ...createdProfile,
+      id: "profile-1",
+    })
+
+    await options.onSuccess?.({
+      ...createdProfile,
+      id: "profile-1",
+      name: "Family",
+      madhab: "maliki",
+      nisabBenchmark: "silver",
+    })
+
+    expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: wealthSnapshotQueryKey,
+    })
+    expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: wealthSnapshotHistoryQueryKey,
+    })
+    expect(mocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: historyCyclesQueryKey,
     })
   })
 
