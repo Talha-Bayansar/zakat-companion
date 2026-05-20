@@ -33,6 +33,9 @@ type WealthSnapshotEvent = {
       policy: "reset" | "preserve"
       summary: string
     } | null
+    hawl?: {
+      isComplete: boolean
+    } | null
   } | null
 }
 
@@ -111,7 +114,8 @@ async function seedZakatDueReminderSequence(
 function shouldResetZakatCycle(snapshot: WealthSnapshotEvent) {
   return (
     snapshot.isAboveNisab === false &&
-    snapshot.fiqhExplanation?.dateRule?.policy === "reset"
+    (snapshot.fiqhExplanation?.dateRule?.policy === "reset" ||
+      snapshot.fiqhExplanation?.hawl?.isComplete === true)
   )
 }
 

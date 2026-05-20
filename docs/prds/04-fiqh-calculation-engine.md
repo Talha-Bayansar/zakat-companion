@@ -24,6 +24,47 @@ Implement a dedicated fiqh engine that applies the selected madhab across nisab 
 - Keep madhab selection and nisab benchmark as profile settings.
 - Preserve historical cycles when rule logic changes.
 
+## Fiqh Rule Reference
+
+Use this as the fallback baseline when expanding the fiqh engine. If a future rule changes, update this section first, then align the engine, tests, and explanation payloads to match.
+
+### Hawl and cycle reset
+
+- Hanafi:
+  - A temporary dip below nisab during the hawl does not break the cycle.
+  - The cycle resets only if the zakatable wealth becomes nil or effectively bankrupt, or if the zakat anniversary arrives while the net amount is still below nisab.
+  - There is no separate "X days below nisab" reset timer in the current rule baseline.
+- Maliki:
+  - If wealth falls below nisab during the hawl, the cycle restarts when nisab is regained.
+  - If wealth remains below nisab on the anniversary, that anniversary does not hold and a new hawl begins when nisab is reached again.
+- Shafi'i:
+  - If wealth falls below nisab during the hawl, the cycle restarts when nisab is regained.
+  - If wealth remains below nisab on the anniversary, the cycle restarts from the next time nisab is met.
+- Hanbali:
+  - If wealth falls below nisab during the hawl, the cycle restarts when nisab is regained.
+  - If wealth remains below nisab on the anniversary, the cycle restarts from the next time nisab is met.
+
+### Nisab benchmark baseline
+
+- For monetary wealth and trade wealth, the current baseline is:
+  - Hanafi: silver benchmark
+  - Maliki: gold benchmark
+  - Shafi'i: gold benchmark
+  - Hanbali: gold benchmark
+- For gold and silver holdings themselves, use the corresponding metal nisab for that asset class.
+- The exact gram-to-currency value is derived from current benchmark pricing at snapshot time, not hardcoded in the engine.
+
+### Numeric nisab references
+
+- Gold nisab:
+  - 20 dinars / mithqals
+  - Common modern conversions used in sources: 85g pure gold or 87.48g pure gold
+- Silver nisab:
+  - 200 dirhams
+  - Common modern conversions used in sources: 595g silver or 612.36g silver
+- The docs should treat these as source-dependent reference values, not as a claim that the conversion is identical in every fiqh manual.
+- When the engine needs a live currency threshold, it should convert the selected benchmark weight using current market pricing at capture time.
+
 ## Testing Decisions
 
 - Unit test each madhab rule path, especially nisab transitions and hawl resets.

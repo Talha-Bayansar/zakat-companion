@@ -274,7 +274,11 @@ describe("reminder orchestration", () => {
       fiqhExplanation: {
         dateRule: {
           policy: "preserve" as const,
-          summary: "A sub-nisab dip preserves the current hawl in this version.",
+          summary:
+            "A sub-nisab dip preserves the current hawl, but the anniversary can still reset it if nisab is still unmet.",
+        },
+        hawl: {
+          isComplete: false,
         },
       },
     }
@@ -295,6 +299,68 @@ describe("reminder orchestration", () => {
     expect(getLatestUnpaidZakatCycleRecordByProfileId).not.toHaveBeenCalled()
     expect(markZakatCycleResetRecord).not.toHaveBeenCalled()
     expect(suppressPendingZakatDueReminderJobRecords).not.toHaveBeenCalled()
+    expect(createZakatCycleRecord).not.toHaveBeenCalled()
+  })
+
+  it("suppresses the active cycle when a preserved hawl reaches its anniversary below nisab", async () => {
+    const capturedAt = new Date("2026-05-18T09:00:00.000Z")
+    const snapshot = {
+      id: "snapshot-1",
+      profileId: "profile-1",
+      capturedAt,
+      isAboveNisab: false as const,
+      fiqhExplanation: {
+        dateRule: {
+          policy: "preserve" as const,
+          summary:
+            "A sub-nisab dip preserves the current hawl, but the anniversary can still reset it if nisab is still unmet.",
+        },
+        hawl: {
+          isComplete: true,
+        },
+      },
+    }
+    const writeSnapshot = vi.fn(async () => snapshot)
+
+    getReminderPreferenceRecordByProfileId.mockResolvedValue({
+      profileId: "profile-1",
+      balanceUpdateCadence: "weekly",
+      timezone: "UTC",
+      quietHours: null,
+      zakatDueFollowUpEnabled: true,
+      createdAt: capturedAt,
+      updatedAt: capturedAt,
+    })
+    getLatestUnpaidZakatCycleRecordByProfileId.mockResolvedValue({
+      id: "cycle-active",
+      profileId: "profile-1",
+      sourceSnapshotId: "snapshot-previous",
+      state: "open",
+      dueAt: new Date("2027-05-07T09:00:00.000Z"),
+      paidAt: null,
+      createdAt: capturedAt,
+      updatedAt: capturedAt,
+    })
+    suppressPendingZakatDueReminderJobRecords.mockResolvedValue([])
+
+    await orchestrateWealthSnapshotSave(writeSnapshot)
+
+    expect(markZakatCycleResetRecord).toHaveBeenCalledWith(
+      {
+        profileId: "profile-1",
+        zakatCycleId: "cycle-active",
+        resetAt: capturedAt,
+      },
+      dbMock,
+    )
+    expect(suppressPendingZakatDueReminderJobRecords).toHaveBeenCalledWith(
+      {
+        profileId: "profile-1",
+        zakatCycleId: "cycle-active",
+        suppressedAt: capturedAt,
+      },
+      dbMock,
+    )
     expect(createZakatCycleRecord).not.toHaveBeenCalled()
   })
 

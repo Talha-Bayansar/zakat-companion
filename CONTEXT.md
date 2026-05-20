@@ -19,6 +19,7 @@
 - `madhab`: the user's chosen school of Islamic jurisprudence that governs how the app calculates zakat rules.
 - `multi-madhab support`: the app allows the user to select among multiple madhabs for zakat calculation rules.
 - `zakat date rule`: the app's hawl and reset behavior must follow the user's selected madhab.
+- `anniversary reset check`: the hawl-completion check that can reset a preserved Hanafi cycle when the anniversary arrives and the net zakatable amount is still below nisab.
 - `calculation scope`: the first release may use a standard zakat percentage baseline, with room to expand into category-specific rules later.
 - `full fiqh handling`: the app should model madhab-specific zakat rules as fully as practical, rather than using a simplified universal rule set.
 - `fiqh calculation context`: the frozen madhab and nisab benchmark codes captured with a snapshot so historical calculations can be reproduced later.
@@ -31,6 +32,7 @@
 - `delegated manager`: an authenticated user who is allowed to maintain one or more profiles owned by someone else.
 - `profile access grant`: a custom app permission that allows a delegated manager to edit a profile without owning it.
 - `fiqh preferences`: the required profile-level madhab and nisab benchmark selections that govern zakat calculation for that profile.
+- `fiqh rule reference`: the documented baseline for madhab-specific hawl reset and nisab benchmark behavior that the fiqh engine should use as its fallback source when expanding rules.
 - `active profile`: the persisted profile selection for an authenticated user, used as the default profile context across the app.
 - `reminder preference`: the profile-level record that stores reminder cadence, timezone, quiet hours, and zakat follow-up behavior.
 - `balance update reminder`: a notification that prompts the user to refresh the wealth snapshot.

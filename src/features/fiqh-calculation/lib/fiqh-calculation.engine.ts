@@ -46,20 +46,21 @@ function diffInWholeDays(startedAt: Date, asOf: Date) {
 
 const dateRules = {
   hanafi: {
-    policy: "reset",
-    summary: "A sub-nisab dip resets the current hawl in this version.",
+    policy: "preserve",
+    summary:
+      "A sub-nisab dip preserves the current hawl, but the anniversary can still reset it if nisab is still unmet.",
   },
   maliki: {
-    policy: "preserve",
-    summary: "A sub-nisab dip preserves the current hawl in this version.",
+    policy: "reset",
+    summary: "A sub-nisab dip resets the current hawl immediately in this version.",
   },
   shafii: {
     policy: "reset",
-    summary: "A sub-nisab dip resets the current hawl in this version.",
+    summary: "A sub-nisab dip resets the current hawl immediately in this version.",
   },
   hanbali: {
-    policy: "preserve",
-    summary: "A sub-nisab dip preserves the current hawl in this version.",
+    policy: "reset",
+    summary: "A sub-nisab dip resets the current hawl immediately in this version.",
   },
 } as const satisfies Record<string, FiqhDateRule>
 
@@ -82,6 +83,8 @@ export function calculateFiqhCalculation(
     hawlStartedAt === null ? null : diffInWholeDays(hawlStartedAt, input.asOf)
   const hawlDueAt =
     hawlStartedAt === null ? null : addHijriYears(hawlStartedAt, 1)
+  const hawlIsComplete =
+    hawlDueAt !== null ? input.asOf.getTime() >= hawlDueAt.getTime() : false
   const hawl = {
     startedAt: hawlStartedAt,
     asOf: input.asOf,
@@ -89,9 +92,9 @@ export function calculateFiqhCalculation(
     dueAt: hawlDueAt,
     hijriYearLengthDays:
       hawlStartedAt === null ? null : getHijriYearLengthDays(hawlStartedAt),
-    isComplete:
-      hawlDueAt !== null ? input.asOf.getTime() >= hawlDueAt.getTime() : false,
-    resetRequired: dateRule.policy === "reset" && !isAboveNisab,
+    isComplete: hawlIsComplete,
+    resetRequired:
+      !isAboveNisab && (dateRule.policy === "reset" || hawlIsComplete),
   }
   const isZakatDue = isAboveNisab && hawl.isComplete
   const zakatDueAmountCents = isZakatDue

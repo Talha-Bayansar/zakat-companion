@@ -10,7 +10,7 @@
 
 ### MVP Readiness Note
 
-The current codebase already includes Google sign-in, reminder job orchestration, a versioned fiqh engine, and explicit cron configuration in `wrangler.jsonc` for scheduled execution. Benchmark pricing now bootstraps on demand during snapshot capture when no cached nisab pricing exists, profile settings can store an optional hawl start date for users who already track their cycle elsewhere, and snapshot saves now suppress pending zakat reminders below nisab while seeding balance-update reminders plus zakat-cycle reminder sequences on the next above-nisab snapshot. Benchmark refresh runs daily and reminder execution runs on a separate hourly cron so the two scheduled flows remain independent.
+The current codebase already includes Google sign-in, reminder job orchestration, a versioned fiqh engine, and explicit cron configuration in `wrangler.jsonc` for scheduled execution. Benchmark pricing now bootstraps on demand during snapshot capture when no cached nisab pricing exists, profile settings can store an optional hawl start date for users who already track their cycle elsewhere, and snapshot saves now suppress pending zakat reminders only when the active fiqh rule requires a reset, while seeding balance-update reminders plus zakat-cycle reminder sequences on above-nisab snapshots. Benchmark refresh runs daily and reminder execution runs on a separate hourly cron so the two scheduled flows remain independent.
 
 ## Tech Stack
 

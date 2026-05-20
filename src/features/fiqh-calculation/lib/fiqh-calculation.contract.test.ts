@@ -94,8 +94,8 @@ describe("fiqh calculation contract", () => {
         zakatRate: "0.025",
         zakatDueAmount: "0.00",
         dateRule: {
-          policy: "preserve",
-          summary: "Preserve",
+          policy: "reset",
+          summary: "Reset",
         },
         hawl: {
           startedAt: null,
@@ -136,8 +136,8 @@ describe("fiqh calculation contract", () => {
             isZakatDue: false,
           },
           dateRule: {
-            policy: "preserve",
-            summary: "Preserve",
+            policy: "reset",
+            summary: "Reset",
           },
         },
       }),

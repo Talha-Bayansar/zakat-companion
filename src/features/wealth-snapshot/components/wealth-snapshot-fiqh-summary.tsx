@@ -157,10 +157,10 @@ function getDateRuleSummary(snapshotMadhab: WealthSnapshotRecord["madhab"]) {
 
   switch (snapshotMadhab) {
     case "hanafi":
-    case "shafii":
-      return m.wealth_snapshot_current_date_rule_reset_summary()
-    case "maliki":
-    case "hanbali":
       return m.wealth_snapshot_current_date_rule_preserve_summary()
+    case "maliki":
+    case "shafii":
+    case "hanbali":
+      return m.wealth_snapshot_current_date_rule_reset_summary()
   }
 }

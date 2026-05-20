@@ -13,20 +13,24 @@ describe("fiqh calculation engine", () => {
 
   const dateRuleExpectations = {
     hanafi: {
-      policy: "reset",
-      summary: "A sub-nisab dip resets the current hawl in this version.",
+      policy: "preserve",
+      summary:
+        "A sub-nisab dip preserves the current hawl, but the anniversary can still reset it if nisab is still unmet.",
     },
     maliki: {
-      policy: "preserve",
-      summary: "A sub-nisab dip preserves the current hawl in this version.",
+      policy: "reset",
+      summary:
+        "A sub-nisab dip resets the current hawl immediately in this version.",
     },
     shafii: {
       policy: "reset",
-      summary: "A sub-nisab dip resets the current hawl in this version.",
+      summary:
+        "A sub-nisab dip resets the current hawl immediately in this version.",
     },
     hanbali: {
-      policy: "preserve",
-      summary: "A sub-nisab dip preserves the current hawl in this version.",
+      policy: "reset",
+      summary:
+        "A sub-nisab dip resets the current hawl immediately in this version.",
     },
   } as const
 
@@ -97,6 +101,27 @@ describe("fiqh calculation engine", () => {
         isZakatDue: false,
       },
       dateRule: dateRuleExpectations[madhab],
+    })
+  })
+
+  it("treats a Hanafi anniversary below nisab as a reset even though the hawl is preserved before that", () => {
+    const result = calculateFiqhCalculation({
+      madhab: "hanafi",
+      nisabBenchmark: "gold",
+      netZakatableBase: "60.00",
+      nisabThreshold: "75.00",
+      hawlStartedAt: new Date("2025-05-01T00:00:00Z"),
+      asOf,
+    })
+
+    expect(result.dateRule).toEqual(dateRuleExpectations.hanafi)
+    expect(result.hawl).toMatchObject({
+      isComplete: true,
+      resetRequired: true,
+    })
+    expect(result.explanation.hawl).toMatchObject({
+      isComplete: true,
+      resetRequired: true,
     })
   })
 
